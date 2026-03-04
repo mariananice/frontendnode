@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GM Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./css/cumplimiento.css">
+</head>
+<body>
+    <div class="app">
+
+        <aside class="sidebar">
+          <div class="logo-container">
+            <div class="logo">
+                <img src="./images/logo.jpg" alt="Logo GM">
+            </div>
+            <h3 class="app-name"></h3>
+          </div>
+
+          <nav class="menu">
+            <ul>
+              <li data-section="dashboard">
+                <a href="dashboard.html">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+              </li>
+              <li data-section="produccion">
+                <a href="programaProduccion.html">
+                  <i class="bi bi-clipboard-data"></i>
+                  <span>Programa de Producción</span>
+                </a>
+              </li>
+              <li data-section="programacion">
+                <a href="programacion.html">
+                  <i class="bi bi-calendar"></i>
+                  <span>Programación</span>
+                </a>
+              </li>
+              <li data-section="planeacion">
+                <a href="planeacion.html">
+                    <i class="bi bi-gear"></i>
+                    <span>Planeación</span>
+                </a>
+              </li>
+              <li data-section="reqbody">
+                <a href="reqBody.html">
+                    <i class="bi bi-box"></i>
+                    <span>Req Body</span>
+                </a>
+              </li>
+              <li data-section="secuencia">
+                <a href="secuencia.html">
+                    <i class="bi bi-clock"></i>
+                    <span>Secuencia</span>
+                </a>
+              </li>
+              <li class="active" data-section="cumplimiento">
+                <i class="bi bi-bar-chart-line"></i>
+                <span>Cumplimiento</span>
+              </li>
+              <li data-section="datos">
+                <a href="datos.html">
+                    <i class="bi bi-database"></i>
+                    <span>Datos</span>
+                </a>
+              </li>
+              <li data-section="usuarios">
+                <a href="usuarios.html">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Usuarios</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="search-container">
+                  <i class="bi bi-search"></i>
+                  <input type="text" placeholder="Barra de búsqueda">
+                </div>
+                <div class="icons">
+                  <button class="icon-btn">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="notification-badge"></span>
+                  </button>
+                  <button class="icon-btn">
+                    <i class="bi bi-person-circle"></i>
+                  </button>
+                  <button class="icon-btn" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i>
+                  </button>
+                </div>
+            </header>
+
+            <section id="cumplimiento" class="section active">
+              <h1>Cumplimiento</h1>
+              <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th rowspan="4" class="logo-cell">
+                                <div class="logo-gm">gm</div>
+                            </th>
+                            <th colspan="13" class="header-lunes">LUNES</th>
+                        </tr>
+                        <tr>
+                            <th colspan="13" class="header-fecha">03/11/2025</th>
+                        </tr>
+                        <tr>
+                            <th colspan="13" class="header-xl1">XL1</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2" class="header-column">CSCP</th>
+                            <th rowspan="2" class="header-column">N° de Parte</th>
+                            <th rowspan="2" class="header-column">Nombre de Parte</th>
+                            <th colspan="4" class="header-section">Cantidad de Partes</th>
+                            <th colspan="4" class="header-section">Strokes</th>
+                            <th rowspan="2" class="header-column">Comentarios</th>
+                        </tr>
+                         <tr>
+                            <th class="header-column">Prog.</th>
+                            <th class="header-column">Total de Prod</th>
+                            <th class="header-column">Partes<br>Ganadas o<br>Perdidas</th>
+                            <th class="header-column">% de<br>Cumplimiento</th>
+                            <th class="header-column">Prog.</th>
+                            <th class="header-column">Total de<br>Strokes</th>
+                            <th class="header-column">Strokes Ganados<br>o Perdidos</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td class="col-cspc">C4087</td>
+                            <td class="col-numero">85560226</td>
+                            <td class="col-nombre">PNL-DASH STL 1UB</td>
+                            <td>1680</td>
+                            <td class="col-green">1680</td>
+                            <td>0</td>
+                            <td class="cumplimiento-100">100%</td>
+                            <td>1680</td>
+                            <td class="col-green">1680</td>
+                            <td>0</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4210</td>
+                            <td class="col-numero">84443402</td>
+                            <td class="col-nombre">PNL-PUBX OTR L STL 1UB</td>
+                            <td>785</td>
+                            <td class="col-green">785</td>
+                            <td>0</td>
+                            <td class="cumplimiento-100">100%</td>
+                            <td>785</td>
+                            <td class="col-green">785</td>
+                            <td>0</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4242</td>
+                            <td class="col-numero">85654552</td>
+                            <td class="col-nombre">PNL-PUBX INR UPR L STL 2ST</td>
+                            <td>800</td>
+                            <td class="col-green">892</td>
+                            <td>92</td>
+                            <td class="cumplimiento-over">112%</td>
+                            <td>800</td>
+                            <td class="col-green">892</td>
+                            <td>92</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4243</td>
+                            <td class="col-numero">85654553</td>
+                            <td class="col-nombre">PNL-PUBX INR UPR R STL 2ST</td>
+                            <td>800</td>
+                            <td class="col-green">892</td>
+                            <td>92</td>
+                            <td class="cumplimiento-over">112%</td>
+                            <td>0</td>
+                            <td class="col-green">0</td>
+                            <td>92</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4162</td>
+                            <td class="col-numero">23393592</td>
+                            <td class="col-nombre">PNL-HOOD OTR ALM 3CL</td>
+                            <td>900</td>
+                            <td class="col-green">900</td>
+                            <td>0</td>
+                            <td class="cumplimiento-100">100%</td>
+                            <td>900</td>
+                            <td class="col-green">900</td>
+                            <td>0</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4163</td>
+                            <td class="col-numero">84512891</td>
+                            <td class="col-nombre">PNL-HOOD INR ALM 3CL</td>
+                            <td>900</td>
+                            <td class="col-green">900</td>
+                            <td>0</td>
+                            <td class="cumplimiento-100">100%</td>
+                            <td>900</td>
+                            <td class="col-green">900</td>
+                            <td>0</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4088</td>
+                            <td class="col-numero">84666755</td>
+                            <td class="col-nombre">PNL-DASH EXT LWR STL 1UB</td>
+                            <td>2000</td>
+                            <td class="col-green">2002</td>
+                            <td>2</td>
+                            <td class="cumplimiento-100">100%</td>
+                            <td>2000</td>
+                            <td class="col-green">2002</td>
+                            <td>2</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4146</td>
+                            <td class="col-numero">84688122</td>
+                            <td class="col-nombre">PNL-ROOF OTR STL 2ST</td>
+                            <td>900</td>
+                            <td class="col-green">901</td>
+                            <td>1</td>
+                            <td class="cumplimiento-100">100%</td>
+                            <td>900</td>
+                            <td class="col-green">901</td>
+                            <td>1</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4148</td>
+                            <td class="col-numero">84688125</td>
+                            <td class="col-nombre">PNL-SUNROOF OTR STL 2ST</td>
+                            <td>500</td>
+                            <td class="col-green">498</td>
+                            <td>2</td>
+                            <td class="cumplimiento-100">100%</td>
+                            <td>500</td>
+                            <td class="col-green">498</td>
+                            <td>2</td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
+                            <td class="col-cscp">C4144</td>
+                            <td class="col-numero">23381632</td>
+                            <td class="col-nombre">PNL-BDY OTR RR STL 2ST</td>
+                            <td>1000</td>
+                            <td class="col-green">1014</td>
+                            <td>14</td>
+                            <td class="cumplimiento-over">101%</td>
+                            <td>1000</td>
+                            <td class="col-green">1014</td>
+                            <td>14</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+
+                    <tfoot>
+                        <tr class="row-total">
+                            <td colspan="3">TOTAL</td>
+                            <td class="total-beige">11065</td>
+                            <td class="total-beige">11250</td>
+                            <td></td>
+                            <td class="total-green">102%</td>
+                            <td class="total-beige">10265</td>
+                            <td class="total-beige">10358</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td colspan="2" class="extra-cell">185</td>
+                            <td colspan="3"></td>
+                            <td colspan="2" class="extra-cell">93</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+              </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./js/cumplimiento.js"></script>
+    
+</body>
+</html>

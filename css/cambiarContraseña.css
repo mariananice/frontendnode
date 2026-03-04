@@ -1,0 +1,117 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #dcdcdc;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    width: 95%;
+    max-width: 1300px;
+    height: 90vh;
+    background: white;
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+/* IZQUIERDA */
+.left-section {
+    flex: 1;
+    background: #cfcfcf;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-container {
+    width: 80%;
+    max-width: 400px;
+}
+
+.form-container h2 {
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-bottom: 2px solid #999;
+    background: transparent;
+    font-size: 14px;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-bottom: 2px solid #00bfa5;
+}
+
+button {
+    width: 60%;
+    padding: 12px;
+    background: #48d1c3;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #3cc1b3;
+    transform: translateY(-2px);
+}
+
+.message {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+/* DERECHA */
+.right-section {
+    flex: 1.2;
+    overflow: hidden;
+}
+
+.truck-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .right-section {
+        height: 300px;
+    }
+
+    button {
+        width: 100%;
+    }
+}

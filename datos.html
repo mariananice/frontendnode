@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GM Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./css/datos.css">
+</head>
+<body>
+    <div class="app">
+
+        <aside class="sidebar">
+          <div class="logo-container">
+            <div class="logo">
+                <img src="./images/logo.jpg" alt="Logo GM">
+            </div>
+            <h3 class="app-name"></h3>
+          </div>
+
+          <nav class="menu">
+            <ul>
+              <li data-section="dashboard">
+                <a href="dashboard.html">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+              </li>
+              <li data-section="produccion">
+                <a href="programaProduccion.html">
+                  <i class="bi bi-clipboard-data"></i>
+                  <span>Programa de Producción</span>
+                </a>
+              </li>
+              <li data-section="programacion">
+                <a href="programacion.html">
+                  <i class="bi bi-calendar"></i>
+                  <span>Programación</span>
+                </a>
+              </li>
+              <li data-section="planeacion">
+                <a href="planeacion.html">
+                    <i class="bi bi-gear"></i>
+                    <span>Planeación</span>
+                </a>
+              </li>
+              <li data-section="reqbody">
+                <a href="reqBody.html">
+                    <i class="bi bi-box"></i>
+                    <span>Req Body</span>
+                </a>
+              </li>
+              <li data-section="secuencia">
+                <a href="secuencia.html">
+                    <i class="bi bi-clock"></i>
+                    <span>Secuencia</span>
+                </a>
+              </li>
+              <li data-section="cumplimiento">
+                <a href="cumplimiento.html">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>Cumplimiento</span>
+                </a>
+              </li>
+              <li class="active" data-section="datos">
+                <i class="bi bi-database"></i>
+                <span>Datos</span>
+              </li>
+              <li data-section="usuarios">
+                <a href="usuarios.html">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Usuarios</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="search-container">
+                  <i class="bi bi-search"></i>
+                  <input type="text" placeholder="Barra de búsqueda">
+                </div>
+                <div class="icons">
+                  <button class="icon-btn">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="notification-badge"></span>
+                  </button>
+                  <button class="icon-btn">
+                    <i class="bi bi-person-circle"></i>
+                  </button>
+                  <button class="icon-btn" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i>
+                  </button>
+                </div>
+            </header>
+
+            <section id="datos" class="section active">
+              <h1>Datos</h1>
+              <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="header-info">LT EXTERNO</th>
+                            <th class="header-info-value">110</th>
+                            <th colspan="10"></th>
+                            <th rowspan="3" style="background: white; border: none;">
+                                <button class="check-button">Check</button>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="header-info">SPH OBJETIVO</th>
+                            <th class="header-info-value">460</th>
+                            <th colspan="10"></th>
+                        </tr>
+                        <tr>
+                            <th class="header-info">JPH</th>
+                            <th class="header-info-value">64</th>
+                            <th colspan="4" rowspan="2" class="notes-header">
+                                COMPLETAR GOLPES LH Y RH
+                            </th>
+                            <th colspan="2" rowspan="2" class="golpes-section">
+                                <div class="golpes-title">2 Partes por Golpe</div>
+                                <div class="golpes-subtitle">LH y RH por Golpe</div>
+                            </th>
+                            <th colspan="4" class="notes-section">
+                                presionar macro cada cambio de mes cuandi se tenga el nuevo reporte de OEE
+                            </th>
+                        </tr>
+                        <tr>
+                            <th class="header-info">HRS DISPONIBLES AL DIA</th>
+                            <th class="header-info-value">22.5</th>
+                        </tr>
+                        <tr>
+                            <th class="header-info">JPD</th>
+                            <th class="header-info-value">1440</th>
+                            <th colspan="11"></th>
+                        </tr>
+                        <tr>
+                            <th class="header-info">FECHA MIERCOLES</th>
+                            <th class="header-info-value">05/11/2025</th>
+                            <th colspan="11"></th>
+                        </tr>
+
+                        <tr>
+                            <th colspan="2" class="header-main">DATOS DE LA PARTE</th>
+                            <th colspan="10" class="header-main">PRODUCCION</th>
+                            <th class="header-main">BLANKS</th>
+                            <th colspan="10" class="header-racks">RACKS</th>
+                        </tr>
+                        <tr>
+                            <th class="header-column">PART<span class="dropdown-icon"></span></th>
+                            <th class="header-column">NUMERO DE PARTE<span class="dropdown-icon"></span></th>
+                            <th class="header-column">CSPC<span class="dropdown-icon"></span></th>
+                            <th class="header-column">MODELO<span class="dropdown-icon"></span></th>
+                            <th class="header-column">RACK MAC<span class="dropdown-icon"></span></th>
+                            <th class="header-column">LINEA<span class="dropdown-icon"></span></th>
+                            <th class="header-column">PARTES POR<br>GOLPE<span class="dropdown-icon"></span></th>
+                            <th class="header-column">SPH MES<br>ANTERIOR<span class="dropdown-icon"></span></th>
+                            <th class="header-column">SPH OBJETIV<span class="dropdown-icon"></span></th>
+                            <th class="header-column">STD PALLET<span class="dropdown-icon"></span></th>
+                            <th class="header-column">STD RACK<span class="dropdown-icon"></span></th>
+                            <th class="header-column">RACKS A<br>PROGRAMA<span class="dropdown-icon"></span></th>
+                            <th class="header-column">LOOP DE RACKS<span class="dropdown-icon"></span></th>
+                            <th class="header-column">CAPACIDAD<br>TOTAL<span class="dropdown-icon"></span></th>
+                            <th class="header-column">DAÑADOS (22-02-2)<span class="dropdown-icon"></span></th>
+                            <th class="header-column">Inv. Dañados<br>diario<span class="dropdown-icon"></span></th>
+                            <th class="header-column">CAP<span class="dropdown-icon"></span></th>
+                            <th class="header-column">REQUERIMIENTO<span class="dropdown-icon"></span></th>
+                            <th class="header-column">MEZCLA<span class="dropdown-icon"></span></th>
+                            <th class="header-column">DESOCUPABILIDA<br>D PZS POR HO<span class="dropdown-icon"></span></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>PNL-DASH STL 1UB</td>
+                            <td class="col-numero">85560226</td>
+                            <td>C4087</td>
+                            <td class="col-modelo">IT1</td>
+                            <td class="col-rack">MAC32145</td>
+                            <td class="col-linea-xl1">XL1</td>
+                            <td class="col-golpe">2</td>
+                            <td class="col-sph">519</td>
+                            <td class="col-std-pallet">560</td>
+                            <td class="col-std-rack">40</td>
+                            <td class="col-programa">114</td>
+                            <td class="col-loop">114</td>
+                            <td class="col-capacidad">4560</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">4560</td>
+                            <td class="col-req">1440</td>
+                            <td class="col-mezcla">100%</td>
+                            <td class="col-desocupabilidad">64</td>
+                        </tr>
+                        <tr>
+                            <td>PNL-DASH EXT LWR STL 1UB</td>
+                            <td class="col-numero">84666755</td>
+                            <td>C4088</td>
+                            <td class="col-modelo">IT1</td>
+                            <td class="col-rack">MAC32142</td>
+                            <td class="col-linea-xl1">XL1</td>
+                            <td class="col-golpe">2</td>
+                            <td class="col-sph">555</td>
+                            <td class="col-sph">555</td>
+                            <td class="col-std-pallet">500</td>
+                            <td class="col-std-rack">100</td>
+                            <td class="col-programa">54</td>
+                            <td class="col-loop">54</td>
+                            <td class="col-capacidad">5400</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">5400</td>
+                            <td class="col-req">1440</td>
+                            <td class="col-mezcla">100%</td>
+                            <td class="col-desocupabilidad">64</td>
+
+                        </tr>
+                         <tr>
+                            <td>PNL-BDY SI OTR L STL 1UB</td>
+                            <td class="col-numero">84652941</td>
+                            <td>C4106</td>
+                            <td class="col-modelo">CREW</td>
+                            <td class="col-rack">MAC29931</td>
+                            <td class="col-linea-xl2">XL2</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">514</td>
+                            <td class="col-sph">514</td>
+                            <td class="col-std-pallet">400</td>
+                            <td class="col-std-rack">10</td>
+                            <td class="col-programa">276</td>
+                            <td class="col-loop">276</td>
+                            <td class="col-capacidad">2760</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">2760</td>
+                            <td class="col-req">1319</td>
+                            <td class="col-mezcla">92%</td>
+                            <td class="col-desocupabilidad">59</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-BDY SI OTR R STL 1UB</td>
+                            <td class="col-numero">84652942</td>
+                            <td>C4109</td>
+                            <td class="col-modelo">CREW</td>
+                            <td class="col-rack">MAC29933</td>
+                            <td class="col-linea-xl2">XL2</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">515</td>
+                            <td class="col-sph">515</td>
+                            <td class="col-std-pallet">400</td>
+                            <td class="col-std-rack">10</td>
+                            <td class="col-programa">299</td>
+                            <td class="col-loop">299</td>
+                            <td class="col-capacidad">2990</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">2990</td>
+                            <td class="col-req">1319</td>
+                            <td class="col-mezcla">92%</td>
+                            <td class="col-desocupabilidad">59</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-BDY SI OTR L STL 1UB</td>
+                            <td class="col-numero">84652981</td>
+                            <td>C4118</td>
+                            <td class="col-modelo">OREG</td>
+                            <td class="col-rack">MAC29934</td>
+                            <td class="col-linea-xl2">XL2</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">430</td>
+                            <td class="col-sph">430</td>
+                            <td class="col-std-pallet">500</td>
+                            <td class="col-std-rack">10</td>
+                            <td class="col-programa">85</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-BDY SI OTR R STL 1UB</td>
+                            <td class="col-numero">84652982</td>
+                            <td>C4119</td>
+                            <td class="col-modelo">OREG</td>
+                            <td class="col-rack">MAC29936</td>
+                            <td class="col-linea-xl2">XL2</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">430</td>
+                            <td class="col-sph">430</td>
+                            <td class="col-std-pallet">500</td>
+                            <td class="col-std-rack">10</td>
+                            <td class="col-programa">85</td>
+                            <td class="col-loop">85</td>
+                            <td class="col-capacidad">850</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">850</td>
+                            <td class="col-req">116</td>
+                            <td class="col-mezcla">8%</td>
+                            <td class="col-desocupabilidad">6</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-BDY OTR RR STL 2ST</td>
+                            <td class="col-numero">23381632</td>
+                            <td>C4144</td>
+                            <td class="col-modelo">CC</td>
+                            <td class="col-rack">MAC29428</td>
+                            <td class="col-linea-xl1">XL1</td>
+                            <td class="col-golpe">2</td>
+                            <td class="col-sph">554</td>
+                            <td class="col-sph">554</td>
+                            <td class="col-std-pallet">600</td>
+                            <td class="col-std-rack">172</td>
+                            <td class="col-programa">16</td>
+                            <td class="col-loop">16</td>
+                            <td class="col-capacidad">2752</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">2752</td>
+                            <td class="col-req">855</td>
+                            <td class="col-mezcla">59%</td>
+                            <td class="col-desocupabilidad">38</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-BDY OTR RR STL 2ST</td>
+                            <td class="col-numero">23381639</td>
+                            <td>C4145</td>
+                            <td class="col-modelo">MREG</td>
+                            <td class="col-rack">MAC30741</td>
+                            <td class="col-linea-xl1">XL1</td>
+                            <td class="col-golpe">2</td>
+                            <td class="col-sph">460</td>
+                            <td class="col-sph">460</td>
+                            <td class="col-std-pallet">600</td>
+                            <td class="col-std-rack">172</td>
+                            <td class="col-programa">10</td>
+                            <td class="col-loop">10</td>
+                            <td class="col-capacidad">1720</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">1720</td>
+                            <td class="col-req">116</td>
+                            <td class="col-mezcla">8%</td>
+                            <td class="col-desocupabilidad">6</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-ROCF OTR STL 2ST</td>
+                            <td class="col-numero">84688122</td>
+                            <td>C4146</td>
+                            <td class="col-modelo">CC</td>
+                            <td class="col-rack">MAC28905</td>
+                            <td class="col-linea-xl1">XL1</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">555</td>
+                            <td class="col-sph">555</td>
+                            <td class="col-std-pallet">350</td>
+                            <td class="col-std-rack">17</td>
+                            <td class="col-programa">140</td>
+                            <td class="col-loop">140</td>
+                            <td class="col-capacidad">2380</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">2380</td>
+                            <td class="col-req">875</td>
+                            <td class="col-mezcla">61%</td>
+                            <td class="col-desocupabilidad">39</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-SUNROOF OTR STL 2ST</td>
+                            <td class="col-numero">84688125</td>
+                            <td>C4148</td>
+                            <td class="col-modelo">CF5</td>
+                            <td class="col-rack">MAC32248</td>
+                            <td class="col-linea-xl1">XL1</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">556</td>
+                            <td class="col-sph">556</td>
+                            <td class="col-std-pallet">350</td>
+                            <td class="col-std-rack">17</td>
+                            <td class="col-programa">66</td>
+                            <td class="col-loop">66</td>
+                            <td class="col-capacidad">1122</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">1122</td>
+                            <td class="col-req">433</td>
+                            <td class="col-mezcla">30%</td>
+                            <td class="col-desocupabilidad">20</td>
+                        </tr>
+
+                        <tr>
+                            <td>RNF-SUNROOF OPG INR STL 2ST</td>
+                            <td class="col-numero">23507633</td>
+                            <td>C4149</td>
+                            <td class="col-modelo">CF5</td>
+                            <td class="col-rack">MAC28908</td>
+                            <td class="col-linea-xl1">XL1</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">569</td>
+                            <td class="col-sph">569</td>
+                            <td class="col-std-pallet">654</td>
+                            <td class="col-std-rack">140</td>
+                            <td class="col-programa">18</td>
+                            <td class="col-loop">24</td>
+                            <td class="col-capacidad">2520</td>
+                            <td class="col-danados">6</td>
+                            <td class="col-inv-diario">6</td>
+                            <td class="col-cap">2520</td>
+                            <td class="col-req">433</td>
+                            <td class="col-mezcla">30%</td>
+                            <td class="col-desocupabilidad">20</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-ROOF OTR STL 2ST</td>
+                            <td class="col-numero">84688126</td>
+                            <td>C4152</td>
+                            <td class="col-modelo">MREG</td>
+                            <td class="col-rack">MAC28907</td>
+                            <td class="col-linea-xl2">XL2</td>
+                            <td class="col-golpe">2</td>
+                            <td class="col-sph">430</td>
+                            <td class="col-sph">500</td>
+                            <td class="col-std-pallet">600</td>
+                            <td class="col-std-rack">20</td>
+                            <td class="col-programa">69</td>
+                            <td class="col-loop">69</td>
+                            <td class="col-capacidad">1380</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">1380</td>
+                            <td class="col-req">146</td>
+                            <td class="col-mezcla">10%</td>
+                            <td class="col-desocupabilidad">7</td>
+                        </tr>
+
+                        <tr>
+                            <td>PNL-FDR OTR L STL 1UB</td>
+                            <td class="col-numero">84496738</td>
+                            <td>C4155</td>
+                            <td class="col-modelo">CHV</td>
+                            <td class="col-rack">MAC30067</td>
+                            <td class="col-linea-xl2">XL2</td>
+                            <td class="col-golpe">1</td>
+                            <td class="col-sph">484</td>
+                            <td class="col-sph">484</td>
+                            <td class="col-std-pallet">500</td>
+                            <td class="col-std-rack">28</td>
+                            <td class="col-programa">84</td>
+                            <td class="col-loop">84</td>
+                            <td class="col-capacidad">2352</td>
+                            <td class="col-danados">0</td>
+                            <td class="col-inv-diario"></td>
+                            <td class="col-cap">2352</td>
+                            <td class="col-req">767</td>
+                            <td class="col-mezcla">53%</td>
+                            <td class="col-desocupabilidad">35</td>
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section id="usuarios" class="section">
+              <h1>Usuarios</h1>
+            </section>
+        </main>
+    </div>
+    
+    <script src="./js/datos.js"></script>
+    
+</body>
+</html>

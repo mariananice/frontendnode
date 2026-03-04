@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro GM</title>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="logo">
+                <img src="./images/logo.jpg" alt="Logo GM">
+            </div>
+
+            <form id="registerForm" novalidate>
+                <label>Nombre completo:</label>
+                <input type="text" id="name">
+                <span class="error" id="nameError"></span>
+
+                <label>Email:</label>
+                <input type="text" id="email">
+                <span class="error" id="emailError"></span>
+
+                <label>GMIN:</label>
+                <input type="text" id="gmin">
+                <span class="error" id="gminError"></span>
+
+                <label>Password:</label>
+                <input type="password" id="password">
+                <span class="error" id="passwordError"></span>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar contraseña:</label>
+                    <input type="password" id="confirmPassword">
+                    <span class="error" id="confirmError"></span>
+                </div>
+
+                <button type="submit">Continuar</button>
+            </form>
+
+            <a href="index.html" class="link">
+                ¿Ya tienes cuenta? Ingresa
+            </a>
+        </div>
+
+        <div class="right-panel">
+            <img src="./images/gmc.jpeg" alt="GMC Truck">
+        </div>
+    </div>
+
+    <script src="./js/registro.js"></script>
+</body>
+</html>

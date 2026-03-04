@@ -1,0 +1,403 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    overflow: hidden;
+}
+
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background: #f8f8f8;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.logo-container {
+    padding: 30px 20px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.logo {
+    width: 90px;
+    height: 90px;
+    background: #2563eb;
+    border-radius: 15px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.app-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+
+.menu ul {
+    list-style: none;
+    padding: 10px 0;
+}
+
+.menu li {
+    display: flex;
+    align-items: center;
+    padding: 15px 25px;
+    cursor: pointer;
+    color: #555;
+    font-size: 15px;
+    transition: all 0.3s;
+    gap: 12px;
+}
+
+.menu li i {
+    font-size: 18px;
+}
+
+.menu li:hover {
+    background: #e8e8e8;
+}
+
+.menu li.active {
+    background: #1abc9c;
+    color: #000;
+    font-weight: 500;
+}
+
+.menu li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}
+
+.menu li a:hover {
+    color: inherit;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #efefef;
+    overflow: hidden;
+}
+
+.topbar {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px 15px;
+    width: 400px;
+}
+
+.search-container i {
+    color: #999;
+    margin-right: 10px;
+}
+
+.search-container input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    width: 100%;
+    color: #999;
+}
+
+.icons {
+    display: flex;
+    gap: 15px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+    color: #555;
+    position: relative;
+    padding: 5px;
+    transition: color 0.3s;
+}
+
+.icon-btn:hover {
+    color: #1abc9c;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: #ff4757;
+    border-radius: 50%;
+}
+
+.section {
+    display: none;
+    padding: 30px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.section.active {
+    display: block;
+}
+
+.section h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 30px;
+}
+
+.table-container {
+    overflow-x: auto;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.btn-nav {
+    background: #1abc9c;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.btn-nav:hover {
+    background: #16a085;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+th, td {
+    border: 1px solid #333;
+    padding: 8px;
+    text-align: center;
+}
+
+.header-main {
+    background: #4472C4;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.header-date {
+    background: #4472C4;
+    color: white;
+    font-size: 14px;
+    padding: 8px;
+}
+
+thead th {
+    background: #4472C4;
+    color: white;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+.logo-cell {
+    background: #D0DEEF;
+    font-size: 48px;
+    font-weight: bold;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    letter-spacing: -10px;
+    width: 60px;
+    color: #000;
+}
+
+tbody tr {
+    background: white;
+}
+
+tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.row-green {
+    background: #92D050 !important;
+}
+
+.row-green:hover {
+    background: #7ac03f !important;
+}
+
+.row-yellow {
+    background: #FFFF00 !important;
+}
+
+.row-yellow:hover {
+    background: #f0f000 !important;
+}
+
+.cell-to {
+    background: #00B050;
+    color: white;
+    font-weight: bold;
+}
+
+.cell-ns {
+    background: #FFFF00;
+    font-weight: bold;
+}
+
+.comment-red {
+    color: #FF0000;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.footer-total {
+    background: #92D050;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.time-cell {
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.editable-cell {
+    padding: 4px;
+}
+
+.editable-cell input {
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 4px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.editable-cell input:focus {
+    outline: 2px solid #4472C4;
+    border-color: #4472C4;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #4472C4;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #365ba3;
+}
+
+.btn-success {
+    background: #00B050;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #009040;
+}
+
+.btn-danger {
+    background: #ff4757;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #e63946;
+}
+
+/*
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        width: 240px;
+    }
+}*/
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 240px;
+    }
+
+    .search-container {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .search-container {
+        width: 200px;
+    }
+
+    table {
+        font-size: 10px;
+    }
+}

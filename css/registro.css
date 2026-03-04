@@ -1,0 +1,144 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #d9d9d9;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+.form-wrapper {
+    background-color: #d9d9d9;
+    max-width: 600px;
+    width: 100%;
+}
+
+/*.left-panel {
+    width: 40%;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}*/
+
+.logo {
+    width: 100px;
+    height: 100px;
+    border: 2px dashed #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+    background: white;
+}
+
+/*.logo span {
+    font-size: 70px;
+    font-weight: bold;
+    color: #0078d7;
+}*/
+
+.logo img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+#registerForm {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+.form-group label {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #000;
+}
+
+.form-group input {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #666;
+    border-radius: 3px;
+    background: white;
+    width: 100%;
+    max-width: 450px;
+}
+
+.form-group input:focus {
+    outline: 2px solid #0078d7;
+    border-color: #0078d7;
+}
+
+.error {
+    color: #d93025;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+    min-height: 18px;
+}
+
+input.error-input {
+    border: 1px solid #d93025;
+}
+
+button[type="submit"] {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    width: 120px;
+    padding: 10px 20px;
+    background-color: #e8e8e8;
+    border: 1px solid #666;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 3px;
+}
+
+button[type="submit"]hover {
+    background-color: #d0d0d0;
+}
+
+.link {
+    color: #0066cc;
+    text-decoration: underline;
+    font-size: 14px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.link:hover {
+    color: #0052a3;
+}
+
+/*Página responsiva */
+@media (max-width: 758px) {
+    .form-wrapper {
+        padding: 20px;
+    }
+
+    .form-group input {
+        max-width: 100%;
+    }
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Código - GM</title>
+    <link rel="stylesheet" href="./css/codigoVerif.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <div class="verification-container">
+                <div class="instruction-box">
+                    <p>Inserta el código que se mandó a tu correo.</p>
+                </div>
+
+                <form id="verificationForm" onsubmit="verificarCodigo(event)">
+                    <div class="code-input-container">
+                        <input 
+                            type="text" 
+                            id="codigo" 
+                            name="codigo" 
+                            class="code-input"
+                            placeholder="Ingresa el código"
+                            maxlength="6"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-verificar">VERIFICAR</button>
+                </form>
+
+                <div class="resend-section">
+                    <p>¿No recibiste el código?</p>
+                    <a href="#" onclick="reenviarCodigo(event)">Reenviar código</a>
+                </div>
+
+                <div class="back-link">
+                    <a href="recuperar.html">Volver</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <img src="./images/gmc.jpeg" alt="GMC Truck" class="truck-image">
+        </div>
+    </div>
+
+    <script src="./js/codigoVerif.js"></script>
+</body>
+</html>
