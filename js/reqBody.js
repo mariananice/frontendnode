@@ -286,8 +286,8 @@ function filterByLine(line) {
 // Función de logout
 function logout() {
     if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('registeredUser');
-        window.location.href = 'index.html';
+        localStorage.removeItem('token');
+        window.location.href = '../index.html';
     }
 }
 

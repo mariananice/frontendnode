@@ -94,6 +94,6 @@ form.addEventListener('submit', function (e) {
 
         alert('Registro exitoso. Serás dirigido al login.');
 
-        window.location.href = 'index.html';
+        window.location.href = '../index.html';
     }
 });

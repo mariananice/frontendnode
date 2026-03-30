@@ -111,7 +111,7 @@ function nextMonth() {
 
 function logout() {
     if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('registredUser');
-        window.location.href = 'idex.html';
+        localStorage.removeItem('token');
+        window.location.href = '../index.html';
     }
 }

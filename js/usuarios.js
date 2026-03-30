@@ -123,8 +123,10 @@ function deleteUser(id) {
     });
 }
 
-// Logout
+// Función de logout
 function logout() {
-    alert('Sesión cerrada correctamente');
-    window.location.href = 'login.html';
+    if (confirm('¿Estás seguro de que quieres cerras sesión?')) {
+        localStorage.removeItem('token');
+        window.location.href = '../index.html';
+    }
 }

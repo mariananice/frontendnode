@@ -13,7 +13,7 @@ body {
     justify-content: center;
 }
 
-.container {
+/*.container {
     display: flex;
     width: 95%;
     max-width: 1400px;
@@ -22,6 +22,18 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     overflow: hidden;
+}*/
+
+.container {
+    display: flex;
+    width: 100%;
+    max-width: 1400px;
+    min-height: 100vh;         /* que al menos ocupe la pantalla */
+    height: auto;             /* pero pueda hacerse más alto */
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: visible;        /* no recortar contenido */
 }
 
 .left-section {
@@ -46,7 +58,7 @@ body {
 }
 
 .form-container {
-    max-width: 450px;
+    max-width: 400px;
 }
 
 .title {
@@ -164,7 +176,7 @@ body {
 @media (max-width: 768px) {
     .container {
         width: 100%;
-        height: 100vh;
+        /*height: 100vh;*/
         border-radius: 0;
     }
 
