@@ -78,16 +78,16 @@
 
         <main class="main">
             <header class="topbar">
-                <div class="search-container">
+                <div class="reqBody-search">
                   <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Barra de búsqueda">
+                  <input type="text" placeholder="Buscar..." id="searchReqbody">
                 </div>
                 <div class="icons">
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnNotificaciones">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
                   </button>
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnPerfil">
                     <i class="bi bi-person-circle"></i>
                   </button>
                   <button class="icon-btn" onclick="logout()">
@@ -483,10 +483,45 @@
                 </table>
               </div>
             </section>
+
+            <!-- Modal centrado Perfil -->
+            <div class="center-modal" id="panelPerfil">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Perfil de usuario</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body">
+                <p><strong>Nombre:</strong> <span id="perfilReqBodyNombre"></span></p>
+                <p><strong>Correo:</strong> <span id="perfilReqBodyCorreo"></span></p>
+                <p><strong>Rol:</strong> <span id="perfilReqBodyRol"></span></p>
+                <p><strong>GMIN:</strong> <span id="perfilReqBodyGmin"></span></p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Modal centrado Notificaciones -->
+            <div class="center-modal" id="panelNotificaciones">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Notificaciones</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body" id="listaNotificacionesReqBody">
+                <!-- Se llena por JS -->
+                </div>
+            </div>
+            </div>
+
         </main>
     </div>
 
     <script src="../js/reqBody.js"></script>
+    <script src="../js/auth.js"></script>
     
 </body>
 </html>

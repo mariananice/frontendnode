@@ -5,15 +5,94 @@ let cumplimientoData = [];
 document.addEventListener('DOMContentLoaded', function() {
     initializeMenu();
     loadCumplimientoData();
-    checkUserLogin();
+    // checkUserLogin(); // ya usas auth.js para validar sesión
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnNotificaciones = document.getElementById('btnNotificaciones');
+    const panelPerfil = document.getElementById('panelPerfil');
+    const panelNotificaciones = document.getElementById('panelNotificaciones');
+
+    if(btnPerfil && panelPerfil) {
+        btnPerfil.addEventListener('click', () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        });
+    }
+
+    if (btnNotificaciones && panelNotificaciones) {
+        btnNotificaciones.addEventListener('click', () => {
+            llenarNotificacionesCumplimiento();
+            abrirPanel(panelNotificaciones);
+        });
+    }
+
+    document.querySelectorAll('[data-close-panel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = btn.closest('.center-modal');
+            if (panel) panel.classList.remove('open');
+        });
+    });
+
+    const searchInput = document.getElementById('searchCumplimiento');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            filterCumplimientoTable(query);
+        });
+    }
 });
 
-// Verificar si el usuario está logueado
+function abrirPanel(panel) {
+    // Cerrar otros paneles si hubiera
+    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
+    panel.classList.add('open');
+}
+
+// Perfil de usuario en Usuarios
+function llenarPerfil() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    document.getElementById('perfilCumplimientoNombre').textContent = user?.nombre || 'Usuario';
+    document.getElementById('perfilCumplimientoCorreo').textContent = user?.email || 'correo@ejemplo.com';
+    document.getElementById('perfilCumplimientoRol').textContent = user?.rol || 'usuario';
+    document.getElementById('perfilCumplimientoGmin').textContent = user?.GMIN || 'GMIN';
+}
+
+// Notificaciones en Usuarios (ejemplo estático)
+function llenarNotificacionesCumplimiento() {
+    const contenedor = document.getElementById('listaNotificacionesCumplimiento');
+    if (!contenedor) return;
+
+    const notificaciones = [
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
+        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
+    ];
+
+    contenedor.innerHTML = '';
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion-item';
+        div.innerHTML = `
+        <div class="notificacion-titulo">${n.titulo}</div>
+        <div class="notificacion-fecha">${n.fecha}</div>
+        <div class="notificacion-detalle">${n.detalle}</div>
+        `;
+        contenedor.appendChild(div);
+    });
+}
+
+// Verificar si el usuario está logueado (ya no se usa, pero lo dejo por si luego lo necesitas)
 function checkUserLogin() {
     const user = localStorage.getItem('registeredUser');
     if (!user) {
-        // Comentar esta línea si quieres probar sin login
-        // window.location.href = 'index.html';
+        window.location.href = 'index.html';
     }
 }
 
@@ -77,8 +156,9 @@ function renderCumplimientoTable() {
     let totalProg = 0;
     let totalProd = 0;
     let totalProgStrokes = 0;
+    let totalStrokes = 0; // ← ESTA VARIABLE FALTABA
 
-    cumplimientoData.forEach((row, index) => {
+    cumplimientoData.forEach((row) => {
         const tr = document.createElement('tr');
 
         // sumar totales
@@ -105,50 +185,64 @@ function renderCumplimientoTable() {
         `;
 
         tbody.appendChild(tr);
+    });
 
-        // Actualizar totales
-        const cumplimientoGlobal = Math.round((totalProd / totalProg) * 100);
-        const diferenciaProd = totalProd - totalProg;
-        const diferenciaStrokes = totalStrokes - totalProgStrokes;
+    // Actualizar totales en el tfoot (una sola vez, fuera del forEach)
+    const cumplimientoGlobal = Math.round((totalProd / (totalProg || 1)) * 100);
+    const diferenciaProd = totalProd - totalProg;
+    const diferenciaStrokes = totalStrokes - totalProgStrokes;
 
-        const tfoot = document.querySelector('#cumplimiento tfoot');
-        if (tfoot) {
-            tfoot.innerHTML = `
-                <tr class="row-total">
-                    <td colspan="3">TOTAL</td>
-                    <td class="total-beige">${totalProg}</td>
-                    <td class="total-beige">${totalProd}</td>
-                    <td></td>
-                    <td class="total-green">${cumplimientoGlobal}%</td>
-                    <td class="total-beige">${totalProgStrokes}</td>
-                    <td class="total-beige">${totalStrokes}</td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td colspan="3"></td>
-                    <td colspan="2" class="extra-cell">${diferenciaProd}</td>
-                    <td colspan="3"></td>
-                    <td colspan="2" class="extra-cell">${diferenciaStrokes}</td>
-                    <td colspan="2"></td>
-                </tr>
-            `;
-        }
+    const tfoot = document.querySelector('#cumplimiento tfoot');
+    if (tfoot) {
+        tfoot.innerHTML = `
+            <tr class="row-total">
+                <td colspan="3">TOTAL</td>
+                <td class="total-beige">${totalProg}</td>
+                <td class="total-beige">${totalProd}</td>
+                <td></td>
+                <td class="total-green">${cumplimientoGlobal}%</td>
+                <td class="total-beige">${totalProgStrokes}</td>
+                <td class="total-beige">${totalStrokes}</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="3"></td>
+                <td colspan="2" class="extra-cell">${diferenciaProd}</td>
+                <td colspan="3"></td>
+                <td colspan="2" class="extra-cell">${diferenciaStrokes}</td>
+                <td colspan="2"></td>
+            </tr>
+        `;
+    }
+}
+
+function filterCumplimientoTable(query) {
+    const rows = document.querySelectorAll('#cumplimiento table tbody tr');
+
+    rows.forEach(row => {
+        const cspc = row.children[0]?.textContent.toLowerCase() || '';
+        const numero = row.children[1]?.textContent.toLowerCase() || '';
+        const nombre = row.children[2]?.textContent.toLowerCase() || '';
+
+        const text = `${cspc} ${numero} ${nombre}`;
+
+        row.style.display = text.includes(query) ? '' : 'none';
     });
 }
 
 // Función de logout
 function logout() {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
         localStorage.removeItem('token');
         window.location.href = '../index.html';
-    }
+    //}
 }
 
-// Funciones para otras tablas (pueden ser expandidad según necesidad)
+// Funciones para otras tablas (pueden ser expandidas según necesidad)
 function addCumplimientoRow() {
     const newRow = {
-        cspc: 'C0000',
+        cscp: 'C0000',
         numero: '00000000',
         nombre: 'NUEVO PARTE',
         prog: 0,
@@ -179,7 +273,7 @@ function saveCumplimientoData() {
 }
 
 function exportCumplimientoToExcel() {
-    const dataStr = 'data:text/csv;charset=utf-8' +
+    const dataStr = 'data:text/csv;charset=utf-8,' +
         encodeURIComponent(convertCumplimientoToCSV(cumplimientoData));
     const downloadLink = document.createElement('a');
     downloadLink.href = dataStr;
@@ -197,9 +291,16 @@ function convertCumplimientoToCSV(data) {
 
     data.forEach(row => {
         const values = [
-            row.cspc, row.numero, row.nombre, row.orig, row.totalProd,
-            row.perdidas, row.cumplimiento + '%', row.progStrokes,
-            row.totalStrokes, row.ganados
+            row.cscp,           // corregido
+            row.numero,
+            row.nombre,
+            row.prog,           // corregido (antes orig)
+            row.totalProd,
+            row.perdidas,
+            row.cumplimiento + '%',
+            row.progStrokes,
+            row.totalStrokes,
+            row.ganados
         ];
         csv += values.join(',') + '\n';
     });
@@ -233,8 +334,8 @@ function calculateCumplimientoStats() {
 
 // Cargar datos guardados al inicio
 window.addEventListener('load', function() {
-    const savedData = this.localStorage.getItem('cumplimientoData');
-    if(savedData) {
+    const savedData = localStorage.getItem('cumplimientoData');
+    if (savedData) {
         const shouldLoad = confirm('Se encontraron datos guardados, ¿Deseas cargarlos?');
         if (shouldLoad) {
             cumplimientoData = JSON.parse(savedData);

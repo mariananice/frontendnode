@@ -113,7 +113,7 @@ body {
     align-items: center;
 }
 
-.search-container {
+.programacion-search {
     display: flex;
     align-items: center;
     background: #f5f5f5;
@@ -123,12 +123,12 @@ body {
     width: 400px;
 }
 
-.search-container i {
+.programacion-search i {
     color: #999;
     margin-right: 10px;
 }
 
-.search-container input {
+.programacion-search input {
     border: none;
     background: transparent;
     outline: none;
@@ -261,7 +261,7 @@ table {
 
 th, td {
     border: 1px solid #999;
-    padding: 6px 4px;
+    padding: 4px 3px;
     text-align: center;
 }
 
@@ -289,6 +289,7 @@ th, td {
 
 .header-day {
     background: #0066CC;
+    text-align: center;
     color: white;
     font-size: 14px;
     font-weight: bold;
@@ -297,10 +298,11 @@ th, td {
 
 .header-date {
     background: white;
+    text-align: center;
     color: #0066CC;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
-    padding: 5px;
+    padding: 8px;
 }
 
 thead th {
@@ -371,7 +373,7 @@ tbody tr:hover {
     background: #f0f8ff;
 }
 
-.action-buttons {
+.btn-search {
     display: flex;
     gap: 10px;
     justify-content: flex-start;
@@ -441,12 +443,105 @@ tbody tr:hover {
     background: #138496;
 }
 
+/*------------*/
+
+/* Overlay para el modal */
+.center-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;             /* oculto por defecto */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Cuando está "open" se muestra */
+.center-modal.open {
+  display: flex;
+}
+
+/* Contenido tipo card */
+.center-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  min-width: 320px;
+  max-width: 480px;          /* ancho máximo de la card */
+  max-height: 80vh;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header del modal */
+.center-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.center-modal-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.center-modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+.center-modal-close:hover {
+  color: #000;
+}
+
+/* Cuerpo del modal */
+.center-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #333;
+}
+
+.center-modal-body p {
+  margin-bottom: 8px;
+}
+
+/* Lista de notificaciones en el modal */
+#listaNotificacionesProgramacion .notificacion-item {
+  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+}
+
+#listaNotificacionesProgramacion .notificacion-item:last-child {
+  border-bottom: none;
+}
+
+#listaNotificacionesProgramacion .notificacion-titulo {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+#listaNotificacionesProgramacion .notificacion-fecha {
+  font-size: 12px;
+  color: #777;
+}
+
+/*---------------*/
+
 @media (max-width: 1024px) {
     .sidebar {
         width: 240px;
     }
 
-    .search-container {
+    .programacion-search {
         width: 250px;
     }
 
@@ -464,7 +559,7 @@ tbody tr:hover {
         width: 200px;
     }
 
-    .search-container {
+    .programacion-search {
         width: 200px;
     }
 
@@ -501,3 +596,28 @@ tbody tr:hover {
         box-shadow: none;
     }
 }
+
+/*
+
+.logo-header { width: 60px; }
+.col-cspc    { width: 70px; }
+.col-linea   { width: 50px; }
+
+thead th:nth-child(4),  
+thead th:nth-child(5),
+thead th:nth-child(6),
+thead th:nth-child(7),
+thead th:nth-child(8),
+thead th:nth-child(9),
+thead th:nth-child(10),
+thead th:nth-child(11),
+thead th:nth-child(12),
+thead th:nth-child(13),
+thead th:nth-child(14),
+thead th:nth-child(15),
+thead th:nth-child(16), 
+thead th:nth-child(17),
+thead th:nth-child(18)
+{
+    width: 70px;
+} */

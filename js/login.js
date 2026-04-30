@@ -1,10 +1,10 @@
 const BASE_URL = 'http://localhost:4000';
 
 const form = document.getElementById('loginForm')
-const gmin = document.getElementById('gmin')
+const GMIN = document.getElementById('GMIN')
 const password = document.getElementById('password')
 
-const gminError = document.getElementById('gminError')
+const GMINError = document.getElementById('GMINError')
 const passwordError = document.getElementById('passwordError')
 
 form.addEventListener('submit', handleSubmit);
@@ -14,20 +14,20 @@ async function handleSubmit(e) {
 
     let isValid = true;
 
-    gminError.textContent = '';
+    GMINError.textContent = '';
     passwordError.textContent = '';
 
-    gmin.classList.remove('error-input');
+    GMIN.classList.remove('error-input');
     password.classList.remove('error-input');
 
     // Validación de GMIN
-    if (gmin.value.trim() === '') {
-        gminError.textContent = 'Se requiere GMIN';
-        gmin.classList.add('error-input');
+    if (GMIN.value.trim() === '') {
+        GMINError.textContent = 'Se requiere GMIN';
+        GMIN.classList.add('error-input');
         isValid = false;
-    } else if (gmin.value.length < 9) {
-        gminError.textContent = 'GMIN debe tener al menos 9 caracteres';
-        gmin.classList.add('error-input');
+    } else if (GMIN.value.length < 9) {
+        GMINError.textContent = 'GMIN debe tener al menos 9 caracteres';
+        GMIN.classList.add('error-input');
         isValid = false;
     }
 
@@ -49,7 +49,7 @@ async function handleSubmit(e) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({
-                GMIN: gmin.value.trim(),
+                GMIN: GMIN.value.trim(),
                 password: password.value.trim(),
             }),
         });
@@ -70,6 +70,9 @@ async function handleSubmit(e) {
         // Si tu backend devuelve token / usuario, puedes guardarki
         if (data.token) {
             localStorage.setItem('token', data.token);
+        }
+        if (data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
         }
 
         // Redirección al dashboard (relativo a index.html)

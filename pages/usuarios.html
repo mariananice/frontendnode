@@ -78,16 +78,16 @@
 
         <main class="main">
             <header class="topbar">
-                <div class="search-container">
+                <div class="usuarios-search">
                   <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Barra de búsqueda">
+                  <input type="text" id="searchUsers" placeholder="Buscar...">
                 </div>
                 <div class="icons">
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnNotificaciones">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
                   </button>
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnPerfil">
                     <i class="bi bi-person-circle"></i>
                   </button>
                   <button class="icon-btn" onclick="logout()">
@@ -97,11 +97,11 @@
             </header>
 
             <section id="usuarios" class="section active">
-              <div class="usuarios-container">
+              <!--<div class="usuarios-container">
                 <button class="btn btn-add" onclick="openAddUserModal()">
                     <i class="bi bi-plus-circle"></i> Agregar Usuario
                 </button>
-              </div>
+              </div>-->
 
               <div class="table-wrapper">
                 <table class="usuarios-table">
@@ -117,7 +117,7 @@
                     </thead>
 
                     <tbody id="usuariosTableBody">
-                        <tr>
+                        <!--<tr>
                             <td>1</td>
                             <td>Mariana Bernice Martínez Gutiérrez</td>
                             <td>936136714</td>
@@ -146,14 +146,46 @@
                                     <i class="bi bi-trash3-fill"></i> Eliminar
                                 </button>
                             </td>
-                        </tr>
+                        </tr>-->
                     </tbody>
                 </table>
               </div>
             </section>
-        </main>
-    </div>
 
+            <!-- Modal centrado Perfil -->
+            <div class="center-modal" id="panelPerfil">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Perfil de usuario</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body">
+                <p><strong>Nombre:</strong> <span id="perfilUsuariosNombre"></span></p>
+                <p><strong>Correo:</strong> <span id="perfilUsuariosCorreo"></span></p>
+                <p><strong>Rol:</strong> <span id="perfilUsuariosRol"></span></p>
+                <p><strong>GMIN:</strong> <span id="perfilUsuariosGmin"></span></p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Modal centrado Notificaciones -->
+            <div class="center-modal" id="panelNotificaciones">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Notificaciones</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body" id="listaNotificacionesUsuarios">
+                <!-- Se llena por JS -->
+                </div>
+            </div>
+            </div>
+
+    <!--
     <div id="userModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -172,8 +204,8 @@
                     <input type="email" id="userEmail" name="userEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="userGmin">GMIN</label>
-                    <input type="text" id="userGmin" name="userGmin" required>
+                    <label for="userGMIN">GMIN</label>
+                    <input type="text" id="userGMIN" name="userGMIN" required>
                 </div>
                 <div class="form-group">
                     <label for="userRol">Rol</label>
@@ -183,9 +215,46 @@
                         <option value="Usuario">Usuario</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="passwordGroup">
                     <label for="userPassword">Contraseña</label>
                     <input type="password" id="userPassword" name="userPassword" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeUserModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>-->
+
+    <div id="userEdit" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTittle">Editar Usuario</h2>
+                <button class="close-btn" onclick="closeUserModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <form action="userForm" onsubmit="saveUser(event)">
+                <div class="form-group">
+                    <label for="userName">Nombre Completo</label>
+                    <input type="text" id="userName" name="userName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" name="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="userGMIN">GMIN</label>
+                    <input type="text" id="userGMIN" name="userGMIN" required>
+                </div>
+                <div class="form-group">
+                    <label for="userRol">Rol</label>
+                    <select name="userRol" id="userRol" required>
+                        <option value="">Selecionar rol</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Usuario">Usuario</option>
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-cancel" onclick="closeUserModal()">Cancelar</button>
@@ -196,6 +265,7 @@
     </div>
 
     <script src="../js/usuarios.js"></script>
+    <script src="../js/auth.js"></script>
     
 </body>
 </html>

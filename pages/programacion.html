@@ -78,16 +78,16 @@
 
         <main class="main">
             <header class="topbar">
-                <div class="search-container">
+                <div class="programacion-search">
                   <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Barra de búsqueda">
+                  <input type="text" placeholder="Buscar..." id="searchProgramacion">
                 </div>
                 <div class="icons">
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnNotificaciones">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
                   </button>
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnPerfil">
                     <i class="bi bi-person-circle"></i>
                   </button>
                   <button class="icon-btn" onclick="logout()">
@@ -102,32 +102,41 @@
                 <table>
                     <thead>
                         <tr>
-                            <th rowspan="3" class="logo-header">
+                            <th colspan="3" class="logo-header">
                                 <div class="logo-text">GM</div>
                                 <div class="doh-text">DOH</div>
                             </th>
-                            <th rowspan="3" class="col-cspc">CSPC</th>
-                            <th rowspan="3" class="col-linea">LINEA</th>
                             <th colspan="7" class="header-day">MIERCOLES</th>
-                            <th colspan="9" class="header-day">JUEVES</th>
+                            <th colspan="8" class="header-day">JUEVES</th>
                         </tr>
                         <tr>
+                            <th colspan="3"></th>
                             <th colspan="7" class="header-date">05/11/2025</th>
-                            <th colspan="9" class="header-date">06/11/2025</th>
+                            <th colspan="8" class="header-date">06/11/2025</th>
                         </tr>
+                        <!--<tr>
+                          <th rowspan="3" class="col-cspc">CSPC</th>
+                          <th rowspan="3" class="col-linea">LINEA</th>
+                          <th rowspan="3" class="col-capacidad">CAPACIDAD<br>TOTAL</th>
+                        </tr>-->
                         <tr>
+                            <th>CSPC<span class="dropdown-icon"></span></th>
+                            <th>LINEA<span class="dropdown-icon"></span></th>
                             <th>CAPACIDAD<br>TOTAL<span class="dropdown-icon"></span></th>
                             <th>STOCK<span class="dropdown-icon"></span></th>
                             <th>REQ<span class="dropdown-icon"></span></th>
-                            <th>CAMBI<span class="dropdown-icon"></span></th>
-                            <th>REA<span class="dropdown-icon"></span></th>
+                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                            <th>PARTES<span class="dropdown-icon"></span></th>
+                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                            <th>REAL<span class="dropdown-icon"></span></th>
                             <th>DOH<span class="dropdown-icon"></span></th>
                             <th>STOCK<span class="dropdown-icon"></span></th>
                             <th>INVENTA<span class="dropdown-icon"></span></th>
-                            <th>CAMB<span class="dropdown-icon"></span></th>
-                            <th>PARTI<span class="dropdown-icon"></span></th>
-                            <th>CAMBIC<span class="dropdown-icon"></span></th>
-                            <th>RE<span class="dropdown-icon"></span></th>
+                            <th>REQ<span class="dropdown-icon"></span></th>
+                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                            <th>PARTES<span class="dropdown-icon"></span></th>
+                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                            <th>REAL<span class="dropdown-icon"></span></th>
                             <th>DOH<span class="dropdown-icon"></span></th>
                         </tr>
                     </thead>
@@ -157,10 +166,44 @@
                 </table>
               </div>
             </section>
+
+            <!-- Modal centrado Perfil -->
+            <div class="center-modal" id="panelPerfil">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Perfil de usuario</h2>
+                <button class="center-modal-close" data-close-panel>
+                  <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body">
+                <p><strong>Nombre:</strong> <span id="perfilProgramacionNombre"></span></p>
+                <p><strong>Correo:</strong> <span id="perfilProgramacionCorreo"></span></p>
+                <p><strong>Rol:</strong> <span id="perfilProgramacionRol"></span></p>
+                <p><strong>GMIN:</strong> <span id="perfilProgramacionGmin"></span></p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Modal centrado Notificaciones -->
+            <div class="center-modal" id="panelNotificaciones">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Notificaciones</h2>
+                <button class="center-modal-close" data-close-panel>
+                  <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body" id="listaNotificacionesProgramacion">
+                <!-- Se llena por JS -->
+                </div>
+            </div>
+            </div>
         </main>
     </div>
 
     <script src="../js/programacion.js"></script>
+    <script src="../js/auth.js"></script>
     
 </body>
 </html>

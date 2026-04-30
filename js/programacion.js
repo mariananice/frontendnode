@@ -6,7 +6,90 @@ document.addEventListener('DOMContentLoaded', function() {
     inializeMenu();
     loadDOHData();
     setupActionButtons();
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnNotificaciones = document.getElementById('btnNotificaciones');
+    const panelPerfil = document.getElementById('panelPerfil');
+    const panelNotificaciones = document.getElementById('panelNotificaciones');
+
+    if(btnPerfil && panelPerfil) {
+        btnPerfil.addEventListener('click', () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        });
+    }
+
+    if (btnNotificaciones && panelNotificaciones) {
+        btnNotificaciones.addEventListener('click', () => {
+            llenarNotificacionesProgramacion();
+            abrirPanel(panelNotificaciones);
+        });
+    }
+
+    document.querySelectorAll('[data-close-panel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = btn.closest('.center-modal');  // buscar por clase
+            if (panel) panel.classList.remove('open');
+        });
+    });
+
+    const searchInput = document.getElementById('searchProgramacion');
+    //console.log('searchInput:', searchInput); // para depurar
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            //console.log('Filtrando con:', query);
+            filterProgramacionTable(query);
+        });
+    }
 });
+
+function abrirPanel(panel) {
+    // Cerrar otros paneles si hubiera
+    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
+    panel.classList.add('open');
+}
+
+// Perfil de usuario en Usuarios
+function llenarPerfil() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    document.getElementById('perfilProgramacionNombre').textContent = user?.nombre || 'Usuario';
+    document.getElementById('perfilProgramacionCorreo').textContent = user?.email || 'correo@ejemplo.com';
+    document.getElementById('perfilProgramacionRol').textContent = user?.rol || 'usuario';
+    document.getElementById('perfilProgramacionGmin').textContent = user?.GMIN || 'GMIN';
+}
+
+// Notificaciones en Usuarios (ejemplo estático)
+function llenarNotificacionesProgramacion() {
+    const contenedor = document.getElementById('listaNotificacionesProgramacion');
+    if (!contenedor) return;
+
+    const notificaciones = [
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
+        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
+    ];
+
+    contenedor.innerHTML = '';
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion-item';
+        div.innerHTML = `
+        <div class="notificacion-titulo">${n.titulo}</div>
+        <div class="notificacion-fecha">${n.fecha}</div>
+        <div class="notificacion-detalle">${n.detalle}</div>
+        `;
+        contenedor.appendChild(div);
+    });
+}
 
 // Sistema de navegación entre secciones
 function inializeMenu() {
@@ -44,7 +127,7 @@ function showSection(sectionId) {
 function loadDOHData() {
     // Datos de ejemplo para la tabla DOH
     dohData = [
-                { cspc: 'C4087', linea: 'XL1', capTotal: 4560, stockMier: 3840, reqMier: 1184, cambiMier: 1184, reaMier: 1680, cambMier: 1680, dohMier: 2.8, stockJue: 4336, inventaJue: 4340, reqJue: 1403, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.1 },
+        { cspc: 'C4087', linea: 'XL1', capTotal: 4560, stockMier: 3840, reqMier: 1184, cambiMier: 1184, reaMier: 1680, cambMier: 1680, dohMier: 2.8, stockJue: 4336, inventaJue: 4340, reqJue: 1403, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.1 },
         { cspc: 'C4088', linea: 'XL1', capTotal: 5400, stockMier: 3500, reqMier: 1184, cambiMier: 1184, reaMier: 2000, cambMier: 2000, dohMier: 2.6, stockJue: 4316, inventaJue: 4200, reqJue: 1403, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.0 },
         { cspc: 'C4106', linea: 'XL2', capTotal: 2760, stockMier: 1732, reqMier: 1054, cambiMier: 1054, reaMier: 1200, cambMier: 1200, dohMier: 1.4, stockJue: 1878, inventaJue: 1917, reqJue: 1283, cambJue: '', partiJue: 1200, cambicJue: 1200, reJue: '', dohJue: 1.5 },
         { cspc: 'C4109', linea: 'XL2', capTotal: 2990, stockMier: 2570, reqMier: 1054, cambiMier: 1054, reaMier: 1200, cambMier: 1200, dohMier: 2.1, stockJue: 2716, inventaJue: 2770, reqJue: 1283, cambJue: '', partiJue: 1200, cambicJue: 1200, reJue: '', dohJue: 2.2 },
@@ -78,18 +161,18 @@ function renderDOHTable() {
 
     tbody.innerHTML = '';
 
-    dohData.forEach((row, index) => {
+    dohData.forEach((row) => {
         const tr = document.createElement('tr');
 
-        // Detemrinar clase de color para DOH
         const getDOHClass = (value) => {
-            if (value === '') return '';
+            if (value === '' || value === null || value === undefined) return '';
             const num = parseFloat(value);
+            if (isNaN(num)) return '';
             if (num >= 2.0 && num <= 10.0) return 'doh-green';
             if (num > 1.4 && num < 2.0) return 'doh-yellow';
-            if (num > 10.0 || num >= 4.0) return 'doh-orange';
+            if (num > 10.0) return 'doh-orange';
             if (num > 15.0) return 'doh-red';
-            return 'doh-grren';
+            return '';
         };
 
         tr.innerHTML = `
@@ -107,14 +190,31 @@ function renderDOHTable() {
             <td class="bg-blue">${row.inventaJue}</td>
             <td class="bg-gray">${row.reqJue}</td>
             <td class="bg-blue-light">${row.cambJue}</td>
-            <td class="bg-gray">${row.parseFloat}</td>
             <td class="bg-blue-light">${row.partiJue}</td>
-            <td class="bg-blue-light">${row.cambiJue}</td>
-            <td>${row.reJue}</td>
+            <td class="bg-gray">${row.cambicJue}</td>
+            <td class="bg-blue-light">${row.reJue}</td>
             <td class="${getDOHClass(row.dohJue)}">${row.dohJue}</td>
-            `;
+        `;
 
-            tbody.appendChild(tr);
+        tbody.appendChild(tr);
+    });
+}
+
+function filterProgramacionTable(query) {
+    const rows = document.querySelectorAll('#programacion tbody tr');
+
+    rows.forEach(row => {
+        const cspc   = row.children[0]?.textContent.toLowerCase() || '';
+        const linea  = row.children[1]?.textContent.toLowerCase() || '';
+        const cap    = row.children[2]?.textContent.toLowerCase() || '';
+        const stockM = row.children[3]?.textContent.toLowerCase() || '';
+        const reqM   = row.children[4]?.textContent.toLowerCase() || '';
+        const stockJ = row.children[10]?.textContent.toLowerCase() || '';
+        const reqJ   = row.children[12]?.textContent.toLowerCase() || '';
+
+        const text = `${cspc} ${linea} ${cap} ${stockM} ${reqM} ${stockJ} ${reqJ}`;
+
+        row.style.display = text.includes(query) ? '' : 'none';
     });
 }
 
@@ -124,6 +224,7 @@ function setupActionButtons() {
 
     if (!section) return;
 
+    /*
     // Crear contenedor de botones si no existe
     if (!section.querySelector('.action-buttons')) {
         const buttonsDiv = document.createElement('div');
@@ -148,7 +249,7 @@ function setupActionButtons() {
 
             const h1 = section.querySelector('h1');
             h1.after(buttonsDiv);
-    }
+    }*/
 }
 
 // Funciones de botones
@@ -229,10 +330,10 @@ function printDOHTable() {
 
 // Función de logout
 function logout() {
-    if(confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    //if(confirm('¿Estás seguro de que quieres cerrar sesión?')) {
         localStorage.removeItem('token');
         window.location.href = '../index.html';
-    }
+    //}
 }
 
 // Cargar datos guardados al inicio
@@ -289,7 +390,7 @@ function sortTableByColumn(columnIndex, ascending = true) {
 
 // Resaltar filas con DOH crítico
 function highlightCriticalDOH() {
-    const cells = document.querySelectorAll('#programacion tbody td[class*=*"doh-"]');
+    const cells = document.querySelectorAll('#programacion tbody td[class*="doh-"]');
 
     cells.forEach(cell => {
         const value = parseFloat(cell.textContent);
@@ -303,13 +404,15 @@ function highlightCriticalDOH() {
 // Calcular estadísticas DOH
 function calculateDOHStats() {
     const dohValues = dohData
-        .filaMap(row => [row.dohMier, row.dohJue])
-        .filter(val => typeof val === 'number' && !isNaN(val));
+      .flatMap(row => [row.dohMier, row.dohJue])
+      .map(val => parseFloat(val))
+      .filter(val => !isNaN(val));
 
-    if (dohValues.length === 0) return null;
+    //if (dohValues.length === 0) return null;
 
     const sum = dohValues.reduce((a, b) => a + b, 0);
-    const avg = Math.min(...dohValues);
+    const avg = sum / dohValues.length;
+    const min = Math.min(...dohValues);
     const max = Math.max(...dohValues);
 
     return {

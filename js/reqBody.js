@@ -6,8 +6,89 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMenu();
     loadWeeklyData();
     setupActionButtons();
-    checkUserLogin();
+    //checkUserLogin();
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnNotificaciones = document.getElementById('btnNotificaciones');
+    const panelPerfil = document.getElementById('panelPerfil');
+    const panelNotificaciones = document.getElementById('panelNotificaciones');
+
+    if (btnPerfil && panelPerfil) {
+        btnPerfil.addEventListener('click', () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        });
+    }
+
+    if (btnNotificaciones && panelNotificaciones) {
+        btnNotificaciones.addEventListener('click', () => {
+            llenarNotificacionesReqBody();
+            abrirPanel(panelNotificaciones);
+        });
+    }
+
+    document.querySelectorAll('[data-close-panel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = btn.closest('.center-modal');
+            if (panel) panel.classList.remove('open');
+        });
+    });
+
+
+    const searchInput = document.getElementById('searchReqbody');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            filterWeeklyTable(query);
+        });
+    }
 });
+
+function abrirPanel(panel) {
+    // Cerrar otros paneles si hubiera
+    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
+    panel.classList.add('open');
+}
+
+// Perfil de usuario en Usuarios
+function llenarPerfil() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    document.getElementById('perfilReqBodyNombre').textContent = user?.nombre || 'Usuario';
+    document.getElementById('perfilReqBodyCorreo').textContent = user?.email || 'correo@ejemplo.com';
+    document.getElementById('perfilReqBodyRol').textContent = user?.rol || 'usuario';
+    document.getElementById('perfilReqBodyGmin').textContent = user?.GMIN || 'GMIN';
+}
+
+// Notificaciones en Usuarios (ejemplo estático)
+function llenarNotificacionesReqBody() {
+    const contenedor = document.getElementById('listaNotificacionesReqBody');
+    if (!contenedor) return;
+
+    const notificaciones = [
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
+        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
+    ];
+
+    contenedor.innerHTML = '';
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion-item';
+        div.innerHTML = `
+        <div class="notificacion-titulo">${n.titulo}</div>
+        <div class="notificacion-fecha">${n.fecha}</div>
+        <div class="notificacion-detalle">${n.detalle}</div>
+        `;
+        contenedor.appendChild(div);
+    });
+}
 
 // Verificar si el usuario está logueado
 /*
@@ -120,6 +201,20 @@ function renderWeeklyTable() {
     setupEditableCells();
 }
 
+function filterWeeklyTable(query) {
+    const rows = document.querySelectorAll('#reqbody tbody tr');
+
+    rows.forEach(row => {
+        const cspc = row.children[0].textContent.toLowerCase(); // cspc
+        const linea = row.children[1].textContent.toLowerCase(); //linea
+        //const dias = row.children[2].textContent.toLowerCase(); // dias
+
+        const text = `${cspc} ${linea}`;
+
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
 // Configurar celdas editables
 function setupEditableCells() {
     const editableCells = document.querySelectorAll('.editable-cell');
@@ -186,6 +281,7 @@ function setupActionButtons() {
     
     if (!section) return;
     
+    /*
     // Crear contenedor de botones si no existe
     if (!section.querySelector('.action-buttons')) {
         const buttonsDiv = document.createElement('div');
@@ -210,7 +306,7 @@ function setupActionButtons() {
         
         const h1 = section.querySelector('h1');
         h1.after(buttonsDiv);
-    }
+    }*/
 }
 
 // Funciones de botones
@@ -285,10 +381,10 @@ function filterByLine(line) {
 
 // Función de logout
 function logout() {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
         localStorage.removeItem('token');
         window.location.href = '../index.html';
-    }
+    //}
 }
 
 // Cargar datos guardados al inicio
@@ -331,6 +427,7 @@ function highlightCriticalValues() {
                 cell.style.color = '#ff4757';
                 cell.style.fontWeight = 'bold';
             } else if (value > 1000) {
+   
                 cell.style.color = '#00B050';
                 cell.style.fontWeight = 'bold';
             }

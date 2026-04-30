@@ -8,7 +8,87 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMenu();
     loadPlaneacionData();
     setupActionButtons();
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnNotificaciones = document.getElementById('btnNotificaciones');
+    const panelPerfil = document.getElementById('panelPerfil');
+    const panelNotificaciones = document.getElementById('panelNotificaciones');
+
+    if(btnPerfil && panelPerfil) {
+        btnPerfil.addEventListener('click', () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        });
+    }
+
+    if (btnNotificaciones && panelNotificaciones) {
+        btnNotificaciones.addEventListener('click', () => {
+            llenarNotificacionesPlaneacion();
+            abrirPanel(panelNotificaciones);
+        });
+    }
+
+    document.querySelectorAll('[data-close-panel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = btn.closest('.center-modal');
+            if (panel) panel.classList.remove('open');
+        });
+    });
+
+    const searchInput = document.getElementById('searchPlaneacion');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            filterPlaneacionTable(query);
+        });
+    }
 });
+
+function abrirPanel(panel) {
+    // Cerrar otros paneles si hubiera
+    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
+    panel.classList.add('open');
+}
+
+// Perfil de usuario en Usuarios
+function llenarPerfil() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    document.getElementById('perfilPlaneacionNombre').textContent = user?.nombre || 'Usuario';
+    document.getElementById('perfilPlaneacionCorreo').textContent = user?.email || 'correo@ejemplo.com';
+    document.getElementById('perfilPlaneacionRol').textContent = user?.rol || 'usuario';
+    document.getElementById('perfilPlaneacionGmin').textContent = user?.GMIN || 'GMIN';
+}
+
+// Notificaciones en Usuarios (ejemplo estático)
+function llenarNotificacionesPlaneacion() {
+    const contenedor = document.getElementById('listaNotificacionesPlaneacion');
+    if (!contenedor) return;
+
+    const notificaciones = [
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
+        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
+    ];
+
+    contenedor.innerHTML = '';
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion-item';
+        div.innerHTML = `
+        <div class="notificacion-titulo">${n.titulo}</div>
+        <div class="notificacion-fecha">${n.fecha}</div>
+        <div class="notificacion-detalle">${n.detalle}</div>
+        `;
+        contenedor.appendChild(div);
+    });
+}
 
 //Sistema de navegación entre secciones
 function initializeMenu() {
@@ -21,7 +101,7 @@ function initializeMenu() {
             this.classList.add('active'); // Agregar clase al clickeado
 
             // Obtener la sección a mostrar
-            const sectionId = this.getAtribute('data-section');
+            const sectionId = this.getAttribute('data-section');
             showSection(sectionId);
         });
     });
@@ -371,17 +451,37 @@ function renderPlaneacionTable() {
 }
 
 // Renderizar tabla de planeación
-function renderPlaneacionTable() {
+/*function renderPlaneacionTable() {
     // Actualizar totales
     const totalCells = document.querySelectorAll('#planeación tfoot .footer-total');
     if(totalCells[0]) totalCells[0].textContent = totalStrokes;
     if(totalCells[1]) totalCells[1].textContent = totalPartes;
+}*/
+
+function filterPlaneacionTable(query) {
+    const rows = document.querySelectorAll('#planeacion table tbody tr');
+
+    rows.forEach(row => {
+        // ajusta índices según el orden de tus columnas
+        // (después de XL!, la primera celda visible es hora)
+        const hora = row.children[1]?.textContent.toLowerCase() || '';
+        const tiempoProd = row.children[2]?.textContent.toLowerCase() || '';
+        const cambios = row.children[4]?.textContent.toLowerCase() || '';
+        const part = row.children[5]?.textContent.toLowerCase() || '';
+        const cspc = row.children[6]?.textContent.toLowerCase() || '';
+        const descripcion = row.children[12]?.textContent.toLowerCase() || '';
+
+        const text = `${hora} ${tiempoProd} ${cambios} ${part} ${cspc} ${descripcion}`;
+
+        row.style.display = text.includes(query) ? '' :  'none';
+    });
 }
 
 // Configurar botones de acción
 function setupActionButtons() {
     const section = document.getElementById('planeacion');
 
+    /*
     // Crear contenedor de botones si no existe
     if (!section,querySelector('.action-buttons')) {
         const buttonsDiv = document.createElement('div');
@@ -406,7 +506,7 @@ function setupActionButtons() {
 
             const h1 = section.querySelector('h1');
             h1.after(buttonsDiv);
-    }
+    }*/
 }
 
 // Funciones de botones
@@ -491,10 +591,10 @@ function printTable() {
 
 // Función de logout
 function logout() {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
         localStorage.removeItem('token');
         window.location.href = '../index.html';
-    }
+    //}
 }
 
 // Cargar datos guardados al inicio

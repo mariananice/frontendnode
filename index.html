@@ -20,8 +20,8 @@
 
             <form class="login-form" id="loginForm" novalidate>
                 <label>GMIN:</label>
-                <input type="text" id="gmin">
-                <span class="error" id="gminError"></span>
+                <input type="text" id="GMIN">
+                <span class="error" id="GMINError"></span>
 
                 <label>Password:</label>
                 <input type="password" id="password">
@@ -38,9 +38,11 @@
             </div>
     </div>
 
+    <!--
     <button id="btnPrueba">Probar /api/ping</button>
     <pre id="resultado"></pre>
 
+    
     <script>
         document.getElementById('btnPrueba').addEventListener('click', async () => {
             const res = await fetch('/api/ping');
@@ -48,7 +50,7 @@
             document.getElementById('resultado').textContent =
                 JSON.stringify(data, null, 2);
         });
-    </script>
+    </script>-->
 
     <script type="module" src="./js/login.js"></script>
 </body>

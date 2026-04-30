@@ -7,11 +7,98 @@ const monthNames = [
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    initializeMenu();
-    //generateCalendar(currentMonth, currentYear);
+// Ejecutar cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', function () {
+    // Proteger el dashboard
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Si no hay token, no hay sesión -> mandar al login
+        window.location.href = '../index.html';
+        return;
+    }
+
+    initializeMenu(); // Si sí hay sesión, inicializar el menú 
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnNotificaciones = document.getElementById('btnNotificaciones');
+    const panelPerfil = document.getElementById('panelPerfil');
+    const panelNotificaciones = document.getElementById('panelNotificaciones');
+
+    if(btnPerfil && panelPerfil) {
+        btnPerfil.addEventListener('click', () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        });
+    }
+
+    if (btnNotificaciones && panelNotificaciones) {
+        btnNotificaciones.addEventListener('click', () => {
+            llenarNotificacionesDashboard();
+            abrirPanel(panelNotificaciones);
+        });
+    }
+
+    document.querySelectorAll('[data-close-panel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = btn.closest('.center-modal');
+            if (panel) panel.classList.remove('open');
+        });
+    });
+
+    const searchInput = document.getElementById('searchDashboard');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            filterDashboard(query);
+        });
+    }
 });
+
+function abrirPanel(panel) {
+    // Cerrar otros paneles si hubiera
+    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
+    panel.classList.add('open');
+}
+
+// Perfil de usuario en Usuarios
+function llenarPerfil() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    document.getElementById('perfilDashboardNombre').textContent = user?.nombre || 'Usuario';
+    document.getElementById('perfilDashboardCorreo').textContent = user?.email || 'correo@ejemplo.com';
+    document.getElementById('perfilDashboardRol').textContent = user?.rol || 'usuario';
+    document.getElementById('perfilDashboardGmin').textContent = user?.GMIN || 'GMIN';
+}
+
+// Notificaciones en Usuarios (ejemplo estático)
+function llenarNotificacionesDashboard() {
+    const contenedor = document.getElementById('listaNotificacionesDashboard');
+    if (!contenedor) return;
+
+    const notificaciones = [
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
+        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
+    ];
+
+    contenedor.innerHTML = '';
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion-item';
+        div.innerHTML = `
+        <div class="notificacion-titulo">${n.titulo}</div>
+        <div class="notificacion-fecha">${n.fecha}</div>
+        <div class="notificacion-detalle">${n.detalle}</div>
+        `;
+        contenedor.appendChild(div);
+    });
+}
 
 // Sistema de navegación entre secciones
 function initializeMenu() {
@@ -109,9 +196,19 @@ function nextMonth() {
     generateCalendar(currentMonth, currentYear);
 }*/
 
+function filterDashboard(query) {
+    const cards = document.querySelectorAll('.dashboard-grid .card');
+
+    cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
 function logout() {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '../index.html';
-    }
+    //}
 }

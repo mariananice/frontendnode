@@ -6,7 +6,87 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMenu();
     loadDatosData();
     setupActionButtons();
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnNotificaciones = document.getElementById('btnNotificaciones');
+    const panelPerfil = document.getElementById('panelPerfil');
+    const panelNotificaciones = document.getElementById('panelNotificaciones');
+
+    if(btnPerfil && panelPerfil) {
+        btnPerfil.addEventListener('click', () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        });
+    }
+
+    if (btnNotificaciones && panelNotificaciones) {
+        btnNotificaciones.addEventListener('click', () => {
+            llenarNotificacionesDatos();
+            abrirPanel(panelNotificaciones);
+        });
+    }
+
+    document.querySelectorAll('[data-close-panel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = btn.closest('.center-modal');
+            if (panel) panel.classList.remove('open');
+        });
+    });
+
+    const searchInput = document.getElementById('searchDatos');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            filterDatosTable(query);
+        })
+    }
 });
+
+function abrirPanel(panel) {
+    // Cerrar otros paneles si hubiera
+    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
+    panel.classList.add('open');
+}
+
+// Perfil de usuario en Usuarios
+function llenarPerfil() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    document.getElementById('perfilDatosNombre').textContent = user?.nombre || 'Usuario';
+    document.getElementById('perfilDatosCorreo').textContent = user?.email || 'correo@ejemplo.com';
+    document.getElementById('perfilDatosRol').textContent = user?.rol || 'usuario';
+    document.getElementById('perfilDatosGmin').textContent = user?.GMIN || 'GMIN';
+}
+
+// Notificaciones en Usuarios (ejemplo estático)
+function llenarNotificacionesDatos() {
+    const contenedor = document.getElementById('listaNotificacionesDatos');
+    if (!contenedor) return;
+
+    const notificaciones = [
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
+        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
+    ];
+
+    contenedor.innerHTML = '';
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion-item';
+        div.innerHTML = `
+        <div class="notificacion-titulo">${n.titulo}</div>
+        <div class="notificacion-fecha">${n.fecha}</div>
+        <div class="notificacion-detalle">${n.detalle}</div>
+        `;
+        contenedor.appendChild(div);
+    });
+}
 
 // Sistema de navegación entre secciones
 function initializeMenu() {
@@ -100,12 +180,33 @@ function renderDatosTable() {
     });
 }
 
+function filterDatosTable(query) {
+    const rows = document.querySelectorAll('#datos table tbody tr');
+
+    rows.forEach(row => {
+        const part = row.children[0]?.textContent.toLowerCase() || '';
+        const numero = row.children[1]?.textContent.toLowerCase() || '';
+        const cspc = row.children[2]?.textContent.toLowerCase() || '';
+        const modelo = row.children[3]?.textContent.toLowerCase() || '';
+        const rack = row.children[4]?.textContent.toLowerCase() || '';
+        const linea = row.children[5]?.textContent.toLowerCase() || '';
+        const stdPallet = row.children[9]?.textContent.toLowerCase() || '';
+        const capTotal = row.children[13]?.textContent.toLowerCase() || '';
+        const danados = row.children[14]?.textContent.toLowerCase() || '';
+
+        const text = `${part} ${numero} ${cspc} ${modelo} ${rack} ${linea} ${stdPallet} ${capTotal} ${danados}`;
+
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
 // Configurar botones de acción
 function setupActionButtons() {
     const section = document.getElementById('datos');
 
     if (!section) return;
 
+    /*
     if (!section.querySelector('.action-buttons')) {
         const buttonsDiv = document.createElement('div');
         buttonsDiv.className = 'action-buttons';
@@ -129,7 +230,7 @@ function setupActionButtons() {
 
         const h1 = section.querySelector('h1');
         h1.after(buttonsDiv);
-    }
+    }*/
 }
 
 // Funciones de botones
@@ -212,10 +313,10 @@ function printDatosTable() {
 
 // Función de logout
 function logout() {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
         localStorage.removeItem('token');
         window.location.href = '../index.html';
-    }
+    //}
 }
 
 // Cargar datos guardados

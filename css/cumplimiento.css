@@ -6,7 +6,7 @@
 }
 
 body {
-    background: f5f5f5;
+    background: #f5f5f5;
     overflow: hidden;
 }
 
@@ -14,6 +14,8 @@ body {
     display: flex;
     height: 100vh;
 }
+
+/* Sidebar / layout general */
 
 .sidebar {
     width: 280px;
@@ -113,28 +115,28 @@ body {
     align-items: center;
 }
 
-.search-container {
+.cumplimiento-search {
     display: flex;
     align-items: center;
     background: #f5f5f5;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 10px 15px;
-    width: 400px;
+    padding: 8px 12px;
+    width: 350px;
 }
 
-.search-container i {
+.cumplimiento-search i {
     color: #999;
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
-.search-container input {
+.cumplimiento-search input {
     border: none;
     background: transparent;
     outline: none;
     font-size: 14px;
     width: 100%;
-    color: #999;
+    color: #555;
 }
 
 .icons {
@@ -167,6 +169,8 @@ body {
     border-radius: 50%;
 }
 
+/* Secciones */
+
 .section {
     display: none;
     padding: 30px;
@@ -185,64 +189,7 @@ body {
     margin-bottom: 30px;
 }
 
-.page-tittle {
-    font-size: 48px;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 40px;
-    text-align: center;
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.card-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 25px;
-}
-
-.turnos-container,
-.material-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.turno-item,
-.material-item {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.turno-label,
-.material-label {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.turno-time,
-.material-status {
-    font-size: 18px;
-    font-weight: 500;
-    color: #333;
-}
+/* Tabla Cumplimiento */
 
 .table-container {
     overflow-x: auto;
@@ -250,6 +197,7 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border-radius: 8px;
     margin-bottom: 30px;
+    padding: 10px;
 }
 
 table {
@@ -260,175 +208,119 @@ table {
 
 th, td {
     border: 1px solid #666;
-    padding: 8px;
+    padding: 3px 4px;
     text-align: center;
+    white-space: nowrap;
 }
+
+/* Logo lateral */
 
 .logo-cell {
     background: #D0DEEF;
-    font-size: 48px;
-    font-weight: bold;
-    writing-mode: vertical-rl;
-    text-orientation: upright;
-    letter-spacing: -10px;
-    width: 60px;
     color: #000;
-}
-
-.header-main {
-    background: #4472C4;
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    padding: 10px;
-}
-
-.header-date {
-    background: #4472C4;
-    color: white;
-    font-size: 14px;
-    padding: 8px;
-}
-
-thead th {
-    background: #4472C4;
-    color: white;
-    font-weight: bold;
-    font-size: 11px;
-}
-
-.time-cell {
-    white-space: nowrap;
-    font-weight: 500;
-}
-
-.row-green {
-    background: #92D050 !important;
-}
-
-.row-yellow {
-    background: #FFFF00 !important;
-}
-
-.cell-to {
-    background: #00B050;
-    color: white;
-    font-weight: bold;
-}
-
-.cell-ns {
-    background: #FFFF00;
-    font-weight: bold;
-}
-
-.comment-red {
-    color: #FF0000;
-    font-weight: bold;
-    font-size: 10px;
-}
-
-.footer-total {
-    background: #92D050;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.text-left {
-    text-align: left;
-    padding-left: 8px;
-}
-
-.text-red {
-    color: #FF0000;
-    font-weight: bold;
-}
-
-.text-green {
-    color: #00B050;
-    font-weight: bold;
-}
-
-.bg-blue-light {
-    background: #B4C7E7;
-}
-
-.bg-blue {
-    background: #9DC3E6;
-}
-
-.bg-gray {
-    background: #D9D9D9;
-}
-
-.bg-yellow {
-    background: #FFFF00;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    width: 60px;
+    min-width: 60px;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .logo-gm {
-    color: #2563eb;
-    font-size: 48px;
+    font-size: 40px;
     font-weight: bold;
-    font-family: Arial, sans-serif;
+    color: #2563eb;
+    letter-spacing: 4px;
 }
+
+/* Encabezados superiores: LUNES, fecha, XL1 */
 
 .header-lunes {
     background: #4472C4;
     color: white;
     font-size: 18px;
     font-weight: bold;
-    padding: 10px;
+    padding: 6px 4px;
 }
 
 .header-fecha {
     background: white;
+    color: #000;
     font-size: 14px;
     font-weight: bold;
-    padding: 8px;
+    padding: 4px;
 }
 
 .header-xl1 {
     background: #4472C4;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
-    padding: 10px;
+    padding: 6px 4px;
 }
+
+/* Bandas de sección y columnas */
 
 .header-section {
     background: #D9E2F3;
     font-weight: bold;
-    font-size: 12px;
-    padding: 8px;
+    font-size: 11px;
+    padding: 4px;
 }
 
 .header-column {
     background: #D9E2F3;
     font-weight: bold;
     font-size: 10px;
-    padding: 6px;
+    padding: 4px;
 }
+
+/* Por defecto, azul solo para th sin clase específica */
+
+thead th:not(.header-lunes):not(.header-fecha):not(.header-xl1):not(.header-section):not(.header-column) {
+    background: #4472C4;
+    color: white;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+/* Columnas de datos */
 
 .col-cscp,
 .col-numero {
     background: #D9D9D9;
     font-weight: 500;
+    min-width: 70px;
 }
 
 .col-nombre {
     text-align: left;
     padding-left: 10px;
+    min-width: 220px;
 }
+
+/* Celdas numéricas: ancho relativamente uniforme */
+
+#cumplimiento table th:nth-child(n+4),
+#cumplimiento table td:nth-child(n+4) {
+    min-width: 70px;
+}
+
+/* Verdes de partes producidas */
 
 .col-green {
     background: #C6E0B4;
     font-weight: bold;
 }
 
+/* Porcentaje de cumplimiento */
+
 .cumplimiento-100 {
     background: #00B050;
     color: white;
     font-weight: bold;
     font-style: italic;
+    padding: 2px 4px;
 }
 
 .cumplimiento-over {
@@ -436,7 +328,10 @@ thead th {
     color: #000;
     font-weight: bold;
     font-style: italic;
+    padding: 2px 4px;
 }
+
+/* Totales y extra */
 
 .row-total {
     background: #E7E6E6;
@@ -454,10 +349,12 @@ thead th {
 
 .extra-cell {
     background: #D9D9D9;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
-    padding: 12px;
+    padding: 6px 8px;
 }
+
+/* Hover effects */
 
 tbody tr:hover {
     background: #f0f8ff;
@@ -475,6 +372,25 @@ tbody tr:hover .cumplimiento-100,
 tbody tr:hover .cumplimiento-over {
     opacity: 0.9;
 }
+
+/* Utilidades */
+
+.text-left {
+    text-align: left;
+    padding-left: 8px;
+}
+
+.text-red {
+    color: #FF0000;
+    font-weight: bold;
+}
+
+.text-green {
+    color: #00B050;
+    font-weight: bold;
+}
+
+/* Botones (por si usas action-buttons en esta página) */
 
 .action-buttons {
     display: flex;
@@ -546,19 +462,109 @@ tbody tr:hover .cumplimiento-over {
     background: #138496;
 }
 
+/*------------*/
+
+/* Overlay para el modal */
+.center-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;             /* oculto por defecto */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Cuando está "open" se muestra */
+.center-modal.open {
+  display: flex;
+}
+
+/* Contenido tipo card */
+.center-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  min-width: 320px;
+  max-width: 480px;          /* ancho máximo de la card */
+  max-height: 80vh;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header del modal */
+.center-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.center-modal-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.center-modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+.center-modal-close:hover {
+  color: #000;
+}
+
+/* Cuerpo del modal */
+.center-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  font-size: 14px;
+  color: #333;
+}
+
+.center-modal-body p {
+  margin-bottom: 8px;
+}
+
+/* Lista de notificaciones en el modal */
+#listaNotificacionesCumplimiento .notificacion-item {
+  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+}
+
+#listaNotificacionesCumplimiento .notificacion-item:last-child {
+  border-bottom: none;
+}
+
+#listaNotificacionesCumplimiento .notificacion-titulo {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+#listaNotificacionesCumplimiento .notificacion-fecha {
+  font-size: 12px;
+  color: #777;
+}
+
+/*---------------*/
+
+/* Responsivo / impresión */
 @media (max-width: 1024px) {
     .sidebar {
         width: 240px;
     }
-    
-    .search-container {
+
+    .cumplimiento-search {
         width: 250px;
     }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-    
+
     table {
         font-size: 10px;
     }
@@ -568,19 +574,19 @@ tbody tr:hover .cumplimiento-over {
     .sidebar {
         width: 200px;
     }
-    
-    .search-container {
+
+    .cumplimiento-search {
         width: 200px;
     }
-    
+
     table {
         font-size: 9px;
     }
-    
+
     .action-buttons {
         flex-direction: column;
     }
-    
+
     .btn {
         width: 100%;
         justify-content: center;
@@ -593,15 +599,15 @@ tbody tr:hover .cumplimiento-over {
     .action-buttons {
         display: none;
     }
-    
+
     .main {
         width: 100%;
     }
-    
+
     .section {
         display: block !important;
     }
-    
+
     .table-container {
         box-shadow: none;
     }

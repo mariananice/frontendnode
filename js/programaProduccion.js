@@ -8,7 +8,87 @@ let productionData = {
 document.addEventListener('DOMContentLoaded', function() {
     initializeMenu();
     loadProductionData();
+
+    const btnPerfil = document.getElementById('btnPerfil');
+    const btnNotificaciones = document.getElementById('btnNotificaciones');
+    const panelPErfil = document.getElementById('panelPerfil');
+    const panelNotificaciones = document.getElementById('panelNotificaciones');
+
+    if (btnPerfil && panelPerfil) {
+        btnPerfil.addEventListener('click', () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        });
+    }
+
+    if (btnNotificaciones && panelNotificaciones) {
+        btnNotificaciones.addEventListener('click', () => {
+            llenarNotificacionesProduccion();
+            abrirPanel(panelNotificaciones);
+        });
+    }
+
+    document.querySelectorAll('[data-close-panel]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panel = btn.closest('.center-modal');
+            if (panel) panel.classList.remove('open');
+        });
+    });
+
+    const searchInput = document.getElementById('searchProduccion');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            filterProductionTable(query);
+        });
+    }
 });
+
+function abrirPanel(panel) {
+    // Cerrar otros paneles si hubiera
+    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
+    panel.classList.add('open');
+}
+
+// Perfil de usuario en Usuarios
+function llenarPerfil() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('user'));
+    } catch (e) {
+        user = null;
+    }
+
+    document.getElementById('perfilProduccionNombre').textContent = user?.nombre || 'Usuario';
+    document.getElementById('perfilProduccionCorreo').textContent = user?.email || 'correo@ejemplo.com';
+    document.getElementById('perfilProduccionRol').textContent = user?.rol || 'usuario';
+    document.getElementById('perfilProduccionGmin').textContent = user?.GMIN || 'GMIN';
+}
+
+// Notificaciones en Usuarios (ejemplo estático)
+function llenarNotificacionesProduccion() {
+    const contenedor = document.getElementById('listaNotificacionesProduccion');
+    if (!contenedor) return;
+
+    const notificaciones = [
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
+        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
+    ];
+
+    contenedor.innerHTML = '';
+
+    notificaciones.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'notificacion-item';
+        div.innerHTML = `
+        <div class="notificacion-titulo">${n.titulo}</div>
+        <div class="notificacion-fecha">${n.fecha}</div>
+        <div class="notificacion-detalle">${n.detalle}</div>
+        `;
+        contenedor.appendChild(div);
+    });
+}
 
 // Sistema de navegación entre secciones
 function initializeMenu() {
@@ -17,8 +97,7 @@ function initializeMenu() {
     menuItems.forEach(item => {
         item.addEventListener('click', function() {
             menuItems.forEach(li => li.classList.remove('active')); // Remover clase active de todos
-
-            this.classList.addEventListener('active'); // Agregar clase active al clikeado
+            this.classList.add('active'); // Agregar clase active al clikeado
 
             // Obtener la sección mostrar
             const sectionId = this.getAttribute('data-section');
@@ -26,7 +105,6 @@ function initializeMenu() {
         });
     });
 }
-
 
 function showSection(sectionId) {
     // Ocultar todas las secciones 
@@ -208,8 +286,37 @@ function renderProductionTable(prensa) {
     if(totalCell) {
         totalCell.textContent = totalStrokes;
     }
-
 }
+
+function filterProductionTable(query) {
+    const rows = document.querySelectorAll('#produccion table tbody tr');
+
+    rows.forEach(row => {
+        const hora = row.children[0].textContent.toLowerCase();
+        const tProd = row.children[1]?.textContent.toLowerCase() || '';
+        const descripcion = row.children[2]?.textContent.toLowerCase() || '';
+        const cantidad = row.children[3]?.textContent.toLowerCase() || '';
+        const nonLoad = row.children[4]?.textContent.toLowerCase() || '';
+        const strokes = row.children[5]?.textContent.toLowerCase() || '';
+        const doH = row.children[6]?.textContent.toLowerCase() || '';
+
+        const text = `${hora} ${tProd} ${descripcion} ${cantidad} ${nonLoad} ${strokes} ${doH}`;
+
+        row.style.display = text.includes(query) ? '' : 'none';
+
+    })
+}
+
+/*function filterWeeklyTable(query) {
+    const rows = document.querySelectorAll('#reqbody tbody tr');
+
+    rows.forEach(row => {
+
+        const text = `${cspc} ${linea}`;
+
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+} */
 
 // Función para agregar una nueva fila
 function addProductionRow(prensa) {
@@ -270,10 +377,10 @@ function loadSavedData() {
 
 // Función de logout 
 function logout() {
-    if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
         localStorage.removeItem('token');
         window.location.href = '../index.html';
-    }
+    //}
 }
 
 // Función para calcular total de strokes

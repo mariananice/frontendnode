@@ -78,16 +78,16 @@
 
         <main class="main">
             <header class="topbar">
-                <div class="search-container">
+                <div class="cumplimiento-search">
                   <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Barra de búsqueda">
+                  <input type="text" placeholder="Buscar..." id="searchCumplimiento">
                 </div>
                 <div class="icons">
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnNotificaciones">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
                   </button>
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnPerfil">
                     <i class="bi bi-person-circle"></i>
                   </button>
                   <button class="icon-btn" onclick="logout()">
@@ -102,9 +102,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th rowspan="4" class="logo-cell">
+                            <!--<th rowspan="4" class="logo-cell">
                                 <div class="logo-gm">gm</div>
-                            </th>
+                            </th>-->
                             <th colspan="13" class="header-lunes">LUNES</th>
                         </tr>
                         <tr>
@@ -118,7 +118,7 @@
                             <th rowspan="2" class="header-column">N° de Parte</th>
                             <th rowspan="2" class="header-column">Nombre de Parte</th>
                             <th colspan="4" class="header-section">Cantidad de Partes</th>
-                            <th colspan="4" class="header-section">Strokes</th>
+                            <th colspan="3" class="header-section">Strokes</th>
                             <th rowspan="2" class="header-column">Comentarios</th>
                         </tr>
                          <tr>
@@ -137,13 +137,16 @@
                             <td class="col-cspc">C4087</td>
                             <td class="col-numero">85560226</td>
                             <td class="col-nombre">PNL-DASH STL 1UB</td>
+
                             <td>1680</td>
                             <td class="col-green">1680</td>
                             <td>0</td>
                             <td class="cumplimiento-100">100%</td>
+
                             <td>1680</td>
                             <td class="col-green">1680</td>
                             <td>0</td>
+
                             <td></td>
                         </tr>
 
@@ -297,10 +300,45 @@
                 </table>
               </div>
             </section>
+
+            <!-- Modal centrado Perfil -->
+            <div class="center-modal" id="panelPerfil">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Perfil de usuario</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body">
+                <p><strong>Nombre:</strong> <span id="perfilCumplimientoNombre"></span></p>
+                <p><strong>Correo:</strong> <span id="perfilCumplimientoCorreo"></span></p>
+                <p><strong>Rol:</strong> <span id="perfilCumplimientoRol"></span></p>
+                <p><strong>GMIN:</strong> <span id="perfilCumplimientoGmin"></span></p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Modal centrado Notificaciones -->
+            <div class="center-modal" id="panelNotificaciones">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Notificaciones</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body" id="listaNotificacionesCumplimiento">
+                <!-- Se llena por JS -->
+                </div>
+            </div>
+            </div>
+
         </main>
     </div>
 
     <script src="../js/cumplimiento.js"></script>
+    <script src="../js/auth.js"></script>
     
 </body>
 </html>

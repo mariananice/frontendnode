@@ -78,16 +78,16 @@
 
         <main class="main">
             <header class="topbar">
-                <div class="search-container">
+                <div class="produccion-search">
                   <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Barra de búsqueda">
+                  <input type="text" placeholder="Buscar..." id="searchProduccion">
                 </div>
                 <div class="icons">
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnNotificaciones">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
                   </button>
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnPerfil">
                     <i class="bi bi-person-circle"></i>
                   </button>
                   <button class="icon-btn" onclick="logout()">
@@ -102,13 +102,14 @@
                     <table>
                         <thead>
                             <tr>
-                                <th rowspan="3" class="logo-cell">XL1</th>
+                                <!--<th rowspan="3" class="logo-cell">XL1</th>-->
                                 <th colspan="9" class="header-main">XL1</th>
                             </tr>
                             <tr>
                                 <th colspan="9" class="header-date">Miércoles<br>Fecha(05/11/2025)</th>
                             </tr>
                             <tr>
+                                <th></th>
                                 <th>Hora</th>
                                 <th>T. De <br>Prod</th>
                                 <th>Descripción de la parte</th>
@@ -122,50 +123,135 @@
 
                         <tbody>
                             <tr>
+                                <td class="logo-cell" rowspan="15">XL1</td>
+                            </tr>
+                            <tr>
                                 <td class="time-cell">06:00:00 a. m.</td>
+                                <td>168</td>
+                                <td>C4242PNL-PUBX INR UPR L STL 2ST</td>
+                                <td>1200</td>
+                                <td></td>
+                                <td>1200</td>
+                                <td>1.9</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">07:55:00 a. m.</td>
+                                <td>83</td>
+                                <td>C4246PNL-PUBX INR UPR L STL 2ST</td>
+                                <td>600</td>
+                                <td></td>
+                                <td>600</td>
+                                <td>4.4</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">10:43:00 a. m.</td>
+                                <td>240</td>
+                                <td>Try out C8908</td>
+                                <td>0</td>
+                                <td>TO</td>
+                                <td>0</td>
+                                <td>###</td>
+                                <td>Tiempo asignado para TRY OUT</td>
                             </tr>
                             <tr>
                                 <td class="time-cell">12:06:00 p. m.</td>
+                                <td>116</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>###</td>
+                                <td>Preparar arranque del 2 turno</td>
                             </tr>
                             <tr>
                                 <td class="time-cell">04:06:00 p. m.</td>
+                                <td>104</td>
+                                <td>C4087PNL-DASH STL 1UB</td>
+                                <td>1680</td>
+                                <td></td>
+                                <td>840</td>
+                                <td>2.1</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:02:00 p. m.</td>
+                                <td>71</td>
+                                <td>C4146PNL-ROOF OTR STL 2ST</td>
+                                <td>600</td>
+                                <td></td>
+                                <td>600</td>
+                                <td>1.7</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">07:46:00 p. m.</td>
+                                <td>55</td>
+                                <td>C4148PNL-SUNROOF OTR STL 2ST</td>
+                                <td>450</td>
+                                <td></td>
+                                <td>450</td>
+                                <td>1.6</td>
+                                <td></td>
+
                             </tr>
                             <tr>
                                 <td class="time-cell">08:57:00 p. m.</td>
+                                <td>156</td>
+                                <td>C4157PNL-FDR OTR L STL 1UB</td>
+                                <td>960</td>
+                                <td></td>
+                                <td>960</td>
+                                <td>2.1</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">09:52:00 p. m.</td>
+                                <td>115</td>
+                                <td>C4088PNL-DASH EXT LWR STL 1UB</td>
+                                <td>2000</td>
+                                <td></td>
+                                <td>1000</td>
+                                <td>2.5</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">12:28:00 a. m.</td>
+                                <td>336</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>###</td>
+                                <td>Preparar arranque del jueves</td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:04:00 a. m.</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>###</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:04:00 a. m.</td>
-                            </tr>
-                            <tr>
-                                <td class="time-cell">06:04:00 a. m.</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>###</td>
+                                <td></td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td rowspan="1"></td>
                                 <td colspan="5" class="footer-total">STROKES TOTALES XL1</td>
-                                <td class="footer-total"></td>
+                                <td class="footer-total">5650</td>
                                 <td colspan="2"></td>
                             </tr>
                         </tfoot>
@@ -176,13 +262,14 @@
                     <table>
                         <thead>
                             <tr>
-                                <th rowspan="3" class="logo-cell">XL2</th>
+                                <!--<th rowspan="3" class="logo-cell">XL2</th>-->
                                 <th colspan="9" class="header-main">XL2</th>
                             </tr>
                             <tr>
                                 <th colspan="9" class="header-date">Miércoles<br>Fecha(05/11/2025)</th>
                             </tr>
                             <tr>
+                                <th></th>
                                 <th>Hora</th>
                                 <th>T. De <br>Prod</th>
                                 <th>Descripción de la parte</th>
@@ -196,63 +283,204 @@
 
                         <tbody>
                             <tr>
-                                <td class="time-cell">06:00:00 a. m.</td>
+                                <td class="logo-cell" rowspan="15">XL2</td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:00:00 a. m.</td>
+                                <td>100</td>
+                                <td>C4214PNL-PUBX W/H INR LWR R STL 2ST</td>
+                                <td>800</td>
+                                <td></td>
+                                <td>800</td>
+                                <td>4.4</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td class="time-cell">06:00:00 a. m.</td>
+                                <td>176</td>
+                                <td>C4106PNL-BDY SI OTR L STL 1UB</td>
+                                <td>1200</td>
+                                <td></td>
+                                <td>1200</td>
+                                <td>1.2</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">07:55:00 a. m.</td>
+                                <td>103</td>
+                                <td>C4219PNL-PUBX OTR R STL 1UB</td>
+                                <td>800</td>
+                                <td></td>
+                                <td>800</td>
+                                <td>1.7</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">10:43:00 a. m.</td>
+                                <td>110</td>
+                                <td>C4212PNL-PUBX W/H INR LWR R STL 2ST</td>
+                                <td>960</td>
+                                <td></td>
+                                <td>960</td>
+                                <td>1.9</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">12:06:00 p. m.</td>
+                                <td>234</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>0.0</td>
+                                <td>Preparar arranque del 2 turno</td>
                             </tr>
                             <tr>
                                 <td class="time-cell">04:06:00 p. m.</td>
+                                <td>82</td>
+                                <td>C4222PNL-PUBX OTR L STL 1UB</td>
+                                <td>600</td>
+                                <td></td>
+                                <td>600</td>
+                                <td>2.3</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:02:00 p. m.</td>
+                                <td>146</td>
+                                <td>C4109PNL-BDY SI OTR R STL 1UB</td>
+                                <td>1200</td>
+                                <td></td>
+                                <td>1200</td>
+                                <td>1.3</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">07:46:00 p. m.</td>
+                                <td>115</td>
+                                <td>C4207PNL-PUBX FRT STL 2ST</td>
+                                <td>1344</td>
+                                <td></td>
+                                <td>672</td>
+                                <td>2.2</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">08:57:00 p. m.</td>
+                                <td>379</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td>0.2</td>
+                                <td>Preparar arranque del jueves</td>
                             </tr>
                             <tr>
                                 <td class="time-cell">09:52:00 p. m.</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td>0.0</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">12:28:00 a. m.</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td>0.0</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:04:00 a. m.</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td>0.0</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:04:00 a. m.</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td>0.0</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td class="time-cell">06:04:00 a. m.</td>
+                                <td>0</td>
+                                <td>NS</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td>0.0</td>
+                                <td></td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr>
                                 <td rowspan="1"></td>
                                 <td colspan="5" class="footer-total">STROKES TOTALES XL2</td>
-                                <td class="footer-total"></td>
+                                <td class="footer-total">6232</td>
+                                <td colspan="2"></td>
+                            </tr>
+                            <tr>
+                                <td rowspan="1"></td>
+                                <td colspan="5" class="footer-total">TOTAL DEL DÍA</td>
+                                <td class="footer-total">11882</td>
                                 <td colspan="2"></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </section>
+
+            <!-- Modal centrado Perfil -->
+            <div class="center-modal" id="panelPerfil">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Perfil de usuario</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body">
+                <p><strong>Nombre:</strong> <span id="perfilProduccionNombre"></span></p>
+                <p><strong>Correo:</strong> <span id="perfilProduccionCorreo"></span></p>
+                <p><strong>Rol:</strong> <span id="perfilProduccionRol"></span></p>
+                <p><strong>GMIN:</strong> <span id="perfilProduccionGmin"></span></p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Modal centrado Notificaciones -->
+            <div class="center-modal" id="panelNotificaciones">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Notificaciones</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body" id="listaNotificacionesProduccion">
+                <!-- Se llena por JS -->
+                </div>
+            </div>
+            </div>
         </main>
     </div>
 
     <script src="../js/programaProduccion.js"></script>
+    <script src="../js/auth.js"></script>
     
 </body>
 </html>

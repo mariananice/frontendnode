@@ -78,16 +78,16 @@
 
         <main class="main">
             <header class="topbar">
-                <div class="search-container">
+                <div class="secuencia-search">
                   <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Barra de búsqueda">
+                  <input type="text" placeholder="Buscar..." id="searchSecuencia">
                 </div>
                 <div class="icons">
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnNotificaciones">
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
                   </button>
-                  <button class="icon-btn">
+                  <button class="icon-btn" id="btnPerfil">
                     <i class="bi bi-person-circle"></i>
                   </button>
                   <button class="icon-btn" onclick="logout()">
@@ -106,12 +106,12 @@
                             <th colspan="4"></th>
                         </tr>
                         <tr>
-                            <th class="col-numero">NUMERO D<span class="dropdown-icon"></span></th>
+                            <th class="col-numero">NUMERO DE PARTE<span class="dropdown-icon"></span></th>
                             <th class="col-cspc">CSPC<span class="dropdown-icon"></span></th>
                             <th class="col-linea-xl1">LINEA<span class="dropdown-icon"></span></th>
                             <th class="col-sph">SPH<span class="dropdown-icon"></span></th>
                             <th class="col-cantidad">CANTIDAD<span class="dropdown-icon"></span></th>
-                            <th class="col-duracion">DURACIÓN<span class="dropdown-icon"></span></th>
+                            <th class="col-duracion">DURACION<span class="dropdown-icon"></span></th>
                             <th class="col-banco">BANCO<span class="dropdown-icon"></span></th>
                             <th class="col-secuencia">SECUENCIA<span class="dropdown-icon"></span></th>
                             <th class="col-cambios">CAMBIOS<span class="dropdown-icon"></span></th>
@@ -123,7 +123,7 @@
                     <tbody>
                         <tr>
                             <td class="col-numero">85560226</td>
-                            <td class="col-csp">C4087</td>
+                            <td class="col-cspc">C4087</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">519</td>
                             <td class="col-cantidad">1680</td>
@@ -137,7 +137,7 @@
 
                         <tr>
                             <td class="col-numero">84666755</td>
-                            <td class="col-csp">C4088</td>
+                            <td class="col-cspc">C4088</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">555</td>
                             <td class="col-cantidad">2000</td>
@@ -151,7 +151,7 @@
 
                         <tr>
                             <td class="col-numero">84652941</td>
-                            <td class="col-csp">C4106</td>
+                            <td class="col-cspc">C4106</td>
                             <td class="col-linea-xl2">XL2</td>
                             <td class="col-sph">514</td>
                             <td class="col-cantidad">1200</td>
@@ -165,7 +165,7 @@
 
                         <tr>
                             <td class="col-numero">84652942</td>
-                            <td class="col-csp">C4109</td>
+                            <td class="col-cspc">C4109</td>
                             <td class="col-linea-xl2">XL2</td>
                             <td class="col-sph">515</td>
                             <td class="col-cantidad">1200</td>
@@ -179,7 +179,7 @@
 
                         <tr>
                             <td class="col-numero">84652981</td>
-                            <td class="col-csp">C4118</td>
+                            <td class="col-cspc">C4118</td>
                             <td class="col-linea-xl2">XL2</td>
                             <td class="col-sph">430</td>
                             <td class="col-cantidad">0</td>
@@ -193,7 +193,7 @@
 
                         <tr>
                             <td class="col-numero">84652982</td>
-                            <td class="col-csp">C4119</td>
+                            <td class="col-cspc">C4119</td>
                             <td class="col-linea-xl2">XL2</td>
                             <td class="col-sph">430</td>
                             <td class="col-cantidad">0</td>
@@ -207,7 +207,7 @@
 
                         <tr>
                             <td class="col-numero">23381632</td>
-                            <td class="col-csp">C4144</td>
+                            <td class="col-cspc">C4144</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">554</td>
                             <td class="col-cantidad">0</td>
@@ -221,7 +221,7 @@
 
                         <tr>
                             <td class="col-numero">23381639</td>
-                            <td class="col-csp">C4145</td>
+                            <td class="col-cspc">C4145</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">460</td>
                             <td class="col-cantidad">0</td>
@@ -235,7 +235,7 @@
 
                         <tr>
                             <td class="col-numero">84688122</td>
-                            <td class="col-csp">C4146</td>
+                            <td class="col-cspc">C4146</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">555</td>
                             <td class="col-cantidad">600</td>
@@ -249,7 +249,7 @@
 
                         <tr>
                             <td class="col-numero">84688125</td>
-                            <td class="col-csp">C4148</td>
+                            <td class="col-cspc">C4148</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">556</td>
                             <td class="col-cantidad">450</td>
@@ -263,7 +263,7 @@
 
                         <tr>
                             <td class="col-numero">23507633</td>
-                            <td class="col-csp">C4149</td>
+                            <td class="col-cspc">C4149</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">569</td>
                             <td class="col-cantidad">0</td>
@@ -277,7 +277,7 @@
 
                         <tr>
                             <td class="col-numero">84688126</td>
-                            <td class="col-csp">C4152</td>
+                            <td class="col-cspc">C4152</td>
                             <td class="col-linea-xl2">XL2</td>
                             <td class="col-sph">500</td>
                             <td class="col-cantidad">0</td>
@@ -291,7 +291,7 @@
 
                         <tr>
                             <td class="col-numero">84496738</td>
-                            <td class="col-csp">C4155</td>
+                            <td class="col-cspc">C4155</td>
                             <td class="col-linea-xl2">XL2</td>
                             <td class="col-sph">484</td>
                             <td class="col-cantidad">0</td>
@@ -305,8 +305,8 @@
 
                         <tr>
                             <td class="col-numero">84496739</td>
-                            <td class="col-csp">C4156</td>
-                            <td class="col-linea-0">0</td>
+                            <td class="col-cspc">C4156</td>
+                            <td class="col-linea-xl1">0</td>
                             <td class="col-sph">484</td>
                             <td class="col-cantidad">0</td>
                             <td class="col-duracion"></td>
@@ -333,8 +333,8 @@
 
                         <tr>
                             <td class="col-numero">84496741</td>
-                            <td class="col-csp">C4158</td>
-                            <td class="col-linea-0">0</td>
+                            <td class="col-cspc">C4158</td>
+                            <td class="col-linea-xl2">0</td>
                             <td class="col-sph">479</td>
                             <td class="col-cantidad">960</td>
                             <td class="col-duracion">0</td>
@@ -347,7 +347,7 @@
 
                         <tr>
                             <td class="col-numero">23393591</td>
-                            <td class="col-csp">C4159</td>
+                            <td class="col-cspc">C4159</td>
                             <td class="col-linea-xl2">XL2</td>
                             <td class="col-sph">536</td>
                             <td class="col-cantidad">0</td>
@@ -361,7 +361,7 @@
 
                         <tr>
                             <td class="col-numero">84340140</td>
-                            <td class="col-csp">C4160</td>
+                            <td class="col-cspc">C4160</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">536</td>
                             <td class="col-cantidad">0</td>
@@ -375,7 +375,7 @@
 
                         <tr>
                             <td class="col-numero">23393592</td>
-                            <td class="col-csp">C4162</td>
+                            <td class="col-cspc">C4162</td>
                             <td class="col-linea-xl1">XL1</td>
                             <td class="col-sph">460</td>
                             <td class="col-cantidad">0</td>
@@ -389,8 +389,8 @@
 
                         <tr>
                             <td class="col-numero">84512891</td>
-                            <td class="col-csp">C4163</td>
-                            <td class="col-linea-0">0</td>
+                            <td class="col-cspc">C4163</td>
+                            <td class="col-linea-xl1">0</td>
                             <td class="col-sph">460</td>
                             <td class="col-cantidad">0</td>
                             <td class="col-duracion"></td>
@@ -404,10 +404,44 @@
                 </table>
               </div>
             </section>
+
+            <!-- Modal centrado Perfil -->
+            <div class="center-modal" id="panelPerfil">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Perfil de usuario</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body">
+                <p><strong>Nombre:</strong> <span id="perfilSecuenciaNombre"></span></p>
+                <p><strong>Correo:</strong> <span id="perfilSecuenciaCorreo"></span></p>
+                <p><strong>Rol:</strong> <span id="perfilSecuenciaRol"></span></p>
+                <p><strong>GMIN:</strong> <span id="perfilSecuenciaGmin"></span></p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Modal centrado Notificaciones -->
+            <div class="center-modal" id="panelNotificacionesSecuencia">
+            <div class="center-modal-content">
+                <div class="center-modal-header">
+                <h2>Notificaciones</h2>
+                <button class="center-modal-close" data-close-panel>
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+                </div>
+                <div class="center-modal-body" id="listaNotificacionesSecuencia">
+                <!-- Se llena por JS -->
+                </div>
+            </div>
+            </div>
         </main>
     </div>
 
     <script src="../js/secuencia.js"></script>
+    <script src="../js/auth.js"></script>
     
 </body>
 </html>
