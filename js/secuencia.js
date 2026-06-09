@@ -330,8 +330,16 @@ function printSecuenciaTable() {
 // Función de logout
 function logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     window.location.href = '../index.html';
 }
+
+document.getElementById('btnLogout').addEventListener('click', logout);
+
+/*function logout() {
+    localStorage.removeItem('token');
+    window.location.href = '../index.html';
+} */
 
 // Cargar datos guardados
 window.addEventListener('load', function() {

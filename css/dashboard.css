@@ -178,12 +178,29 @@ body {
     display: block;
 }
 
+/* NUEVO: encabezado del dashboard */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.upload-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 .page-title {
     font-size: 48px;
     font-weight: 700;
     color: #1a1a2e;
-    margin-bottom: 40px;
-    text-align: center;
+    margin-bottom: 0;
+    text-align: right;
 }
 
 .dashboard-grid {
@@ -201,7 +218,7 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.card-tittle {
+.card-title {
     font-size: 32px;
     font-weight: 700;
     color: #1a1a2e;
@@ -237,34 +254,6 @@ body {
     color: #333;
 }
 
-/*
-.calendar-container {
-    max-width: 900px;
-    margin: 0 auto;
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.calendar-header h2 {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1a1a2e;
-}
-
-.calendar-nav {
-    display: flex;
-    gap: 15px;
-}*/
-
 .btn-nav {
     background: #1abc9c;
     color: white;
@@ -281,65 +270,12 @@ body {
     background: #16a085;
 }
 
-/*
-.calendar-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.calendar-weekdays div {
-    text-align: center;
-    font-weight: 600;
-    color: #666;
+#excelFile {
     padding: 10px;
-    font-size: 15px;
-}
-
-.calendar-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-}
-
-.calendar-day {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #e9ecef;
+    background: #fff;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: white;
 }
-
-.calendar-day:hover {
-    background: #f0f9ff;
-    border-color: #1abc9c;
-}
-
-.calendar-day.today {
-    background: #1abc9c;
-    color: white;
-    font-weight: 700;
-}
-
-.calendar-day.empty {
-    border: none;
-    cursor: default;
-}
-
-.calendar-day.empty:hover {
-    background: transparent;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}*/
 
 table th,
 table td {
@@ -354,98 +290,89 @@ table th {
     color: #495057;
 }
 
-/*------------*/
-
 /* Overlay para el modal */
 .center-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  display: none;             /* oculto por defecto */
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
-/* Cuando está "open" se muestra */
 .center-modal.open {
-  display: flex;
+    display: flex;
 }
 
-/* Contenido tipo card */
 .center-modal-content {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px 24px;
-  min-width: 320px;
-  max-width: 480px;          /* ancho máximo de la card */
-  max-height: 80vh;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    min-width: 320px;
+    max-width: 480px;
+    max-height: 80vh;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    display: flex;
+    flex-direction: column;
 }
 
-/* Header del modal */
 .center-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 8px;
-  margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .center-modal-header h2 {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
 }
 
 .center-modal-close {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: #666;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
 }
 
 .center-modal-close:hover {
-  color: #000;
+    color: #000;
 }
 
-/* Cuerpo del modal */
 .center-modal-body {
-  flex: 1;
-  overflow-y: auto;
-  font-size: 14px;
-  color: #333;
+    flex: 1;
+    overflow-y: auto;
+    font-size: 14px;
+    color: #333;
 }
 
 .center-modal-body p {
-  margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
-/* Lista de notificaciones en el modal */
 #listaNotificacionesDashboard .notificacion-item {
-  border-bottom: 1px solid #eee;
-  padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    padding: 8px 0;
 }
 
 #listaNotificacionesDashboard .notificacion-item:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 #listaNotificacionesDashboard .notificacion-titulo {
-  font-weight: 600;
-  margin-bottom: 4px;
+    font-weight: 600;
+    margin-bottom: 4px;
 }
 
 #listaNotificacionesDashboard .notificacion-fecha {
-  font-size: 12px;
-  color: #777;
+    font-size: 12px;
+    color: #777;
 }
-
-/*---------------*/
 
 @media (max-width: 1024px) {
     .dashboard-grid {
@@ -464,5 +391,15 @@ table th {
 
     .dashboard-search {
         width: 250px;
+    }
+
+    .dashboard-header {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .page-title {
+        text-align: left;
+        font-size: 36px;
     }
 }

@@ -1,4 +1,5 @@
-const BASE_URL = 'http://localhost:4000';
+// Backend 1 (usuarios)
+const BASE_URL = 'http://localhost:3300';
 
 /*export async function getUsuarios() {
   const res . = await fetch(`${BASE_URL}/api/usuarios`); // esto aún no existe, pero lo crearemos luego
@@ -20,5 +21,14 @@ export async function login(datos) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(datos),
   });
+  return res.json();
+}
+
+export async function obtenerProduccion(fecha) {
+  const url = fecha
+    ? `${BASE_URL}/api/produccion?fecha=${encodeURIComponent(fecha)}`
+    : `${BASE_URL}/api/produccion`;
+
+  const res = await fetch(url);
   return res.json();
 }

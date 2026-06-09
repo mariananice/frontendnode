@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GM Dashboard</title>
+    <title>GM Dashboard - Usuarios</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/usuarios.css">
 </head>
@@ -90,19 +90,13 @@
                   <button class="icon-btn" id="btnPerfil">
                     <i class="bi bi-person-circle"></i>
                   </button>
-                  <button class="icon-btn" onclick="logout()">
+                  <button class="icon-btn" id="btnLogout">
                     <i class="bi bi-box-arrow-right"></i>
                   </button>
                 </div>
             </header>
 
             <section id="usuarios" class="section active">
-              <!--<div class="usuarios-container">
-                <button class="btn btn-add" onclick="openAddUserModal()">
-                    <i class="bi bi-plus-circle"></i> Agregar Usuario
-                </button>
-              </div>-->
-
               <div class="table-wrapper">
                 <table class="usuarios-table">
                     <thead>
@@ -117,42 +111,12 @@
                     </thead>
 
                     <tbody id="usuariosTableBody">
-                        <!--<tr>
-                            <td>1</td>
-                            <td>Mariana Bernice Martínez Gutiérrez</td>
-                            <td>936136714</td>
-                            <td>marianaberenice.martinezgutierrez@gm.com</td>
-                            <td>usuario</td>
-                            <td class="actions-cell">
-                                <button class="btn btn-edit" onclick="editUser(1)">
-                                    <i class="bi bi-pencil-square"></i> Editar
-                                </button>
-                                <button class="btn btn-delete" onclick="deleteUser(1)">
-                                    <i class="bi bi-trash3-fill"></i> Eliminar
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Daniela Monserrat Navarro Meza</td>
-                            <td>374890234</td>
-                            <td>danielamonserrat.navarromeza@gm.com</td>
-                            <td>usuario</td>
-                            <td class="actions-cell">
-                                <button class="btn btn-edit" onclick="editUser(2)">
-                                    <i class="bi bi-pencil-square"></i> Editar
-                                </button>
-                                <button class="btn btn-delete" onclick="deleteUser(2)">
-                                    <i class="bi bi-trash3-fill"></i> Eliminar
-                                </button>
-                            </td>
-                        </tr>-->
+                        
                     </tbody>
                 </table>
               </div>
             </section>
 
-            <!-- Modal centrado Perfil -->
             <div class="center-modal" id="panelPerfil">
             <div class="center-modal-content">
                 <div class="center-modal-header">
@@ -170,7 +134,6 @@
             </div>
             </div>
 
-            <!-- Modal centrado Notificaciones -->
             <div class="center-modal" id="panelNotificaciones">
             <div class="center-modal-content">
                 <div class="center-modal-header">
@@ -180,58 +143,15 @@
                 </button>
                 </div>
                 <div class="center-modal-body" id="listaNotificacionesUsuarios">
-                <!-- Se llena por JS -->
                 </div>
             </div>
             </div>
-
-    <!--
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTittle">Agregar Usuario</h2>
-                <button class="close-btn" onclick="closeUserModal()">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <form action="userForm" onsubmit="saveUser(event)">
-                <div class="form-group">
-                    <label for="userName">Nombre Completo</label>
-                    <input type="text" id="userName" name="userName" required>
-                </div>
-                <div class="form-group">
-                    <label for="userEmail">Email</label>
-                    <input type="email" id="userEmail" name="userEmail" required>
-                </div>
-                <div class="form-group">
-                    <label for="userGMIN">GMIN</label>
-                    <input type="text" id="userGMIN" name="userGMIN" required>
-                </div>
-                <div class="form-group">
-                    <label for="userRol">Rol</label>
-                    <select name="userRol" id="userRol" required>
-                        <option value="">Selecionar rol</option>
-                        <option value="Admin">Admin</option>
-                        <option value="Usuario">Usuario</option>
-                    </select>
-                </div>
-                <div class="form-group" id="passwordGroup">
-                    <label for="userPassword">Contraseña</label>
-                    <input type="password" id="userPassword" name="userPassword" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-cancel" onclick="closeUserModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-save">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>-->
 
     <div id="userEdit" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTittle">Editar Usuario</h2>
-                <button class="close-btn" onclick="closeUserModal()">
+                <button class="close-btn" id="btnEditar">
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
@@ -257,7 +177,7 @@
                     </select>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-cancel" onclick="closeUserModal()">Cancelar</button>
+                    <button type="button" class="btn btn-cancel" id="btnCancelEditModal">Cancelar</button>
                     <button type="submit" class="btn btn-save">Guardar</button>
                 </div>
             </form>
@@ -267,5 +187,223 @@
     <script src="../js/usuarios.js"></script>
     <script src="../js/auth.js"></script>
     
+</body>
+</html>-->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GM Dashboard - Usuarios</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/usuarios.css">
+</head>
+<body>
+    <div class="app">
+
+        <aside class="sidebar">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="../images/logo.jpg" alt="Logo GM">
+                </div>
+                <h3 class="app-name"></h3>
+            </div>
+
+            <nav class="menu">
+                <ul>
+                    <li data-section="dashboard">
+                        <a href="dashboard.html">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li data-section="produccion">
+                        <a href="programaProduccion.html">
+                            <i class="bi bi-clipboard-data"></i>
+                            <span>Programa de Producción</span>
+                        </a>
+                    </li>
+                    <li data-section="programacion">
+                        <a href="programacion.html">
+                            <i class="bi bi-calendar"></i>
+                            <span>Programación</span>
+                        </a>
+                    </li>
+                    <li data-section="planeacion">
+                        <a href="planeacion.html">
+                            <i class="bi bi-gear"></i>
+                            <span>Planeación</span>
+                        </a>
+                    </li>
+                    <li data-section="reqbody">
+                        <a href="reqBody.html">
+                            <i class="bi bi-box"></i>
+                            <span>Req Body</span>
+                        </a>
+                    </li>
+                    <li data-section="secuencia">
+                        <a href="secuencia.html">
+                            <i class="bi bi-clock"></i>
+                            <span>Secuencia</span>
+                        </a>
+                    </li>
+                    <li data-section="cumplimiento">
+                        <a href="cumplimiento.html">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span>Cumplimiento</span>
+                        </a>
+                    </li>
+                    <li data-section="datos">
+                        <a href="datos.html">
+                            <i class="bi bi-database"></i>
+                            <span>Datos</span>
+                        </a>
+                    </li>
+                    <li class="active" data-section="usuarios">
+                        <a href="usuarios.html">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <div class="usuarios-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchUsers" placeholder="Buscar...">
+                </div>
+
+                <div class="icons">
+                    <button class="icon-btn" id="btnNotificaciones" type="button">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+
+                    <button class="icon-btn" id="btnPerfil" type="button">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+
+                    <button class="icon-btn" id="btnLogout" type="button">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </div>
+            </header>
+
+            <section id="usuarios" class="section active">
+                <div class="usuarios-container">
+                    <button class="btn btn-add" id="btnAddUser" type="button">
+                        <i class="bi bi-plus-circle"></i> Agregar Usuario
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="usuarios-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>NOMBRE</th>
+                                <th>GMIN</th>
+                                <th>EMAIL</th>
+                                <th>ROL</th>
+                                <th>ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usuariosTableBody">
+                            <!-- Se llena por JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Modal Perfil -->
+            <div class="center-modal" id="panelPerfil">
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Perfil de usuario</h2>
+                        <button class="center-modal-close" data-close-panel type="button">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+                    <div class="center-modal-body">
+                        <p><strong>Nombre:</strong> <span id="perfilUsuariosNombre"></span></p>
+                        <p><strong>Correo:</strong> <span id="perfilUsuariosCorreo"></span></p>
+                        <p><strong>Rol:</strong> <span id="perfilUsuariosRol"></span></p>
+                        <p><strong>GMIN:</strong> <span id="perfilUsuariosGmin"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Notificaciones -->
+            <div class="center-modal" id="panelNotificaciones">
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Notificaciones</h2>
+                        <button class="center-modal-close" data-close-panel type="button">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+                    <div class="center-modal-body" id="listaNotificacionesUsuarios">
+                        <!-- Se llena por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Usuario -->
+            <div id="userModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalTittle">Agregar Usuario</h2>
+                        <button class="close-btn" id="btnCloseUserModal" type="button">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label for="userName">Nombre Completo</label>
+                            <input type="text" id="userName" name="userName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userEmail">Email</label>
+                            <input type="email" id="userEmail" name="userEmail" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userGMIN">GMIN</label>
+                            <input type="text" id="userGMIN" name="userGMIN" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userRol">Rol</label>
+                            <select name="userRol" id="userRol" required>
+                                <option value="">Seleccionar rol</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Usuario">Usuario</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="passwordGroup">
+                            <label for="userPassword">Contraseña</label>
+                            <input type="password" id="userPassword" name="userPassword" required>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-cancel" id="btnCancelUserModal">Cancelar</button>
+                            <button type="submit" class="btn btn-save">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/usuarios.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:4000';
+const BASE_URL = 'http://localhost:3300';
 
 const form = document.getElementById('loginForm')
 const GMIN = document.getElementById('GMIN')

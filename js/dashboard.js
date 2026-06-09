@@ -1,5 +1,7 @@
-// Vairbales globales
-let currentMonth = 0; // Enero
+const BASE_URL = 'http://localhost:3300';
+
+// Variables globales
+let currentMonth = 0;
 let currentYear = 2026;
 
 const monthNames = [
@@ -7,24 +9,26 @@ const monthNames = [
     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
 ];
 
-// Ejecutar cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', function () {
-    // Proteger el dashboard
+document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
+
+    // Proteger dashboard
     if (!token) {
-        // Si no hay token, no hay sesión -> mandar al login
         window.location.href = '../index.html';
         return;
     }
 
-    initializeMenu(); // Si sí hay sesión, inicializar el menú 
+    initializeMenu();
 
     const btnPerfil = document.getElementById('btnPerfil');
     const btnNotificaciones = document.getElementById('btnNotificaciones');
     const panelPerfil = document.getElementById('panelPerfil');
     const panelNotificaciones = document.getElementById('panelNotificaciones');
+    const searchInput = document.getElementById('searchDashboard');
+    const btnSubirExcel = document.getElementById('btnSubirExcel');
+    const btnLogout = document.getElementById('btnLogout');
 
-    if(btnPerfil && panelPerfil) {
+    if (btnPerfil && panelPerfil) {
         btnPerfil.addEventListener('click', () => {
             llenarPerfil();
             abrirPanel(panelPerfil);
@@ -45,43 +49,53 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    const searchInput = document.getElementById('searchDashboard');
     if (searchInput) {
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
             filterDashboard(query);
         });
     }
+
+    if (btnSubirExcel) {
+        btnSubirExcel.addEventListener('click', subirExcel);
+    }
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', logout);
+    }
 });
 
 function abrirPanel(panel) {
-    // Cerrar otros paneles si hubiera
     document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
     panel.classList.add('open');
 }
 
-// Perfil de usuario en Usuarios
 function llenarPerfil() {
     let user = null;
+
     try {
         user = JSON.parse(localStorage.getItem('user'));
     } catch (e) {
         user = null;
     }
 
-    document.getElementById('perfilDashboardNombre').textContent = user?.nombre || 'Usuario';
-    document.getElementById('perfilDashboardCorreo').textContent = user?.email || 'correo@ejemplo.com';
-    document.getElementById('perfilDashboardRol').textContent = user?.rol || 'usuario';
-    document.getElementById('perfilDashboardGmin').textContent = user?.GMIN || 'GMIN';
+    const nombre = document.getElementById('perfilDashboardNombre');
+    const correo = document.getElementById('perfilDashboardCorreo');
+    const rol = document.getElementById('perfilDashboardRol');
+    const gmin = document.getElementById('perfilDashboardGmin');
+
+    if (nombre) nombre.textContent = user?.nombre || 'Usuario';
+    if (correo) correo.textContent = user?.email || 'correo@ejemplo.com';
+    if (rol) rol.textContent = user?.rol || 'usuario';
+    if (gmin) gmin.textContent = user?.GMIN || 'GMIN';
 }
 
-// Notificaciones en Usuarios (ejemplo estático)
 function llenarNotificacionesDashboard() {
     const contenedor = document.getElementById('listaNotificacionesDashboard');
     if (!contenedor) return;
 
     const notificaciones = [
-        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.' },
         { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
         { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
     ];
@@ -92,109 +106,37 @@ function llenarNotificacionesDashboard() {
         const div = document.createElement('div');
         div.className = 'notificacion-item';
         div.innerHTML = `
-        <div class="notificacion-titulo">${n.titulo}</div>
-        <div class="notificacion-fecha">${n.fecha}</div>
-        <div class="notificacion-detalle">${n.detalle}</div>
+            <div class="notificacion-titulo">${n.titulo}</div>
+            <div class="notificacion-fecha">${n.fecha}</div>
+            <div class="notificacion-detalle">${n.detalle}</div>
         `;
         contenedor.appendChild(div);
     });
 }
 
-// Sistema de navegación entre secciones
 function initializeMenu() {
     const menuItems = document.querySelectorAll('.menu li');
 
     menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(li => li.classList.remove('active')); //Remover clase active de todos
+        item.addEventListener('click', function () {
+            menuItems.forEach(li => li.classList.remove('active'));
+            this.classList.add('active');
 
-            this.classList.add('active'); //Agregar clase active clikeado
-
-            // Obtener la sección mostrar
             const sectionId = this.getAttribute('data-section');
-            showSection(sectionId); //
+            showSection(sectionId);
         });
     });
 }
 
 function showSection(sectionId) {
-    // Ocultar todas las secciones
     const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
+    sections.forEach(section => section.classList.remove('active'));
 
-    // Mostrar la sección seleccionada
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
     }
 }
-
-/*
-// Generar calendario
-function generateCalendar(month, year) {
-    const calendarDays = document.getElementById('calendarDays');
-    const currentMonthElement = document.getElementById('currentMonth');
-
-    // Actualiza título del mes
-    currentMonthElement.textContent = `${monthNames[month]} ${year}`;
-
-    calendarDays.innerHTML = ''; // Limpiar calendario
-
-    const firstDay = new Date(year, month, 1).getDay(); // Primer día del mes
-
-    const daysInMonth = new Date(year, month + 1, 0).getDate(); // Días del mes
-
-    // Fecha actual
-    const today = new Date();
-    const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
-    const currentDay = today.getDate();
-
-    // Agregar días vacíos al inicio 
-    for (let i = 0; i < firstDay; i++) {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.classList.add('calendar-day', 'empty');
-        calendarDays.appendChild(emptyDiv);
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayDiv = document.createElement('div');
-        dayDiv.classList.add('calendar-day');
-        dayDiv.textContent = day;
-
-        // Marcar día actual
-        if (isCurrentMonth && day === currentDay) {
-            dayDiv.classList.add('today');
-        }
-
-        // Agragar evento click
-        dayDiv.addEventListener('click', function() {
-            alert(`Seleccionaste: ${day} de ${monthNames[month]} ${year}`);
-        });
-
-        calendarDays.appendChild(dayDiv);
-    }
-}
-
-// Navegación del calendario
-function previousMonth() {
-    currentMonth--;
-    if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-    }
-    generateCalendar(currentMonth, currentYear);
-}
-
-function nextMonth() {
-    currentMonth++;
-    if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-    }
-    generateCalendar(currentMonth, currentYear);
-}*/
 
 function filterDashboard(query) {
     const cards = document.querySelectorAll('.dashboard-grid .card');
@@ -205,10 +147,91 @@ function filterDashboard(query) {
     });
 }
 
+async function subirExcel() {
+    const fileInput = document.getElementById('excelFile');
+    const file = fileInput?.files?.[0];
+
+    if (!file) {
+        alert('Selecciona un archivo Excel');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('archivo', file);
+
+    try {
+        const token = localStorage.getItem('token');
+
+        const res = await fetch(`${BASE_URL}/api/dashboard/upload-excel`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const data = await res.json();
+        console.log('Respuesta del backend:', data);
+
+        if (!res.ok) {
+            throw new Error(data.message || 'Error al subir archivo');
+        }
+
+        alert('Archivo subido correctamente');
+        pintarTablaExcel(data.datos || []);
+    } catch (error) {
+        console.error('Error al subir Excel:', error);
+        alert(error.message || 'Error al subir archivo');
+    }
+}
+
+function pintarTablaExcel(datos) {
+    const section = document.getElementById('dashboard');
+    if (!section) return;
+
+    let container = document.getElementById('excelPreviewContainer');
+
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'excelPreviewContainer';
+        container.style.marginTop = '30px';
+        section.appendChild(container);
+    }
+
+    if (!Array.isArray(datos) || datos.length === 0) {
+        container.innerHTML = '<p>No hay datos para mostrar.</p>';
+        return;
+    }
+
+    const columnas = Object.keys(datos[0]);
+
+    let html = `
+        <div class="card">
+            <h2 class="card-title">Vista previa del Excel</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            ${columnas.map(col => `<th>${col}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${datos.map(fila => `
+                            <tr>
+                                ${columnas.map(col => `<td>${fila[col] ?? ''}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
 function logout() {
-    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '../index.html';
-    //}
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '../index.html';
 }

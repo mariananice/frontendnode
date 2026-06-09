@@ -13,7 +13,7 @@ const passwordError = document.getElementById('passwordError')
 const confirmPasswordError = document.getElementById('confirmPasswordError')
 
 // URL backend real
-const API_URL = 'http://localhost:4000/api/usuarios/create';
+const API_URL = 'http://localhost:3300/api/usuarios/create';
 
 form.addEventListener('submit', function (e) {
     e.preventDefault();

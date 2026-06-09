@@ -1,18 +1,37 @@
+import { obtenerProduccion } from './api.js';
+
+const BASE_URL = 'http://localhost:3300';
+
 // Variables globales
 let productionData = {
     xl1: [],
     xl2: []
 };
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
+let currentMonth = 0;
+let currentYear = 2026;
+
+const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const data = await obtenerProduccion();
+        console.log('Respuesta backend:', data);
+    } catch (error) {
+        console.error('Error backend:', error);
+    }
+
     initializeMenu();
     loadProductionData();
 
     const btnPerfil = document.getElementById('btnPerfil');
     const btnNotificaciones = document.getElementById('btnNotificaciones');
-    const panelPErfil = document.getElementById('panelPerfil');
+    const panelPerfil = document.getElementById('panelPerfil');
     const panelNotificaciones = document.getElementById('panelNotificaciones');
+    const btnLogout = document.getElementById('btnLogout');
 
     if (btnPerfil && panelPerfil) {
         btnPerfil.addEventListener('click', () => {
@@ -42,15 +61,29 @@ document.addEventListener('DOMContentLoaded', function() {
             filterProductionTable(query);
         });
     }
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', logout);
+    }
+
+    cargarProduccion();
 });
 
+async function cargarProduccion() {
+    try {
+        const fecha = '2025-05-04';
+        const datos = await obtenerProduccion(fecha);
+        console.log('Datos producción:', datos);
+    } catch (error) {
+        console.error('Error cargando producción:', error);
+    }
+}
+
 function abrirPanel(panel) {
-    // Cerrar otros paneles si hubiera
     document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
     panel.classList.add('open');
 }
 
-// Perfil de usuario en Usuarios
 function llenarPerfil() {
     let user = null;
     try {
@@ -65,13 +98,12 @@ function llenarPerfil() {
     document.getElementById('perfilProduccionGmin').textContent = user?.GMIN || 'GMIN';
 }
 
-// Notificaciones en Usuarios (ejemplo estático)
 function llenarNotificacionesProduccion() {
     const contenedor = document.getElementById('listaNotificacionesProduccion');
     if (!contenedor) return;
 
     const notificaciones = [
-        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.' },
         { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
         { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
     ];
@@ -82,24 +114,22 @@ function llenarNotificacionesProduccion() {
         const div = document.createElement('div');
         div.className = 'notificacion-item';
         div.innerHTML = `
-        <div class="notificacion-titulo">${n.titulo}</div>
-        <div class="notificacion-fecha">${n.fecha}</div>
-        <div class="notificacion-detalle">${n.detalle}</div>
+            <div class="notificacion-titulo">${n.titulo}</div>
+            <div class="notificacion-fecha">${n.fecha}</div>
+            <div class="notificacion-detalle">${n.detalle}</div>
         `;
         contenedor.appendChild(div);
     });
 }
 
-// Sistema de navegación entre secciones
 function initializeMenu() {
-    const menuItems = document.querySelectorAll('.menuli'); 
+    const menuItems = document.querySelectorAll('.menu li');
 
     menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(li => li.classList.remove('active')); // Remover clase active de todos
-            this.classList.add('active'); // Agregar clase active al clikeado
+        item.addEventListener('click', function () {
+            menuItems.forEach(li => li.classList.remove('active'));
+            this.classList.add('active');
 
-            // Obtener la sección mostrar
             const sectionId = this.getAttribute('data-section');
             showSection(sectionId);
         });
@@ -107,162 +137,49 @@ function initializeMenu() {
 }
 
 function showSection(sectionId) {
-    // Ocultar todas las secciones 
     const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
+    sections.forEach(section => section.classList.remove('active'));
 
-    // Mostrar la sección seleccionada
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
     }
 }
 
-// Cargar datos de producción de ejemplo
 function loadProductionData() {
-    // datos ejemplo xl1
     productionData.xl1 = [
-        {
-            hora: '06:00:00 a. m.',
-            tProd: '115',
-            descripcion: 'C4088PNL-DASH EXT LWR STL 1UB',
-            cantidad: '2000',
-            nonLoad: '',
-            strokes: '1000',
-            doH: '2.5',
-            comentarios: '',
-            tipo: 'normal'
-        },
-        {
-            hora: '07:55:00 a. m.',
-            tProd: '168',
-            descripcion: 'C4242PNL-I-PUBX URPL STL 2ST',
-            cantidad: '1200',
-            nonLoad: '',
-            strokes: '1200',
-            doH: '1.9',
-            comentarios: '',
-            tipo: 'normal'
-        },
-        {
-            hora: '10:43:00 a. m.',
-            tProd: '83',
-            descripcion: 'C424PNL-I-PUBX INR URP L STL 2ST',
-            cantidad: '600',
-            nonLoad: '',
-            strokes: '600',
-            doH: '2.5',
-            comentarios: '',
-            tipo: 'normal'
-        },
-        {
-            hora: '12:06:00 p. m.',
-            tProd: '240',
-            descripcion: 'Try out C8908',
-            cantidad: '0',
-            nonLoad: 'TO',
-            strokes: '0',
-            doH: '###',
-            comentarios: 'Tiempo asignado para Try Out',
-            tipo: 'tryout'
-        },
-        {
-            hora: '04:06:00 p. m.',
-            tProd: '116',
-            descripcion: 'NS',
-            cantidad: '0',
-            nonLoad: 'NS',
-            strokes: '0',
-            doH: '###',
-            comentarios: 'Preparar arranque para el segundo turno',
-            tipo: 'ns'
-        },
-        {
-            hora: '06:02:00 p. m.',
-            tProd: '104',
-            descripcion: 'C4087PNL-DAH STL 1UB',
-            cantidad: '1680',
-            nonLoad: '',
-            strokes: '840',
-            doH: '2.1',
-            comentarios: '',
-            tipo: 'normal'
-        },
-        {
-            hora: '07:46:00 p. m.',
-            tProd: '71',
-            descripcion: 'C4146PNL-ROOF OTR STL 2ST',
-            cantidad: '600',
-            nonLoad: '',
-            strokes: '600',
-            doH: '1.7',
-            comentarios: '',
-            tipo: 'normal'
-        },
-        {
-            hora: '08:57:00 p. m.',
-            tProd: '55',
-            descripcion: 'C4148PNL-SUNROOF OTR STL 2ST',
-            cantidad: '450',
-            nonLoad: '',
-            strokes: '450',
-            doH: '1.6',
-            comentarios: '',
-            tipo: 'normal'
-        },
-        {
-            hora: '09:52:00 p. m.',
-            tProd: '156',
-            descripcion: 'C4157PNL-FDR OTR STL1UB',
-            cantidad: '960',
-            nonLoad: '',
-            strokes: '960',
-            doH: '2.1',
-            comentarios: '',
-            tipo: 'normal'
-        },
-        {
-            hora: '12:28:00 a. m.',
-            tProd: '336',
-            descripcion: 'NS',
-            cantidad: '0',
-            nonLoad: 'NS',
-            strokes: '0',
-            doH: '###',
-            comentarios: 'Preparar arranque del jueves',
-            tipo: 'ns'
-        },
+        // deja aquí tus datos mock
     ];
 
-    // Renderizar las tablas
+    productionData.xl2 = [
+        // deja aquí tus datos mock o los que te regrese el backend
+    ];
+
     renderProductionTable('xl1');
     renderProductionTable('xl2');
 }
 
-// Renderizar tabla de producción
 function renderProductionTable(prensa) {
     const data = productionData[prensa];
-    const  tbody = document.querySelector(`#produccion table:nth-of-type(${prensa === 'xl1' ? 1 : 2}) tbody`);
+    const tbody = document.querySelector(
+        `#produccion table:nth-of-type(${prensa === 'xl1' ? 1 : 2}) tbody`
+    );
 
-    if (!tbody || data || data.length === 0) return;
+    if (!tbody || !data || data.length === 0) return;
 
     tbody.innerHTML = '';
 
     let totalStrokes = 0;
 
-    data.forEach((row, index) => {
+    data.forEach(row => {
         const tr = document.createElement('tr');
 
-        // Aplicar clase según el tipo
         if (row.tipo === 'tryout') {
             tr.classList.add('row-green');
         } else if (row.tipo === 'ns') {
-            tr.classList.add('row-yellow')
+            tr.classList.add('row-yellow');
         }
 
-        // Sumar strokes
         if (row.strokes && !isNaN(parseInt(row.strokes))) {
             totalStrokes += parseInt(row.strokes);
         }
@@ -276,14 +193,16 @@ function renderProductionTable(prensa) {
             <td>${row.strokes}</td>
             <td>${row.doH}</td>
             <td class="${row.tipo === 'ns' || row.tipo === 'tryout' ? 'comment-red' : ''}">${row.comentarios}</td>
-            `;
+        `;
 
-            tbody.appendChild(tr);
+        tbody.appendChild(tr);
     });
 
-    //Actualizar total de strokes
-    const totalCell = document.querySelector(`#produccion table:nth-of-type(${prensa === 'xl1' ? 1:2}) tfoot .footer-total:last-child`);
-    if(totalCell) {
+    const totalCell = document.querySelector(
+        `#produccion table:nth-of-type(${prensa === 'xl1' ? 1 : 2}) tfoot .footer-total:last-child`
+    );
+
+    if (totalCell) {
         totalCell.textContent = totalStrokes;
     }
 }
@@ -292,7 +211,7 @@ function filterProductionTable(query) {
     const rows = document.querySelectorAll('#produccion table tbody tr');
 
     rows.forEach(row => {
-        const hora = row.children[0].textContent.toLowerCase();
+        const hora = row.children[0]?.textContent.toLowerCase() || '';
         const tProd = row.children[1]?.textContent.toLowerCase() || '';
         const descripcion = row.children[2]?.textContent.toLowerCase() || '';
         const cantidad = row.children[3]?.textContent.toLowerCase() || '';
@@ -301,24 +220,10 @@ function filterProductionTable(query) {
         const doH = row.children[6]?.textContent.toLowerCase() || '';
 
         const text = `${hora} ${tProd} ${descripcion} ${cantidad} ${nonLoad} ${strokes} ${doH}`;
-
-        row.style.display = text.includes(query) ? '' : 'none';
-
-    })
-}
-
-/*function filterWeeklyTable(query) {
-    const rows = document.querySelectorAll('#reqbody tbody tr');
-
-    rows.forEach(row => {
-
-        const text = `${cspc} ${linea}`;
-
         row.style.display = text.includes(query) ? '' : 'none';
     });
-} */
+}
 
-// Función para agregar una nueva fila
 function addProductionRow(prensa) {
     const newRow = {
         hora: '06:00:00 a. m.',
@@ -332,22 +237,20 @@ function addProductionRow(prensa) {
         tipo: 'normal'
     };
 
-    productionData[prensa].pop();
+    productionData[prensa].push(newRow);
     renderProductionTable(prensa);
 }
 
-// Función para eliminar la última fila
 function deleteLastRow(prensa) {
-    if(productionData[prensa].length > 0) {
+    if (productionData[prensa].length > 0) {
         productionData[prensa].pop();
         renderProductionTable(prensa);
     }
 }
 
-// Función para exportar datos
 function exportData() {
     const dataStr = JSON.stringify(productionData, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json' });
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
@@ -356,13 +259,11 @@ function exportData() {
     URL.revokeObjectURL(url);
 }
 
-// Functión para guardar en localStorage
 function saveData() {
     localStorage.setItem('productionData', JSON.stringify(productionData));
     alert('Datos guardados correctamente');
 }
 
-// Función para cargar de localStorage
 function loadSavedData() {
     const saved = localStorage.getItem('productionData');
     if (saved) {
@@ -375,15 +276,12 @@ function loadSavedData() {
     }
 }
 
-// Función de logout 
 function logout() {
-    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('token');
-        window.location.href = '../index.html';
-    //}
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '../index.html';
 }
 
-// Función para calcular total de strokes
 function calculateTotalStrokes(prensa) {
     const data = productionData[prensa];
     let total = 0;
@@ -397,12 +295,10 @@ function calculateTotalStrokes(prensa) {
     return total;
 }
 
-// Función para cambiar tipo de fila (normal, tryout, ns)
 function changeRowType(prensa, rowIndex, newType) {
     if (productionData[prensa][rowIndex]) {
         productionData[prensa][rowIndex].tipo = newType;
 
-        // Ajustar valores según el tipo
         if (newType === 'tryout') {
             productionData[prensa][rowIndex].descripcion = 'Try out';
             productionData[prensa][rowIndex].nonLoad = 'TO';
@@ -421,7 +317,6 @@ function changeRowType(prensa, rowIndex, newType) {
     }
 }
 
-// Imprimir tabla
 function printTable() {
     window.print();
 }
