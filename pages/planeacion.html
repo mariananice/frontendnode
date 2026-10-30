@@ -1,981 +1,401 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GM Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../css/planeacion.css">
+
+    <title>GM Dashboard - Planeación</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/planeacion.css"
+    >
+
+    <style>
+        .week-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .week-controls input[type="date"] {
+            min-height: 38px;
+            padding: 6px 10px;
+            border: 1px solid #d0d5dd;
+            border-radius: 6px;
+            background: #ffffff;
+        }
+
+        @media (max-width: 900px) {
+            .week-controls {
+                width: 100%;
+            }
+
+            .week-controls .btn,
+            .week-controls input {
+                flex: 1;
+            }
+        }
+    </style>
 </head>
+
 <body>
     <div class="app">
 
         <aside class="sidebar">
-          <div class="logo-container">
-            <div class="logo">
-                <img src="../images/logo.jpg" alt="Logo GM">
-            </div>
-            <h3 class="app-name"></h3>
-          </div>
+            <div class="logo-container">
+                <div class="logo">
+                    <img
+                        src="../images/logo.jpg"
+                        alt="Logo GM"
+                    >
+                </div>
 
-          <nav class="menu">
-            <ul>
-              <li data-section="dashboard">
-                <a href="dashboard.html">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Dashboard</span>
-                </a>
-              </li>
-              <li data-section="produccion">
-                <a href="programaProduccion.html">
-                  <i class="bi bi-clipboard-data"></i>
-                  <span>Programa de Producción</span>
-                </a>
-              </li>
-              <li data-section="programacion">
-                <a href="programacion.html">
-                  <i class="bi bi-calendar"></i>
-                  <span>Programación</span>
-                </a>
-              </li>
-              <li class="active" data-section="planeacion">
-                  <i class="bi bi-gear"></i>
-                  <span>Planeación</span>
-              </li>
-              <li data-section="reqbody">
-                <a href="reqBody.html">
-                    <i class="bi bi-box"></i>
-                    <span>Req Body</span>
-                </a>
-              </li>
-              <li data-section="secuencia">
-                <a href="secuencia.html">
-                    <i class="bi bi-clock"></i>
-                    <span>Secuencia</span>
-                </a>
-              </li>
-              <li data-section="cumplimiento">
-                <a href="cumplimiento.html">
-                    <i class="bi bi-bar-chart-line"></i>
-                    <span>Cumplimiento</span>
-                </a>
-              </li>
-              <li data-section="datos">
-                <a href="datos.html">
-                    <i class="bi bi-database"></i>
-                    <span>Datos</span>
-                </a>
-              </li>
-              <li data-section="usuarios">
-                <a href="usuarios.html">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Usuarios</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
+                <h3 class="app-name"></h3>
+            </div>
+
+            <nav class="menu">
+                <ul>
+                    <li>
+                        <a href="dashboard.html">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="programaProduccion.html">
+                            <i class="bi bi-clipboard-data"></i>
+                            <span>Programa de Producción</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="programacion.html">
+                            <i class="bi bi-calendar"></i>
+                            <span>Programación</span>
+                        </a>
+                    </li>
+
+                    <li class="active">
+                        <i class="bi bi-gear"></i>
+                        <span>Planeación</span>
+                    </li>
+
+                    <li>
+                        <a href="reqBody.html">
+                            <i class="bi bi-box"></i>
+                            <span>Req Body</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="secuencia.html">
+                            <i class="bi bi-clock"></i>
+                            <span>Secuencia</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="cumplimiento.html">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span>Cumplimiento</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="datos.html">
+                            <i class="bi bi-database"></i>
+                            <span>Datos</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="usuarios.html">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </aside>
 
         <main class="main">
+
             <header class="topbar">
                 <div class="planeacion-search">
-                  <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Buscar..." id="searchPlaneacion">
+                    <i class="bi bi-search"></i>
+
+                    <input
+                        id="searchPlaneacion"
+                        type="search"
+                        placeholder="Buscar en la semana..."
+                    >
                 </div>
+
                 <div class="icons">
-                  <button class="icon-btn" id="btnNotificaciones">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="notification-badge"></span>
-                  </button>
-                  <button class="icon-btn" id="btnPerfil">
-                    <i class="bi bi-person-circle"></i>
-                  </button>
-                  <button class="icon-btn" id="btnLogout">
-                    <i class="bi bi-box-arrow-right"></i>
-                  </button>
+                    <button
+                        class="icon-btn"
+                        id="btnNotificaciones"
+                        type="button"
+                    >
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+
+                    <button
+                        class="icon-btn"
+                        id="btnPerfil"
+                        type="button"
+                    >
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+
+                    <button
+                        class="icon-btn"
+                        id="btnLogout"
+                        type="button"
+                    >
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
                 </div>
             </header>
 
-            <section id="planeacion" class="section active">
-              <h1>Planeación</h1>
-              <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th colspan="21" class="header-main">Miércoles</th>
-                        </tr>
-                        <tr>
-                            <th colspan="21" class="header-date">05/11/2025</th>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <th>Hora</th>
-                            <th>Tiempo de Prod. (min)</th>
-                            <th>Cambios</th>
-                            <th>Utilización de línea</th>
-                            <th>Part</th>
-                            <th>CSPC</th>
-                            <th>DOH 6 a.m</th>
-                            <th>Conteo horas</th>
-                            <th>Horas en num</th>
-                            <th>Piezas consumidas</th>
-                            <th>DOH en secuencia</th>
-                            <th>Descripción de la parte</th>
-                            <th>Cantidad</th>
-                            <th>Strokes</th>
-                            <th>Partes</th>
-                            <th>Cap en racks</th>
-                            <th>DIF</th>
-                            <th>Velocidad en Piezas</th>
-                            <th>Hrs para recuperar racks</th>
-                            <th>Cobertura aprox.</th>
-                        </tr>
-                    </thead>
+            <section
+                id="planeacion"
+                class="section active"
+            >
 
-                    <tbody>
-                        <tr>
-                            <td class="logo-cell" rowspan="17">XL1</td>
-                            <td>06:00:00 a. m.</td>
-                            <td>114</td>
-                            <td></td>
-                            <td>0.08</td>
-                            <td>84666755</td>
-                            <td>C4088</td>
-                            <td>2.55</td>
-                            <td>2:00:00</td>
-                            <td>2.00</td>
-                            <td>128</td>
-                            <td>2.5</td>
-                            <td class="text-left">C4088PNL-DASH EXT LWR STL 1UB</td>
-                            <td>2000</td>
-                            <td>1000</td>
-                            <td>2000</td>
-                            <td>1900</td>
-                            <td class="text-red">-100</td>
-                            <td>64</td>
-                            <td>1.5625</td>
-                            <td>54.69</td>
-                        </tr>
-                        <tr>
-                            <td>07:54:00 a. m.</td>
-                            <td>168</td>
-                            <td>168</td>
-                            <td>0.21</td>
-                            <td>85654552</td>
-                            <td>C4242</td>
-                            <td>2.22</td>
-                            <td>3:54:00</td>
-                            <td>3.90</td>
-                            <td>215</td>
-                            <td>1.9</td>
-                            <td class="text-left">C4242PNL-PUBX INR UPR L STL 2ST</td>
-                            <td>1200</td>
-                            <td>1200</td>
-                            <td>2400</td>
-                            <td>1048</td>
-                            <td class="text-red">-152</td>
-                            <td>55</td>
-                            <td>2.763636364</td>
-                            <td>44.95</td>
-                        </tr>
-                        <tr>
-                            <td>10:42:00 a. m.</td>
-                            <td>83</td>
-                            <td></td>
-                            <td>0.27</td>
-                            <td>23399998</td>
-                            <td>C4246</td>
-                            <td>2.71</td>
-                            <td>6:42:00</td>
-                            <td>6.70</td>
-                            <td>14</td>
-                            <td>4.4</td>
-                            <td class="text-left">C4246PNL-PUBX INR UPR L STL 2ST</td>
-                            <td>600</td>
-                            <td>600</td>
-                            <td>1200</td>
-                            <td>600</td>
-                            <td class="text-red">0</td>
-                            <td>2</td>
-                            <td>0</td>
-                            <td>95.00</td>
-                        </tr>
-                        <tr>
-                            <td>12:04:00 p. m.</td>
-                            <td>240</td>
-                            <td>0.45</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2.55</td>
-                            <td>8:04:00</td>
-                            <td>8.07</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>04:04:00 p. m.</td>
-                            <td>116</td>
-                            <td>116</td>
-                            <td>0.53</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>12:04:00</td>
-                            <td>12.07</td>
-                            <td>#N/A</td>
-                            <td>2.5</td>
-                            <td class="text-left">#N/A</td>
-                            <td>NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 p. m.</td>
-                            <td>103</td>
-                            <td></td>
-                            <td>0.61</td>
-                            <td>85560226</td>
-                            <td>C4087</td>
-                            <td>2.80</td>
-                            <td>14:00:00</td>
-                            <td>14.00</td>
-                            <td>896</td>
-                            <td>2.1</td>
-                            <td class="text-left">C4087PNL-DASH STL 1UB</td>
-                            <td>1680</td>
-                            <td>840</td>
-                            <td>1680</td>
-                            <td>720</td>
-                            <td class="text-red">-960</td>
-                            <td>64</td>
-                            <td>15</td>
-                            <td>60</td>
-                        </tr>
-                        <tr>
-                            <td>07:43:00 p. m.</td>
-                            <td>71</td>
-                            <td></td>
-                            <td>0.66</td>
-                            <td>84688122</td>
-                            <td>C4146</td>
-                            <td>2.70</td>
-                            <td>15:43:00</td>
-                            <td>15.72</td>
-                            <td>613</td>
-                            <td>1.7</td>
-                            <td class="text-left">C4146PNL-ROOF OTR STL 2ST</td>
-                            <td>600</td>
-                            <td>600</td>
-                            <td>600</td>
-                            <td>323</td>
-                            <td class="text-red">-277</td>
-                            <td>39</td>
-                            <td>7.102564103</td>
-                            <td>52.74358974</td>
-                        </tr>
-                        <tr>
-                            <td>08:53:00 p. m.</td>
-                            <td>55</td>
-                            <td></td>
-                            <td>0.70</td>
-                            <td>84688125</td>
-                            <td>C4148</td>
-                            <td>2.23</td>
-                            <td>16:53:00</td>
-                            <td>16.88</td>
-                            <td>338</td>
-                            <td>1.6</td>
-                            <td class="text-left">C4148PNL-SUNROOF OTR STL 2ST</td>
-                            <td>450</td>
-                            <td>450</td>
-                            <td>450</td>
-                            <td>119</td>
-                            <td class="text-red">-331</td>
-                            <td>20</td>
-                            <td>16.55</td>
-                            <td>50.15</td>
-                        </tr>
-                        <tr>
-                            <td>09:47:00 p. m.</td>
-                            <td>156</td>
-                            <td>156</td>
-                            <td>0.82</td>
-                            <td>84496740</td>
-                            <td>C4157</td>
-                            <td>1.90</td>
-                            <td>17:47:00</td>
-                            <td>17.78</td>
-                            <td>427</td>
-                            <td>2.1</td>
-                            <td class="text-left">C4157PNL-FDR OTR STL 1UB</td>
-                            <td>960</td>
-                            <td>960</td>
-                            <td>1920</td>
-                            <td>448</td>
-                            <td class="text-red">-512</td>
-                            <td>24</td>
-                            <td>21.33333333</td>
-                            <td>61.83333333</td>
-                        </tr>
-                        <tr>
-                            <td>12:23:00 a. m.</td>
-                            <td>336</td>
-                            <td>336</td>
-                            <td>1.067584959</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>20:23:00</td>
-                            <td>20.38</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>05:59:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.067584959</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>1:59:00</td>
-                            <td>25.98</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>05:59:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.067584959</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>1:59:00</td>
-                            <td>25.98</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>05:59:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.067584959</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>1:59:00</td>
-                            <td>25.98</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>05:59:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.067584959</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>1:59:00</td>
-                            <td>25.98</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>05:59:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.067584959</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>1:59:00</td>
-                            <td>25.98</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>05:59:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.067584959</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>1:59:00</td>
-                            <td>25.98</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>05:59:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>1:59:00</td>
-                            <td>25.98</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                    </tbody>
+                <div class="section-heading">
+                    <div>
+                        <h1>Planeación</h1>
 
-                    <tfoot>
-                        <tr>
-                            <td colspan="12"></td>
-                            <td colspan="2" class="footer-total">5650</td>
-                            <td class="footer-total">10250</td>
-                            <td colspan="5"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-              </div>
+                        <p
+                            id="rangoSemana"
+                            class="week-caption"
+                        ></p>
+                    </div>
 
-              <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th colspan="21" class="header-main">Miércoles</th>
-                        </tr>
-                        <tr>
-                            <th colspan="21" class="header-date">05/11/2025</th>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <th>Hora</th>
-                            <th>Tiempo de Prod. (min)</th>
-                            <th>Cambios</th>
-                            <th>Utilización de línea</th>
-                            <th>Part</th>
-                            <th>CSPC</th>
-                            <th>DOH 6 a.m</th>
-                            <th>Conteo horas</th>
-                            <th>Horas en num</th>
-                            <th>Piezas consumidas</th>
-                            <th>DOH en secuencia</th>
-                            <th>Descripción de la parte</th>
-                            <th>Cantidad</th>
-                            <th>Strokes</th>
-                            <th>Partes</th>
-                            <th>Cap en racks</th>
-                            <th>DIF</th>
-                            <th>Velocidad en Piezas</th>
-                            <th>Hrs para recuperar racks</th>
-                            <th>Cobertura aprox.</th>
-                        </tr>
-                    </thead>
+                    <div class="week-controls">
+                        <button
+                            id="btnSemanaAnterior"
+                            class="btn btn-primary"
+                            type="button"
+                        >
+                            <i class="bi bi-chevron-left"></i>
+                            Semana anterior
+                        </button>
 
-                    <tbody>
-                        <tr>
-                            <td class="logo-cell" rowspan="17">XL2</td>
-                            <td>06:00:00 a. m.</td>
-                            <td>100</td>
-                            <td></td>
-                            <td>0.074024788</td>
-                            <td>84453925</td>
-                            <td>C4214</td>
-                            <td>3.81</td>
-                            <td>2:00:00</td>
-                            <td>2.000</td>
-                            <td>16</td>
-                            <td>4.4</td>
-                            <td class="text-left">C4214PNL-PUBX W/H INR LWR R STL 2ST</td>
-                            <td>800</td>
-                            <td>800</td>
-                            <td>1600</td>
-                            <td>800</td>
-                            <td class="text-red">0</td>
-                            <td>8</td>
-                            <td>0</td>
-                            <td>90</td>
-                        </tr>
-                        <tr>
-                            <td>07:39:00 a. m.</td>
-                            <td>176</td>
-                            <td>176</td>
-                            <td>0.204395158</td>
-                            <td>84652941</td>
-                            <td>C4106</td>
-                            <td>1.44</td>
-                            <td>3:39:00</td>
-                            <td>3.650</td>
-                            <td>216</td>
-                            <td>1.2</td>
-                            <td class="text-left">C4106PNL-BDY SI OTR L STL 1UB</td>
-                            <td>1200</td>
-                            <td>1200</td>
-                            <td>1200</td>
-                            <td>1028</td>
-                            <td class="text-red">-172</td>
-                            <td>59</td>
-                            <td>2.915254237</td>
-                            <td>29.3559322</td>
-                        </tr>
-                        <tr>
-                            <td>10:35:00 a. m.</td>
-                            <td>102</td>
-                            <td></td>
-                            <td>0.280236301</td>
-                            <td>84443359</td>
-                            <td>C4219</td>
-                            <td>1.46</td>
-                            <td>6:35:00</td>
-                            <td>6.583</td>
-                            <td>152</td>
-                            <td>1.7</td>
-                            <td class="text-left">C4219PNL-PUBX OTR R STL 1UB</td>
-                            <td>800</td>
-                            <td>800</td>
-                            <td>800</td>
-                            <td>460</td>
-                            <td class="text-red">-340</td>
-                            <td>23</td>
-                            <td>14.7826087</td>
-                            <td>41.73913043</td>
-                        </tr>
-                        <tr>
-                            <td>12:17:00 p. m.</td>
-                            <td>109</td>
-                            <td></td>
-                            <td>0.361007519</td>
-                            <td>84453922</td>
-                            <td>C4212</td>
-                            <td>2.37</td>
-                            <td>8:17:00</td>
-                            <td>8.283/td>
-                            <td>456</td>
-                            <td>1.9</td>
-                            <td class="text-left">C4212PNL-PUBX W/H INR LWR R STL 2ST</td>
-                            <td>960</td>
-                            <td>960</td>
-                            <td>1920</td>
-                            <td>800</td>
-                            <td class="text-red">-160</td>
-                            <td>55</td>
-                            <td>2.909090909</td>
-                            <td>48</td>
-                        </tr>
-                        <tr>
-                            <td>02:06:00 p. m.</td>
-                            <td>234</td>
-                            <td>234</td>
-                            <td>0.534340852</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>10:06:00</td>
-                            <td>10.100</td>
-                            <td>#N/A</td>
-                            <td>0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>C4212</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 p. m.</td>
-                            <td>81</td>
-                            <td></td>
-                            <td>0.594690259</td>
-                            <td>84443368</td>
-                            <td>C4222</td>
-                            <td>4.79</td>
-                            <td>14:00:00</td>
-                            <td>14.000</td>
-                            <td>56</td>
-                            <td>2.3</td>
-                            <td class="text-left">C4222PNL-PUBX OTR L STL 1UB</td>
-                            <td>600</td>
-                            <td>600</td>
-                            <td>600</td>
-                            <td>600</td>
-                            <td class="text-red">0</td>
-                            <td>4</td>
-                            <td>0</td>
-                            <td>57.5</td>
-                        </tr>
-                        <tr>
-                            <td>07:21:00 p. m.</td>
-                            <td>146</td>
-                            <td></td>
-                            <td>0.702694573</td>
-                            <td>84652942</td>
-                            <td>C4109</td>
-                            <td>2.14</td>
-                            <td>15:21:00</td>
-                            <td>15.350</td>
-                            <td>906</td>
-                            <td>1.3</td>
-                            <td class="text-left">C4109PNL-BDY OTR R STL 1UB</td>
-                            <td>1200</td>
-                            <td>1200</td>
-                            <td>1200</td>
-                            <td>420</td>
-                            <td class="text-red">-780</td>
-                            <td>59</td>
-                            <td>13.22033898</td>
-                            <td>43.55932203</td>
-                        </tr>
-                        <tr>
-                            <td>09:46:00 p. m.</td>
-                            <td>115</td>
-                            <td>115</td>
-                            <td>0.787879759</td>
-                            <td>84401482</td>
-                            <td>C4207</td>
-                            <td>3.00</td>
-                            <td>17:46:00</td>
-                            <td>17.767</td>
-                            <td>1138</td>
-                            <td>2.2</td>
-                            <td class="text-left">C4207PNL-PUBX FRT STL 2ST</td>
-                            <td>1344</td>
-                            <td>672</td>
-                            <td>1344</td>
-                            <td>365</td>
-                            <td class="text-red">-979</td>
-                            <td>64</td>
-                            <td>15.296875</td>
-                            <td>64.296875</td>
-                        </tr>
-                        <tr>
-                            <td>11:41:00 p. m.</td>
-                            <td>379</td>
-                            <td>379</td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>19:41:00</td>
-                            <td>19.683</td>
-                            <td>#N/A</td>
-                            <td>0.2</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>1.068620499</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                        <tr>
-                            <td>06:00:00 a. m.</td>
-                            <td>0</td>
-                            <td></td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>0.00</td>
-                            <td>2:00:00</td>
-                            <td>26.00</td>
-                            <td>#N/A</td>
-                            <td>#0.0</td>
-                            <td class="text-left">NS</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>#N/A</td>
-                            <td class="text-red">#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                            <td>#N/A</td>
-                        </tr>
-                    </tbody>
+                        <input
+                            id="selectorSemana"
+                            type="date"
+                            value="2026-01-07"
+                            title="Seleccionar semana"
+                        >
 
-                    <tfoot>
-                        <tr>
-                            <td colspan="12"></td>
-                            <td colspan="2" class="footer-total">6232</td>
-                            <td class="footer-total">8664</td>
-                            <td colspan="5"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-              </div>
+                        <button
+                            id="btnSemanaSiguiente"
+                            class="btn btn-primary"
+                            type="button"
+                        >
+                            Semana siguiente
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+
+                        <button
+                            id="btnRecargarPlaneacion"
+                            class="btn btn-primary"
+                            type="button"
+                        >
+                            <i class="bi bi-arrow-clockwise"></i>
+                            Recargar
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    id="planeacionEstado"
+                    class="planeacion-status"
+                ></div>
+
+                <section class="planeacion-captura">
+                    <h2>Agregar planeación</h2>
+
+                    <form id="formPlaneacion">
+                        <div class="captura-grid">
+
+                            <div class="captura-campo">
+                                <label for="capturaFecha">
+                                    Fecha
+                                </label>
+
+                                <input
+                                    id="capturaFecha"
+                                    name="fecha"
+                                    type="date"
+                                    value="2026-01-07"
+                                    required
+                                >
+                            </div>
+
+                            <div class="captura-campo">
+                                <label for="capturaLinea">
+                                    Línea
+                                </label>
+
+                                <select
+                                    id="capturaLinea"
+                                    name="linea"
+                                    required
+                                >
+                                    <option value="XL1">
+                                        XL1
+                                    </option>
+
+                                    <option value="XL2">
+                                        XL2
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="captura-campo">
+                                <label for="capturaHora">
+                                    Hora
+                                </label>
+
+                                <input
+                                    id="capturaHora"
+                                    name="hora"
+                                    type="time"
+                                    value="06:00"
+                                    required
+                                >
+                            </div>
+
+                            <div class="captura-campo">
+                                <label for="capturaIdParte">
+                                    Parte
+                                </label>
+
+                                <select
+                                    id="capturaIdParte"
+                                    name="id_parte"
+                                    required
+                                >
+                                    <option value="">
+                                        Cargando partes...
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="captura-campo">
+                                <label for="capturaCantidad">
+                                    Cantidad planeada
+                                </label>
+
+                                <input
+                                    id="capturaCantidad"
+                                    name="cantidad_planeada"
+                                    type="number"
+                                    min="1"
+                                    placeholder="Ej. 100"
+                                    required
+                                >
+                            </div>
+
+                            <div class="captura-acciones">
+                                <button
+                                    id="btnGuardarPlaneacion"
+                                    class="btn btn-primary"
+                                    type="submit"
+                                >
+                                    <i class="bi bi-save"></i>
+                                    Guardar planeación
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <div
+                        id="mensajeFormularioPlaneacion"
+                        class="planeacion-form-message"
+                    ></div>
+                </section>
+
+                <div id="planeacionSemana"></div>
+
             </section>
 
-            <!-- Modal centrado Perfil -->
-            <div class="center-modal" id="panelPerfil">
-            <div class="center-modal-content">
-                <div class="center-modal-header">
-                <h2>Perfil de usuario</h2>
-                <button class="center-modal-close" data-close-panel>
-                    <i class="bi bi-x-circle-fill"></i>
-                </button>
+            <div
+                class="center-modal"
+                id="panelPerfil"
+            >
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Perfil de usuario</h2>
+
+                        <button
+                            class="center-modal-close"
+                            type="button"
+                            data-close-panel
+                        >
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+
+                    <div class="center-modal-body">
+                        <p>
+                            <strong>Nombre:</strong>
+                            <span id="perfilPlaneacionNombre"></span>
+                        </p>
+
+                        <p>
+                            <strong>Correo:</strong>
+                            <span id="perfilPlaneacionCorreo"></span>
+                        </p>
+
+                        <p>
+                            <strong>Rol:</strong>
+                            <span id="perfilPlaneacionRol"></span>
+                        </p>
+
+                        <p>
+                            <strong>GMIN:</strong>
+                            <span id="perfilPlaneacionGmin"></span>
+                        </p>
+                    </div>
                 </div>
-                <div class="center-modal-body">
-                <p><strong>Nombre:</strong> <span id="perfilPlaneacionNombre"></span></p>
-                <p><strong>Correo:</strong> <span id="perfilPlaneacionCorreo"></span></p>
-                <p><strong>Rol:</strong> <span id="perfilPlaneacionRol"></span></p>
-                <p><strong>GMIN:</strong> <span id="perfilPlaneacionGmin"></span></p>
-                </div>
-            </div>
             </div>
 
-            <!-- Modal centrado Notificaciones -->
-            <div class="center-modal" id="panelNotificaciones">
-            <div class="center-modal-content">
-                <div class="center-modal-header">
-                <h2>Notificaciones</h2>
-                <button class="center-modal-close" data-close-panel>
-                    <i class="bi bi-x-circle-fill"></i>
-                </button>
+            <div
+                class="center-modal"
+                id="panelNotificaciones"
+            >
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Notificaciones</h2>
+
+                        <button
+                            class="center-modal-close"
+                            type="button"
+                            data-close-panel
+                        >
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+
+                    <div
+                        class="center-modal-body"
+                        id="listaNotificacionesPlaneacion"
+                    ></div>
                 </div>
-                <div class="center-modal-body" id="listaNotificacionesPlaneacion">
-                <!-- Se llena por JS -->
-                </div>
-            </div>
             </div>
 
         </main>
@@ -983,6 +403,5 @@
 
     <script src="../js/planeacion.js"></script>
     <script src="../js/auth.js"></script>
-    
 </body>
 </html>

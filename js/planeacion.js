@@ -1,618 +1,1415 @@
-// Variables globales
-let planeacionData = {
-    xl1: []
+'use strict';
+
+const BASE_URL = 'http://localhost:3300';
+
+const API_PLANEACION =
+    `${BASE_URL}/api/planeacion`;
+
+const API_PARTES =
+    `${API_PLANEACION}/partes`;
+
+let fechaInicioSemana = '2026-01-07';
+
+const LINEAS = ['XL1', 'XL2'];
+
+const DIAS = [
+    'Miércoles',
+    'Jueves',
+    'Viernes',
+    'Sábado',
+    'Domingo',
+    'Lunes',
+    'Martes'
+];
+
+const COLUMNAS = [
+    ['hora', 'Hora'],
+    ['tiempoProd', 'Tiempo de prod. (min)'],
+    ['cambios', 'Cambios'],
+    ['utilizacion', 'Utilización de línea'],
+    ['part', 'Part'],
+    ['cspc', 'CSPC'],
+    ['doh6am', 'DOH 6 a.m'],
+    ['conteoHoras', 'Conteo horas'],
+    ['horasTurno', 'Horas en num'],
+    ['piezasConsideradas', 'Piezas consumidas'],
+    ['dohSecuencia', 'DOH en secuencia'],
+    ['descripcion', 'Descripción de la parte'],
+    ['cantidad', 'Cantidad'],
+    ['strokes', 'Strokes'],
+    ['partes', 'Partes'],
+    ['capRacks', 'Cap en racks'],
+    ['dif', 'DIF'],
+    ['velocidad', 'Velocidad en piezas'],
+    ['hrsRecuperar', 'Hrs para recuperar racks'],
+    ['cobertura', 'Cobertura aprox.']
+];
+
+const ALIAS = {
+    hora: ['hora', 'hora_inicio'],
+    tiempoProd: [
+        'tiempoProd',
+        'tiempo_prod',
+        'duracion_minutos'
+    ],
+    cambios: ['cambios', 'cambio'],
+    utilizacion: [
+        'utilizacion',
+        'utilizacion_linea'
+    ],
+    part: [
+        'part',
+        'id_parte',
+        'numero_parte'
+    ],
+    cspc: [
+        'cspc',
+        'id_cspc',
+        'nombre_cspc'
+    ],
+    doh6am: [
+        'doh6am',
+        'doh_6am',
+        'doh'
+    ],
+    conteoHoras: [
+        'conteoHoras',
+        'conteo_horas'
+    ],
+    horasTurno: [
+        'horasTurno',
+        'horas_turno'
+    ],
+    piezasConsideradas: [
+        'piezasConsideradas',
+        'piezas_consumidas'
+    ],
+    dohSecuencia: [
+        'dohSecuencia',
+        'doh_en_secuencia'
+    ],
+    descripcion: [
+        'descripcion',
+        'descripcion_parte',
+        'nombre_parte'
+    ],
+    cantidad: [
+        'cantidad',
+        'cantidad_planeada'
+    ],
+    strokes: [
+        'strokes',
+        'golpes'
+    ],
+    partes: [
+        'partes',
+        'cantidad_partes'
+    ],
+    capRacks: [
+        'capRacks',
+        'cap_racks',
+        'capacidad_racks'
+    ],
+    dif: [
+        'dif',
+        'diferencia'
+    ],
+    velocidad: [
+        'velocidad',
+        'velocidad_piezas',
+        'sph_cspc'
+    ],
+    hrsRecuperar: [
+        'hrsRecuperar',
+        'hrs_recuperar'
+    ],
+    cobertura: [
+        'cobertura',
+        'cobertura_aprox'
+    ]
 };
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    initializeMenu();
-    loadPlaneacionData();
-    setupActionButtons();
+let datosSemana = new Map();
+let cargaActual = 0;
 
-    const btnPerfil = document.getElementById('btnPerfil');
-    const btnNotificaciones = document.getElementById('btnNotificaciones');
-    const panelPerfil = document.getElementById('panelPerfil');
-    const panelNotificaciones = document.getElementById('panelNotificaciones');
-
-    if(btnPerfil && panelPerfil) {
-        btnPerfil.addEventListener('click', () => {
-            llenarPerfil();
-            abrirPanel(panelPerfil);
-        });
-    }
-
-    if (btnNotificaciones && panelNotificaciones) {
-        btnNotificaciones.addEventListener('click', () => {
-            llenarNotificacionesPlaneacion();
-            abrirPanel(panelNotificaciones);
-        });
-    }
-
-    document.querySelectorAll('[data-close-panel]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const panel = btn.closest('.center-modal');
-            if (panel) panel.classList.remove('open');
-        });
-    });
-
-    const searchInput = document.getElementById('searchPlaneacion');
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            filterPlaneacionTable(query);
-        });
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    configurarEventos();
+    configurarControlSemana();
+    actualizarEncabezadoSemana();
+    cargarPartes();
+    cargarPlaneacion();
 });
 
-function abrirPanel(panel) {
-    // Cerrar otros paneles si hubiera
-    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
-    panel.classList.add('open');
+function configurarEventos() {
+    document
+        .getElementById('btnRecargarPlaneacion')
+        ?.addEventListener(
+            'click',
+            cargarPlaneacion
+        );
+
+    document
+        .getElementById('formPlaneacion')
+        ?.addEventListener(
+            'submit',
+            guardarPlaneacion
+        );
+
+    document
+        .getElementById('searchPlaneacion')
+        ?.addEventListener('input', event => {
+            filtrarTabla(
+                event.target.value.toLowerCase()
+            );
+        });
+
+    document
+        .getElementById('btnLogout')
+        ?.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            window.location.href =
+                '../index.html';
+        });
+
+    document
+        .getElementById('btnPerfil')
+        ?.addEventListener('click', () => {
+            cargarPerfil();
+            abrirModal('panelPerfil');
+        });
+
+    document
+        .getElementById('btnNotificaciones')
+        ?.addEventListener('click', () => {
+            cargarNotificaciones();
+            abrirModal('panelNotificaciones');
+        });
+
+    document
+        .querySelectorAll('[data-close-panel]')
+        .forEach(button => {
+            button.addEventListener('click', () => {
+                button
+                    .closest('.center-modal')
+                    ?.classList.remove('open');
+            });
+        });
 }
 
-// Perfil de usuario en Usuarios
-function llenarPerfil() {
-    let user = null;
+function configurarControlSemana() {
+    document
+        .getElementById('btnSemanaAnterior')
+        ?.addEventListener('click', () => {
+            fechaInicioSemana =
+                sumarDias(fechaInicioSemana, -7);
+
+            actualizarEncabezadoSemana();
+            cargarPlaneacion();
+        });
+
+    document
+        .getElementById('btnSemanaSiguiente')
+        ?.addEventListener('click', () => {
+            fechaInicioSemana =
+                sumarDias(fechaInicioSemana, 7);
+
+            actualizarEncabezadoSemana();
+            cargarPlaneacion();
+        });
+
+    document
+        .getElementById('selectorSemana')
+        ?.addEventListener('change', event => {
+            fechaInicioSemana =
+                obtenerInicioSemana(
+                    event.target.value
+                );
+
+            actualizarEncabezadoSemana();
+            cargarPlaneacion();
+        });
+}
+
+function obtenerInicioSemana(fechaISO) {
+    if (!fechaISO) {
+        return fechaInicioSemana;
+    }
+
+    const fecha =
+        new Date(`${fechaISO}T00:00:00`);
+
+    const diaSemana =
+        fecha.getDay();
+
+    const diferencia =
+        (diaSemana - 3 + 7) % 7;
+
+    return sumarDias(
+        fechaISO,
+        -diferencia
+    );
+}
+
+function actualizarEncabezadoSemana() {
+    const fechaFinal =
+        sumarDias(fechaInicioSemana, 6);
+
+    const caption =
+        document.getElementById(
+            'rangoSemana'
+        );
+
+    const selector =
+        document.getElementById(
+            'selectorSemana'
+        );
+
+    const fechaCaptura =
+        document.getElementById(
+            'capturaFecha'
+        );
+
+    if (caption) {
+        caption.textContent =
+            `Semana del miércoles ${mostrarFecha(fechaInicioSemana)} ` +
+            `al martes ${mostrarFecha(fechaFinal)}`;
+    }
+
+    if (selector) {
+        selector.value =
+            fechaInicioSemana;
+    }
+
+    if (fechaCaptura) {
+        fechaCaptura.value =
+            fechaInicioSemana;
+    }
+}
+
+function abrirModal(id) {
+    document
+        .getElementById(id)
+        ?.classList.add('open');
+}
+
+function crearFechas() {
+    return DIAS.map((dia, indice) => ({
+        dia,
+        fecha: sumarDias(
+            fechaInicioSemana,
+            indice
+        )
+    }));
+}
+
+function sumarDias(fechaISO, cantidad) {
+    const [anio, mes, dia] =
+        fechaISO.split('-').map(Number);
+
+    const fecha =
+        new Date(anio, mes - 1, dia);
+
+    fecha.setDate(
+        fecha.getDate() + cantidad
+    );
+
+    return [
+        fecha.getFullYear(),
+        String(
+            fecha.getMonth() + 1
+        ).padStart(2, '0'),
+        String(
+            fecha.getDate()
+        ).padStart(2, '0')
+    ].join('-');
+}
+
+function mostrarFecha(fechaISO) {
+    const [anio, mes, dia] =
+        fechaISO.split('-');
+
+    return `${dia}/${mes}/${anio}`;
+}
+
+async function cargarPartes() {
+    const selector =
+        document.getElementById(
+            'capturaIdParte'
+        );
+
+    if (!selector) {
+        return;
+    }
+
     try {
-        user = JSON.parse(localStorage.getItem('user'));
-    } catch (e) {
-        user = null;
-    }
+        const token =
+            localStorage.getItem('token');
 
-    document.getElementById('perfilPlaneacionNombre').textContent = user?.nombre || 'Usuario';
-    document.getElementById('perfilPlaneacionCorreo').textContent = user?.email || 'correo@ejemplo.com';
-    document.getElementById('perfilPlaneacionRol').textContent = user?.rol || 'usuario';
-    document.getElementById('perfilPlaneacionGmin').textContent = user?.GMIN || 'GMIN';
-}
-
-// Notificaciones en Usuarios (ejemplo estático)
-function llenarNotificacionesPlaneacion() {
-    const contenedor = document.getElementById('listaNotificacionesPlaneacion');
-    if (!contenedor) return;
-
-    const notificaciones = [
-        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
-        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
-        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
-    ];
-
-    contenedor.innerHTML = '';
-
-    notificaciones.forEach(n => {
-        const div = document.createElement('div');
-        div.className = 'notificacion-item';
-        div.innerHTML = `
-        <div class="notificacion-titulo">${n.titulo}</div>
-        <div class="notificacion-fecha">${n.fecha}</div>
-        <div class="notificacion-detalle">${n.detalle}</div>
-        `;
-        contenedor.appendChild(div);
-    });
-}
-
-//Sistema de navegación entre secciones
-function initializeMenu() {
-    const menuItems = document.querySelectorAll('.menu li');
-
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(li => li.classList.remove('active')); //Remover clase active de todos
-
-            this.classList.add('active'); // Agregar clase al clickeado
-
-            // Obtener la sección a mostrar
-            const sectionId = this.getAttribute('data-section');
-            showSection(sectionId);
-        });
-    });
-}
-
-function showSection(sectionId) {
-    // Ocultar todas las secciones
-    const sections = document.querySelectorAll('section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-
-    // Mostrar la sección selecionada
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
-    }
-}
-
-// Cargar datos de planeación
-function loadPlaneacionData() {
-    // Datos de ejemplo para XL1
-    planeacionData.xl1 = [
-        {
-            hora: '06:00:00 a. m.',
-            tiempoProd: 114,
-            cambios: '',
-            utilizacion: 0.08,
-            part: '84666755',
-            cspc: 'C4088',
-            doh6am: 2.55,
-            conteoHoras: '02:00:00',
-            horasTurno: 2.00,
-            piezasConsideradas: 128,
-            dohSecuencia: 2.5,
-            descripcion: 'C4088PNL-DASH EXT LWR STL 1UB',
-            cantidad: 2000,
-            strokes: 1000,
-            partes: 2000,
-            capRacks: 1900,
-            dif: -100,
-            velocidad: 64,
-            hrsRecuperar: 1.5625,
-            cobertura: 54.69
-        },
-        {
-            hora: '07:54:00 a. m.',
-            tiempoProd: 168,
-            cambios: 168,
-            utilizacion: 0.21,
-            part: '85655552',
-            csp: 'C4242',
-            doh6am: 2.22,
-            conteoHoras: '3:54:00',
-            horasTurno: 3.90,
-            piezasConsideradas: 215,
-            dohSecuencia: 1.9,
-            descripcion: 'C4242PNL-PUBX INR UPR L STL 2ST',
-            cantidad: 1200,
-            strokes: 1200,
-            partes: 2400,
-            capRacks: 1048,
-            dif: -152,
-            velocidad: 55,
-            hrsRecuperar: 2.76363636,
-            cobertura: 44.95,
-            highlight: 'yellow'
-        },
-        {
-            hora: '10:42:00 a. m.',
-            tiempoProd: 83,
-            cambios: '',
-            utilizacion: 0.27,
-            part: '23399998',
-            csp: 'C4246',
-            doh6am: 2.71,
-            conteoHoras: '6:42:00',
-            horasTurno: 6.70,
-            piezasConsideradas: 19,
-            dohSecuencia: 4.4,
-            descripcion: 'C4246PNL-PUBX INR UPR L STL 2ST',
-            cantidad: 600,
-            strokes: 600,
-            partes: 1200,
-            capRacks: 600,
-            dif: 0,
-            velocidad: '',
-            hrsRecuperar: '',
-            cobertura: 95.00,
-            highlight: 'yellow'
-        },
-        {
-            hora: '12:04:00 p. m.',
-            tiempoProd: 240,
-            cambios: 240,
-            utilizacion: 0.45,
-            part: '#N/A',
-            csp: '#N/A',
-            doh6am: 0.00,
-            conteoHoras: '8:04:00',
-            horasTurno: 8.07,
-            piezasConsideradas: '#N/A',
-            dohSecuencia: '#N/A',
-            descripcion: 'NS',
-            cantidad: 0,
-            strokes: 0,
-            partes: 0,
-            capRacks: '#N/A',
-            dif: '#N/A',
-            velocidad: '#N/A',
-            hrsRecuperar: '#N/A',
-            cobertura: '#N/A',
-            tipo: 'ns'
-        },
-        {
-            hora: '04:04:00 p. m.',
-            tiempoProd: 116,
-            cambios: 116,
-            utilizacion: 0.53,
-            part: '#N/A',
-            csp: '#N/A',
-            doh6am: 0.00,
-            conteoHoras: '12:04:00',
-            horasTurno: 12.07,
-            piezasConsideradas: '#N/A',
-            dohSecuencia: '#N/A',
-            descripcion: 'NS',
-            cantidad: 0,
-            strokes: 0,
-            partes: 0,
-            capRacks: '#N/A',
-            dif: '#N/A',
-            velocidad: '#N/A',
-            hrsRecuperar: '#N/A',
-            cobertura: '#N/A',
-            tipo: 'ns'
-        },
-        {
-            hora: '06:00:00 p. m.',
-            tiempoProd: 103,
-            cambios: '',
-            utilizacion: 0.61,
-            part: '85560226',
-            csp: 'C4087',
-            doh6am: 2.80,
-            conteoHoras: '14:00:00',
-            horasTurno: 14.00,
-            piezasConsideradas: 896,
-            dohSecuencia: 2.1,
-            descripcion: 'C4087PNL-DASH STL 1UB',
-            cantidad: 1680,
-            strokes: 840,
-            partes: 1680,
-            capRacks: 720,
-            dif: -960,
-            velocidad: 64,
-            hrsRecuperar: '',
-            cobertura: 15
-        },
-        {
-            hora: '07:43:00 p. m.',
-            tiempoProd: 71,
-            cambios: '',
-            utilizacion: 0.66,
-            part: '84688122',
-            csp: 'C4146',
-            doh6am: 2.70,
-            conteoHoras: '15:43:00',
-            horasTurno: 15.72,
-            piezasConsideradas: 618,
-            dohSecuencia: 1.7,
-            descripcion: 'C4146PNL-ROOF OTR STL 2ST',
-            cantidad: 600,
-            strokes: 600,
-            partes: 600,
-            capRacks: 323,
-            dif: -277,
-            velocidad: 59,
-            hrsRecuperar: 7.1025641,
-            cobertura: 52.74358974
-        },
-        {
-            hora: '08:53:00 p. m.',
-            tiempoProd: 55,
-            cambios: '',
-            utilizacion: 0.70,
-            part: '84688125',
-            csp: 'C4148',
-            doh6am: 2.23,
-            conteoHoras: '16:53:00',
-            horasTurno: 16.88,
-            piezasConsideradas: 338,
-            dohSecuencia: 1.6,
-            descripcion: 'C4148PNL-SUNROOF OTR STL 2ST',
-            cantidad: 450,
-            strokes: 450,
-            partes: 450,
-            capRacks: 119,
-            dif: -331,
-            velocidad: 20,
-            hrsRecuperar: 16.55,
-            cobertura: 50.15
-        },
-        {
-            hora: '09:47:00 p. m.',
-            tiempoProd: 156,
-            cambios: 156,
-            utilizacion: 0.82,
-            part: '84495740',
-            csp: 'C4157',
-            doh6am: 1.90,
-            conteoHoras: '17:47:00',
-            horasTurno: 17.78,
-            piezasConsideradas: 427,
-            dohSecuencia: 2.1,
-            descripcion: 'C4157PNL-FDR OTR L STL 1UB',
-            cantidad: 960,
-            strokes: 960,
-            partes: 1920,
-            capRacks: 448,
-            dif: -512,
-            velocidad: '',
-            hrsRecuperar: 21.33333333,
-            cobertura: 61.83333333
-        },
-        {
-            hora: '12:23:00 a. m.',
-            tiempoProd: 336,
-            cambios: 336,
-            utilizacion: 1.06758496,
-            part: '#N/A',
-            csp: '#N/A',
-            doh6am: 0.00,
-            conteoHoras: '20:23:00',
-            horasTurno: 20.38,
-            piezasConsideradas: '#N/A',
-            dohSecuencia: '#N/A',
-            descripcion: 'NS',
-            cantidad: 0,
-            strokes: 0,
-            partes: 0,
-            capRacks: '#N/A',
-            dif: '#N/A',
-            velocidad: '#N/A',
-            hrsRecuperar: '#N/A',
-            cobertura: '#N/A',
-            tipo: 'ns'
-        }
-    ];
-
-    // Agregar filas vacías adicionales
-    for (let i = 0; i < 7; i++) {
-        planeacionData.xl1.push({
-            hora: '05:59:00 a. m.',
-            tiempoProd: 0,
-            cambios: '',
-            utilizacion: i < 6 ? 1.06758496 : 0,
-            part: '#N/A',
-            csp: '#N/A',
-            doh6am: 0.00,
-            conteoHoras: '1:59:00',
-            horasTurno: 25.98,
-            piezasConsideradas: '#N/A',
-            dohSecuencia: '#N/A',
-            descripcion: 'NS',
-            cantidad: 0,
-            strokes: 0,
-            partes: 0,
-            capRacks: '#N/A',
-            dif: '#N/A',
-            velocidad: '#N/A',
-            hrsRecuperar: '#N/A',
-            cobertura: '#N/A',
-            tipo: 'ns'
-        });
-    }
-
-    renderPlaneacionTable();
-}
-
-//Renderizar tabla de planeación
-function renderPlaneacionTable() {
-    const tbody = document.querySelector('#planeacion table tbody');
-
-    if (!tbody || planeacionData.xl1) return;
-
-    tbody.innerHTML = '';
-
-    let totalStrokes = 0;
-    let totalPartes = 0;
-
-    planeacionData.xl1.forEach((row, index) => {
-        const tr = document.createElement('tr');
-
-        // Sumar totales
-        if (!isNaN(parseInt(row.strokes))) {
-            totalStrokes += parseInt(row.strokes);
-        }
-        if (!isNaN(parseInt(row.partes))) {
-            totalPartes += parseInt(row.partes);
-        }
-
-        // Determinar clases para celdas especiales
-        const getColorClass = (value, field) => {
-            if (field === 'dif') {
-                if (value === '#N/A') return 'cell-na';
-                const num = parseFloat(value);
-                return num < 0 ? 'text-red' : 'text-green';
-            }
-            if (value === '#N/A') return 'cell-na';
-            return '';
+        const headers = {
+            Accept: 'application/json'
         };
 
-        const highlightClass = row.highlight === 'yellow' ? 'bg-yellow' : '';
-        const isNS = row.tipo === 'ns';
+        if (token) {
+            headers.Authorization =
+                `Bearer ${token}`;
+        }
 
-        tr.innerHTML = `
-            <td>${row.hora}</td>
-            <td>${row.tiempoProd}</td>
-            <td>${row.cambios}</td>
-            <td>${row.utilizacion}</td>
-            <td class="${row.part === '#N/A' ? 'cell-na' : ''}">${row.part}</td>
-            <td class="${row.cspc === '#N/A' ? 'cell-na' : ''}">${row.cspc}</td>
-            <td>${row.doh6am}</td>
-            <td>${row.conteoHoras}</td>
-            <td>${row.horasTurno}</td>
-            <td class="${highlightClass}">${row.piezasConsideradas}</td>
-            <td class="${row.dohSecuencia === '#N/A' ? 'cell-na' : ''}">${row.dohSecuencia}</td>
-            <td class="${isNS ? 'bg-yellow' : ''} text-left">${isNS ? '<strong>' + row.descripcion + '</strong>' : row.descripcion}</td>
-            <td>${row.cantidad}</td>
-            <td>${row.strokes}</td>
-            <td>${row.partes}</td>
-            <td class="${row.capRacks === '#N/A' ? 'cell-na' : ''}">${row.capRacks}</td>
-            <td class="${getColorClass(row.dif, 'dif')}">${row.dif}</td>
-            <td class="${row.velocidad === '#N/A' ? 'cell-na' : ''}">${row.velocidad}</td>
-            <td class="${row.hrsRecuperar === '#N/A' ? 'cell-na' : ''}">${row.hrsRecuperar}</td>
-            <td class="${row.cobertura === '#N/A' ? 'cell-na' : ''}">${row.cobertura}</td>
+        const response =
+            await fetch(API_PARTES, {
+                method: 'GET',
+                headers,
+                cache: 'no-store'
+            });
+
+        const data =
+            await response.json();
+
+        if (!response.ok || data.ok === false) {
+            throw new Error(
+                data.mensaje ||
+                'No fue posible cargar las partes'
+            );
+        }
+
+        const partes =
+            Array.isArray(data.partes)
+                ? data.partes
+                : [];
+
+        selector.innerHTML = '';
+
+        const opcionInicial =
+            document.createElement('option');
+
+        opcionInicial.value = '';
+        opcionInicial.textContent =
+            'Selecciona una parte';
+        opcionInicial.disabled = true;
+        opcionInicial.selected = true;
+
+        selector.appendChild(
+            opcionInicial
+        );
+
+        partes.forEach(parte => {
+            const opcion =
+                document.createElement('option');
+
+            const numero =
+                parte.numero_parte ||
+                'Sin número';
+
+            const nombre =
+                parte.nombre_parte ||
+                'Sin descripción';
+
+            const cspc =
+                parte.nombre_cspc ||
+                'Sin CSPC';
+
+            opcion.value =
+                parte.id_parte;
+
+            opcion.textContent =
+                `${numero} - ${nombre} - CSPC: ${cspc}`;
+
+            selector.appendChild(
+                opcion
+            );
+        });
+
+        if (partes.length === 0) {
+            selector.innerHTML = `
+                <option value="">
+                    No hay partes disponibles
+                </option>
             `;
+        }
+    } catch (error) {
+        console.error(
+            'Error al cargar partes:',
+            error
+        );
 
-            tbody.appendChild(tr);
-    })
-
-    // Actualizar totales
-    const totalCells = document.querySelectorAll('#planeacion tfoot .footer-total');
-    if (totalCells[0]) totalCells[0].textContent = totalStrokes;
-    if (totalCells[1]) totalCells[1].textContent = totalPartes;
+        selector.innerHTML = `
+            <option value="">
+                No se pudieron cargar las partes
+            </option>
+        `;
+    }
 }
 
-// Renderizar tabla de planeación
-/*function renderPlaneacionTable() {
-    // Actualizar totales
-    const totalCells = document.querySelectorAll('#planeación tfoot .footer-total');
-    if(totalCells[0]) totalCells[0].textContent = totalStrokes;
-    if(totalCells[1]) totalCells[1].textContent = totalPartes;
-}*/
+async function cargarPlaneacion() {
+    const contenedor =
+        document.getElementById(
+            'planeacionSemana'
+        );
 
-function filterPlaneacionTable(query) {
-    const rows = document.querySelectorAll('#planeacion table tbody tr');
+    const estado =
+        document.getElementById(
+            'planeacionEstado'
+        );
 
-    rows.forEach(row => {
-        // ajusta índices según el orden de tus columnas
-        // (después de XL!, la primera celda visible es hora)
-        const hora = row.children[1]?.textContent.toLowerCase() || '';
-        const tiempoProd = row.children[2]?.textContent.toLowerCase() || '';
-        const cambios = row.children[4]?.textContent.toLowerCase() || '';
-        const part = row.children[5]?.textContent.toLowerCase() || '';
-        const cspc = row.children[6]?.textContent.toLowerCase() || '';
-        const descripcion = row.children[12]?.textContent.toLowerCase() || '';
+    const boton =
+        document.getElementById(
+            'btnRecargarPlaneacion'
+        );
 
-        const text = `${hora} ${tiempoProd} ${cambios} ${part} ${cspc} ${descripcion}`;
+    if (!contenedor || !estado) {
+        return;
+    }
 
-        row.style.display = text.includes(query) ? '' :  'none';
+    const idCarga = ++cargaActual;
+
+    if (boton) {
+        boton.disabled = true;
+    }
+
+    estado.textContent =
+        'Consultando la planeación semanal.';
+
+    estado.classList.remove('error');
+
+    datosSemana.clear();
+
+    try {
+        const solicitudes = [];
+
+        crearFechas().forEach(({ fecha }) => {
+            LINEAS.forEach(linea => {
+                solicitudes.push(
+                    consultarFechaLinea(
+                        fecha,
+                        linea
+                    )
+                );
+            });
+        });
+
+        const resultados =
+            await Promise.all(solicitudes);
+
+        if (idCarga !== cargaActual) {
+            return;
+        }
+
+        resultados.forEach(resultado => {
+            datosSemana.set(
+                `${resultado.fecha}|${resultado.linea}`,
+                deduplicarFilas(
+                    resultado.filas
+                )
+            );
+        });
+
+        renderizarSemana();
+
+        if (
+            resultados.some(
+                resultado => resultado.error
+            )
+        ) {
+            estado.textContent =
+                'No fue posible consultar todas las tablas.';
+
+            estado.classList.add('error');
+        } else {
+            estado.textContent =
+                'Planeación cargada correctamente.';
+        }
+    } catch (error) {
+        console.error(
+            'Error general al cargar Planeación:',
+            error
+        );
+
+        estado.textContent =
+            'No fue posible cargar la planeación.';
+
+        estado.classList.add('error');
+    } finally {
+        if (boton) {
+            boton.disabled = false;
+        }
+    }
+}
+
+async function consultarFechaLinea(
+    fecha,
+    linea
+) {
+    const url =
+        `${API_PLANEACION}?fecha=${encodeURIComponent(fecha)}&linea=${encodeURIComponent(linea)}`;
+
+    const token =
+        localStorage.getItem('token');
+
+    const headers = {
+        Accept: 'application/json'
+    };
+
+    if (token) {
+        headers.Authorization =
+            `Bearer ${token}`;
+    }
+
+    try {
+        const response =
+            await fetch(url, {
+                method: 'GET',
+                headers,
+                cache: 'no-store'
+            });
+
+        if (!response.ok) {
+            throw new Error(
+                `HTTP ${response.status}`
+            );
+        }
+
+        const data =
+            await response.json();
+
+        return {
+            fecha,
+            linea,
+            filas: deduplicarFilas(
+                normalizarRespuesta(data)
+            ),
+            error: false
+        };
+    } catch (error) {
+        console.error(
+            `Error en ${fecha} ${linea}:`,
+            error
+        );
+
+        return {
+            fecha,
+            linea,
+            filas: [],
+            error: true
+        };
+    }
+}
+
+function normalizarRespuesta(data) {
+    if (Array.isArray(data)) {
+        return data;
+    }
+
+    if (Array.isArray(data?.filas)) {
+        return data.filas;
+    }
+
+    if (Array.isArray(data?.rows)) {
+        return data.rows;
+    }
+
+    if (Array.isArray(data?.data)) {
+        return data.data;
+    }
+
+    if (Array.isArray(data?.planeacion)) {
+        return data.planeacion;
+    }
+
+    return [];
+}
+
+function deduplicarFilas(filas) {
+    if (!Array.isArray(filas)) {
+        return [];
+    }
+
+    const filasVistas = new Set();
+
+    return filas.filter(fila => {
+        const normalizada =
+            normalizarFila(fila);
+
+        const clave =
+            COLUMNAS
+                .map(([campo]) => {
+                    return normalizarClave(
+                        normalizada[campo]
+                    );
+                })
+                .join('|');
+
+        if (filasVistas.has(clave)) {
+            return false;
+        }
+
+        filasVistas.add(clave);
+
+        return true;
     });
 }
 
-// Configurar botones de acción
-function setupActionButtons() {
-    const section = document.getElementById('planeacion');
+function normalizarClave(valor) {
+    if (
+        valor === null ||
+        valor === undefined
+    ) {
+        return '';
+    }
 
-    /*
-    // Crear contenedor de botones si no existe
-    if (!section,querySelector('.action-buttons')) {
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = 'action-buttons';
-        buttonsDiv.innerHTML = `
-            <button class="btn btn-primary" onclick="addRow()">
-                <i class="bi bi-plus-circle"></i> Agregar Fila
-            </button>
-            <button class="btn btn-danger" onclick="deleteLastRow()">
-                <i class="bi bi-trash"></i> Eliminar Última Fila
-            </button>
-            <button class="btn btn-success" onclick="saveData()">
-                <i class="bi bi-save"></i> Guardar
-            </button>
-            <button class="btn btn-warning" onclick="exportToExcel()">
-                <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
-            </button>
-            <button class="btn btn-info" onclick="printTable()">
-                <i class="bi bi-printer"></i> Imprimir
-            </button>
-            `;
-
-            const h1 = section.querySelector('h1');
-            h1.after(buttonsDiv);
-    }*/
+    return String(valor)
+        .trim()
+        .toUpperCase();
 }
 
-// Funciones de botones
-function addRow() {
-    const newRow = {
-        hora: '06:00:00 a.m.',
-        tiempoProd: 0,
-        cambios: '',
-        utilizacion: 0,
-        part: '',
-        csp: '',
-        doh6am: 0,
-        conteoHoras: '0:00:00',
-        horasTurno: 0,
-        piezasConsideradas: 0,
-        dohSecuencia: 0,
-        descripcion: '',
-        cantidad: 0,
-        strokes: 0,
-        partes: 0,
-        capRacks: 0,
-        dif: 0,
-        velocidad: 0,
-        hrsRecuperar: 0,
-        cobertura: 0
+function renderizarSemana() {
+    const contenedor =
+        document.getElementById(
+            'planeacionSemana'
+        );
+
+    if (!contenedor) {
+        return;
+    }
+
+    contenedor.innerHTML =
+        LINEAS
+            .map(linea => {
+                return renderizarLinea(linea);
+            })
+            .join('');
+}
+
+function renderizarLinea(linea) {
+    const grupos =
+        crearFechas().map(({ dia, fecha }) => {
+            const filas =
+                datosSemana.get(
+                    `${fecha}|${linea}`
+                ) || [];
+
+            return {
+                dia,
+                fecha,
+                filas: deduplicarFilas(filas)
+            };
+        });
+
+    const maxFilas =
+        Math.max(
+            1,
+            ...grupos.map(grupo => {
+                return grupo.filas.length;
+            })
+        );
+
+    const filasHTML =
+        Array.from({
+            length: maxFilas
+        })
+            .map((_, indice) => {
+                const logo =
+                    indice === 0
+                        ? `
+                            <td
+                                class="logo-cell"
+                                rowspan="${maxFilas}"
+                            >
+                                ${escapeHTML(linea)}
+                            </td>
+                        `
+                        : '';
+
+                const diasHTML =
+                    grupos
+                        .map(grupo => {
+                            return renderizarFilaDia(
+                                grupo.filas[indice],
+                                indice
+                            );
+                        })
+                        .join('');
+
+                return `
+                    <tr>
+                        ${logo}
+                        ${diasHTML}
+                    </tr>
+                `;
+            })
+            .join('');
+
+    const encabezadosDias =
+        grupos
+            .map(grupo => {
+                return `
+                    <th
+                        class="day-title"
+                        colspan="${COLUMNAS.length}"
+                    >
+                        ${escapeHTML(grupo.dia)}
+                    </th>
+                `;
+            })
+            .join('');
+
+    const fechasDias =
+        grupos
+            .map(grupo => {
+                return `
+                    <th
+                        class="day-date"
+                        colspan="${COLUMNAS.length}"
+                    >
+                        ${mostrarFecha(grupo.fecha)}
+                    </th>
+                `;
+            })
+            .join('');
+
+    const columnasDias =
+        grupos
+            .map(() => {
+                return COLUMNAS
+                    .map(columna => {
+                        return `
+                            <th class="column-title">
+                                ${escapeHTML(columna[1])}
+                            </th>
+                        `;
+                    })
+                    .join('');
+            })
+            .join('');
+
+    const totalesDias =
+        grupos
+            .map(grupo => {
+                return renderizarTotales(
+                    grupo.filas
+                );
+            })
+            .join('');
+
+    return `
+        <section class="bloque-linea">
+
+            <div class="bloque-linea-heading">
+                Planeación ${escapeHTML(linea)}
+            </div>
+
+            <div class="linea-table-scroll">
+                <table class="weekly-table">
+
+                    <thead>
+                        <tr>
+                            <th rowspan="3"></th>
+                            ${encabezadosDias}
+                        </tr>
+
+                        <tr>
+                            ${fechasDias}
+                        </tr>
+
+                        <tr>
+                            ${columnasDias}
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${filasHTML}
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            ${totalesDias}
+                        </tr>
+                    </tfoot>
+
+                </table>
+            </div>
+
+        </section>
+    `;
+}
+
+function renderizarFilaDia(fila, indice) {
+    if (!fila) {
+        return `
+            <td
+                colspan="${COLUMNAS.length}"
+                class="empty-day"
+            >
+                ${indice === 0 ? 'Sin datos' : ''}
+            </td>
+        `;
+    }
+
+    const datos =
+        normalizarFila(fila);
+
+    const id =
+        Number(fila.id_planeacion);
+
+    const puedeEliminar =
+        Number.isSafeInteger(id) &&
+        id > 0;
+
+    const esNS =
+        String(datos.descripcion)
+            .toUpperCase() === 'NS';
+
+    return COLUMNAS
+        .map(([campo]) => {
+            const valor =
+                datos[campo];
+
+            const clases = [];
+
+            if (campo === 'descripcion') {
+                clases.push('text-left');
+            }
+
+            if (campo === 'dif') {
+                clases.push(
+                    claseDiferencia(valor)
+                );
+            }
+
+            if (
+                esNS &&
+                campo === 'descripcion'
+            ) {
+                clases.push('bg-yellow');
+            }
+
+            if (esNA(valor)) {
+                clases.push('cell-na');
+            }
+
+            const botonEliminar =
+                campo === 'hora' &&
+                puedeEliminar
+                    ? `
+                        <button
+                            type="button"
+                            class="btn-eliminar-planeacion"
+                            data-eliminar-planeacion="${id}"
+                            title="Eliminar planeación"
+                            aria-label="Eliminar planeación ${id}"
+                            style="margin-left:6px;padding:3px 6px;cursor:pointer;"
+                        >
+                            <i class="bi bi-trash"></i>
+                            Eliminar
+                        </button>
+                    `
+                    : '';
+
+            return `
+                <td class="${clases.filter(Boolean).join(' ')}">
+                    ${escapeHTML(formatear(valor))}
+                    ${botonEliminar}
+                </td>
+            `;
+        })
+        .join('');
+}
+
+function renderizarTotales(filas) {
+    const filasUnicas =
+        deduplicarFilas(filas);
+
+    const cantidad =
+        sumar(filasUnicas, 'cantidad');
+
+    const strokes =
+        sumar(filasUnicas, 'strokes');
+
+    return `
+        <td colspan="12"></td>
+
+        <td class="footer-total">
+            ${formatearNumero(cantidad)}
+        </td>
+
+        <td class="footer-total">
+            ${formatearNumero(strokes)}
+        </td>
+
+        <td colspan="6"></td>
+    `;
+}
+
+function normalizarFila(fila) {
+    const datos = {};
+
+    COLUMNAS.forEach(([campo]) => {
+        datos[campo] =
+            obtenerCampo(
+                fila,
+                ALIAS[campo]
+            );
+    });
+
+    return datos;
+}
+
+function obtenerCampo(objeto, campos) {
+    if (
+        !objeto ||
+        !Array.isArray(campos)
+    ) {
+        return null;
+    }
+
+    for (const campo of campos) {
+        if (
+            objeto[campo] !== undefined &&
+            objeto[campo] !== null
+        ) {
+            return objeto[campo];
+        }
+    }
+
+    return null;
+}
+
+function sumar(filas, campo) {
+    return filas.reduce((total, fila) => {
+        const valor =
+            Number(
+                obtenerCampo(
+                    fila,
+                    ALIAS[campo]
+                )
+            );
+
+        return Number.isFinite(valor)
+            ? total + valor
+            : total;
+    }, 0);
+}
+
+function formatear(valor) {
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ''
+    ) {
+        return '';
+    }
+
+    if (typeof valor === 'number') {
+        return formatearNumero(valor);
+    }
+
+    return String(valor);
+}
+
+function formatearNumero(valor) {
+    const numero =
+        Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return valor ?? '';
+    }
+
+    return numero.toLocaleString('en-US', {
+        maximumFractionDigits: 6
+    });
+}
+
+function esNA(valor) {
+    return String(valor)
+        .toUpperCase() === '#N/A';
+}
+
+function claseDiferencia(valor) {
+    if (esNA(valor)) {
+        return 'cell-na';
+    }
+
+    const numero =
+        Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return '';
+    }
+
+    return numero < 0
+        ? 'text-red'
+        : 'text-green';
+}
+
+function filtrarTabla(texto) {
+    document
+        .querySelectorAll(
+            '.weekly-table tbody tr'
+        )
+        .forEach(fila => {
+            const visible =
+                !texto ||
+                fila.textContent
+                    .toLowerCase()
+                    .includes(texto);
+
+            fila.style.display =
+                visible ? '' : 'none';
+        });
+}
+
+async function guardarPlaneacion(event) {
+    event.preventDefault();
+
+    const formulario =
+        event.currentTarget;
+
+    const boton =
+        document.getElementById(
+            'btnGuardarPlaneacion'
+        );
+
+    const datosFormulario =
+        new FormData(formulario);
+
+    const semanaSeleccionada =
+        fechaInicioSemana;
+
+    const body = {
+        id_parte: Number(
+            datosFormulario.get('id_parte')
+        ),
+
+        linea: String(
+            datosFormulario.get('linea')
+        ).trim().toUpperCase(),
+
+        hora: String(
+            datosFormulario.get('hora')
+        ).trim(),
+
+        cantidad_planeada: Number(
+            datosFormulario.get(
+                'cantidad_planeada'
+            )
+        ),
+
+        fecha: String(
+            datosFormulario.get('fecha')
+        ).trim()
     };
 
-    planeacionData.xl1.push(newRow);
-    renderPlaneacionTable();
-}
+    if (
+        !body.id_parte ||
+        !body.linea ||
+        !body.hora ||
+        !body.cantidad_planeada ||
+        !body.fecha
+    ) {
+        mostrarMensajeFormulario(
+            'Completa todos los campos.',
+            true
+        );
 
-function deleteLastRow() {
-    if (planeacionData.xl1.length > 0) {
-        if (confirm('¿Estás seguro de eliminar la última fila?')) {
-            planeacionData.xl1.pop();
-            renderPlaneacionTable();
+        return;
+    }
+
+    if (boton) {
+        boton.disabled = true;
+    }
+
+    mostrarMensajeFormulario(
+        'Guardando planeación...',
+        false
+    );
+
+    const token =
+        localStorage.getItem('token');
+
+    const headers = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+    };
+
+    if (token) {
+        headers.Authorization =
+            `Bearer ${token}`;
+    }
+
+    try {
+        const response =
+            await fetch(API_PLANEACION, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(body)
+            });
+
+        const data =
+            await response
+                .json()
+                .catch(() => ({}));
+
+        if (
+            !response.ok ||
+            data.ok === false
+        ) {
+            throw new Error(
+                data.mensaje ||
+                data.error ||
+                `HTTP ${response.status}`
+            );
+        }
+
+        mostrarMensajeFormulario(
+            'Planeación guardada correctamente.',
+            false
+        );
+
+        formulario.reset();
+
+        fechaInicioSemana =
+            semanaSeleccionada;
+
+        actualizarEncabezadoSemana();
+
+        document.getElementById(
+            'capturaHora'
+        ).value = '06:00';
+
+        await cargarPlaneacion();
+    } catch (error) {
+        console.error(
+            'Error al guardar planeación:',
+            error
+        );
+
+        mostrarMensajeFormulario(
+            error.message ||
+            'No fue posible guardar la planeación.',
+            true
+        );
+    } finally {
+        if (boton) {
+            boton.disabled = false;
         }
     }
 }
 
-function saveData() {
-    localStorage.setItem('planeacionData', JSON.stringify(planeacionData));
-    alert('Datos guardados correctamente en el navegador');
-}
+function mostrarMensajeFormulario(
+    texto,
+    esError
+) {
+    const mensaje =
+        document.getElementById(
+            'mensajeFormularioPlaneacion'
+        );
 
-
-function exportToExcel() {
-    const dataStr = 'data:text/csv;charset=utf-8,' +
-        encodeURIComponent(convertToCSV(planeacionData.xl1));
-    const downloadLink= document.createElement('a');
-    downloadLink.href = dataStr;
-    downloadLink.download = 'planeacion_xl1.csv';
-    downloadLink.click();    
-}
-
-function convertToCSV(data) {
-    const headers = [
-        'Hora', 'Tiempo Prod', 'Cambios', 'Utilización', 'Part', 'CSPC',
-        'DOH 6am', 'Conteo Horas', 'Horas Turno', 'Piezas consideradas',
-        'DOH Secuencia', 'Descripción', 'Cantidad', 'Strokes', 'Partes',
-        'Cap Racks', 'DIF', 'Velocidad', 'Hrs Recuperar', 'Cobertura'
-    ];
-
-    let csv =headers.join(',') + '\n';
-
-    data.forEach(row => {
-        const values = [
-            row.hora, row.tiempoProd, row.cambios, row.utilizacion, row.part,
-            row.cspc, row.doh6am, row.conteoHoras, row.horasTurno,
-            row.piezasConsideradas, row.dohSecuencia, row.descripcion,
-            row.cantidad, row.strokes, row.partes, row.capRacks, row.dif,
-            row.velocidad, row.hrsRecuperar, row.cobertura
-        ];
-
-        return csv;
-    })
-}
-
-function printTable() {
-    window.print();
-}
-
-// Función de logout
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '../index.html';
-}
-
-document.getElementById('btnLogout').addEventListener('click', logout);
-
-/*function logout() {
-    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('token');
-        window.location.href = '../index.html';
-    //}
-}*/
-
-// Cargar datos guardados al inicio
-window.addEventListener('load', function() {
-    const savedData = this.localStorage.getItem('planeacionData');
-    if (savedData) {
-        const shouldLoad = confirm('Se encontraron datos guardados, ¿Deseas cargarlos?');
-        if (shouldLoad) {
-            planeacionData = JSON.parse(savedData);
-            renderPlaneacionTable();
-        }
+    if (!mensaje) {
+        return;
     }
-});
+
+    mensaje.textContent = texto;
+
+    mensaje.classList.toggle(
+        'error',
+        esError
+    );
+
+    mensaje.classList.toggle(
+        'success',
+        !esError
+    );
+}
+
+function cargarPerfil() {
+    let usuario = null;
+
+    try {
+        usuario = JSON.parse(
+            localStorage.getItem('user')
+        );
+    } catch {
+        usuario = null;
+    }
+
+    const nombre =
+        document.getElementById(
+            'perfilPlaneacionNombre'
+        );
+
+    const correo =
+        document.getElementById(
+            'perfilPlaneacionCorreo'
+        );
+
+    const rol =
+        document.getElementById(
+            'perfilPlaneacionRol'
+        );
+
+    const gmin =
+        document.getElementById(
+            'perfilPlaneacionGmin'
+        );
+
+    if (nombre) {
+        nombre.textContent =
+            usuario?.nombre || 'Usuario';
+    }
+
+    if (correo) {
+        correo.textContent =
+            usuario?.email ||
+            'correo@ejemplo.com';
+    }
+
+    if (rol) {
+        rol.textContent =
+            usuario?.rol || 'usuario';
+    }
+
+    if (gmin) {
+        gmin.textContent =
+            usuario?.GMIN || 'GMIN';
+    }
+}
+
+function cargarNotificaciones() {
+    const contenedor =
+        document.getElementById(
+            'listaNotificacionesPlaneacion'
+        );
+
+    if (!contenedor) {
+        return;
+    }
+
+    contenedor.innerHTML = `
+        <div class="notificacion-item">
+            <strong>Planeación semanal</strong>
+            <br>
+            Semana del 07/01/2026 al 13/01/2026
+        </div>
+    `;
+}
+
+function escapeHTML(valor) {
+    return String(valor ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+        document
+            .getElementById('planeacionSemana')
+            ?.addEventListener(
+                'click',
+                async event => {
+                    const boton =
+                        event.target.closest(
+                            'button[data-eliminar-planeacion]'
+                        );
+
+                    if (
+                        !boton ||
+                        boton.disabled
+                    ) {
+                        return;
+                    }
+
+                    const id =
+                        Number(
+                            boton.dataset
+                                .eliminarPlaneacion
+                        );
+
+                    if (
+                        !Number.isSafeInteger(id) ||
+                        id <= 0
+                    ) {
+                        return;
+                    }
+
+                    const confirmado =
+                        window.confirm(
+                            '¿Eliminar esta planeación? ' +
+                            'Esta acción no se puede deshacer.'
+                        );
+
+                    if (!confirmado) {
+                        return;
+                    }
+
+                    boton.disabled = true;
+
+                    try {
+                        const headers = {
+                            Accept: 'application/json'
+                        };
+
+                        const token =
+                            localStorage.getItem(
+                                'token'
+                            );
+
+                        if (token) {
+                            headers.Authorization =
+                                `Bearer ${token}`;
+                        }
+
+                        const response =
+                            await fetch(
+                                `${API_PLANEACION}/${id}`,
+                                {
+                                    method: 'DELETE',
+                                    headers
+                                }
+                            );
+
+                        const data =
+                            await response
+                                .json()
+                                .catch(() => ({}));
+
+                        if (
+                            !response.ok ||
+                            data.ok === false
+                        ) {
+                            throw new Error(
+                                data.mensaje ||
+                                'No fue posible eliminar la planeación'
+                            );
+                        }
+
+                        mostrarMensajeFormulario(
+                            data.mensaje ||
+                            'Planeación eliminada correctamente.',
+                            false
+                        );
+
+                        // Recarga la semana que está seleccionada.
+                        await cargarPlaneacion();
+                    } catch (error) {
+                        console.error(
+                            'Error al eliminar planeación:',
+                            error
+                        );
+
+                        mostrarMensajeFormulario(
+                            error.message ||
+                            'No fue posible eliminar la planeación.',
+                            true
+                        );
+
+                        boton.disabled = false;
+                    }
+                }
+            );
+    }
+);

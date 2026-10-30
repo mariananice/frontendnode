@@ -1,17 +1,110 @@
-// Variables globales
-let weeklyData = [];
+const BASE_URL = 'http://localhost:3300';
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
+let currentPage = 1;
+let currentLimit = 50;
+let totalPages = 1;
+let totalRecords = 0;
+let reqbodyData = [];
+let activeView = 'estampado';
+
+let weeklyData = [];
+let weeklyDates = []; // fechas para las 12 columnas (YYYY-MM-DD)
+
+const REQBODY_LAST_WEEK_KEY = 'reqbody_ultima_semana';
+let lastSemana = null;
+let lastAnio = null;
+
+let resumenSemanaData = [];
+
+function guardarUltimaSemana(semana, anio) {
+    lastSemana = Number(semana);
+    lastAnio = Number(anio);
+
+    localStorage.setItem(
+        REQBODY_LAST_WEEK_KEY,
+        JSON.stringify({
+            semana: lastSemana,
+            anio: lastAnio
+        })
+    );
+}
+
+function recuperarUltimaSemana() {
+    try {
+        const guardada = JSON.parse(
+            localStorage.getItem(REQBODY_LAST_WEEK_KEY)
+        );
+
+        if (
+            guardada &&
+            Number.isInteger(Number(guardada.semana)) &&
+            Number.isInteger(Number(guardada.anio))
+        ) {
+            lastSemana = Number(guardada.semana);
+            lastAnio = Number(guardada.anio);
+
+            return {
+                semana: lastSemana,
+                anio: lastAnio
+            };
+        }
+    } catch (error) {
+        console.warn(
+            'No se pudo recuperar la última semana:',
+            error
+        );
+    }
+
+    return null;
+}
+
+function cargarInputsUltimaSemana() {
+    const ultima = recuperarUltimaSemana();
+
+    if (!ultima) return;
+
+    const inputSemana =
+        document.getElementById('semanaEstampado');
+
+    const inputAnio =
+        document.getElementById('anioEstampado');
+
+    if (inputSemana) {
+        inputSemana.value = ultima.semana;
+    }
+
+    if (inputAnio) {
+        inputAnio.value = ultima.anio;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     initializeMenu();
-    loadWeeklyData();
-    setupActionButtons();
-    //checkUserLogin();
+    setActiveView('estampado');
+    //loadWeeklyData();
+    //renderEstampadoTable();
 
     const btnPerfil = document.getElementById('btnPerfil');
     const btnNotificaciones = document.getElementById('btnNotificaciones');
     const panelPerfil = document.getElementById('panelPerfil');
     const panelNotificaciones = document.getElementById('panelNotificaciones');
+    const btnLogout = document.getElementById('btnLogout');
+
+    const btnVistaEstampado = document.getElementById('btnVistaEstampado');
+    const btnVistaImportado = document.getElementById('btnVistaImportado');
+
+    const searchInput = document.getElementById('searchReqbody');
+    const btnBuscarReqbody = document.getElementById('btnBuscarReqbody');
+    const btnLimpiarReqbody = document.getElementById('btnLimpiarReqbody');
+    const btnPrevPage = document.getElementById('btnPrevPage');
+    const btnNextPage = document.getElementById('btnNextPage');
+    const tipoReqbody = document.getElementById('tipoReqbody');
+    const filtroNumeroParte = document.getElementById('filtroNumeroParte');
+    const btnGenerarReqbody = document.getElementById('btnGenerarReqbody');
+
+    const inputSemanaEstampado = document.getElementById('semanaEstampado');
+    const inputAnioEstampado = document.getElementById('anioEstampado');
+    const btnVerSemanaEstampado = document.getElementById('btnVerSemanaEstampado');
 
     if (btnPerfil && panelPerfil) {
         btnPerfil.addEventListener('click', () => {
@@ -34,44 +127,259 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    if (btnLogout) {
+        btnLogout.addEventListener('click', logout);
+    }
 
-    const searchInput = document.getElementById('searchReqbody');
+    if (btnVistaEstampado) {
+        btnVistaEstampado.addEventListener('click', () => {
+            setActiveView('estampado');
+        });
+    }
+
+    if (btnVistaImportado) {
+        btnVistaImportado.addEventListener('click', () => {
+            setActiveView('importado');
+            loadReqbodyFromApi();
+        });
+    }
+
+    if (btnBuscarReqbody) {
+        btnBuscarReqbody.addEventListener('click', () => {
+            if (searchInput && filtroNumeroParte) {
+                filtroNumeroParte.value = searchInput.value.trim();
+            }
+            currentPage = 1;
+            loadReqbodyFromApi();
+        });
+    }
+
     if (searchInput) {
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
-            filterWeeklyTable(query);
+
+            if (activeView === 'estampado') {
+                filterEstampadoTable(query);
+            }
+        });
+
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && activeView === 'importado') {
+                if (filtroNumeroParte) {
+                    filtroNumeroParte.value = searchInput.value.trim();
+                }
+                currentPage = 1;
+                loadReqbodyFromApi();
+            }
         });
     }
+
+    if (btnLimpiarReqbody) {
+        btnLimpiarReqbody.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            if (filtroNumeroParte) filtroNumeroParte.value = '';
+            if (tipoReqbody) tipoReqbody.value = 'DREQ';
+            currentPage = 1;
+            loadReqbodyFromApi();
+        });
+    }
+
+    if (tipoReqbody) {
+        tipoReqbody.addEventListener('change', () => {
+            currentPage = 1;
+            loadReqbodyFromApi();
+        });
+    }
+
+    if (btnPrevPage) {
+        btnPrevPage.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                loadReqbodyFromApi();
+            }
+        });
+    }
+
+    if (btnNextPage) {
+        btnNextPage.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadReqbodyFromApi();
+            }
+        });
+    }
+
+    if (btnGenerarReqbody) {
+        btnGenerarReqbody.addEventListener('click', async () => {
+            const semana = prompt('Semana (ej. 30):', '');
+            const anio = prompt('Año (ej. 2026):', '');
+
+            if (!semana || !anio) return;
+
+            try {
+                const token = localStorage.getItem('token');
+
+                const res = await fetch(`${BASE_URL}/api/reqbody/generar-diario`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    },
+                    body: JSON.stringify({
+                        semana: parseInt(semana, 10),
+                        anio: parseInt(anio, 10)
+                    })
+                });
+
+                const data = await res.json();
+
+                // Solo mostramos éxito si el backend responde OK
+                if (!res.ok) throw new Error(data.message || 'Error al generar reqbody');
+
+                alert(`ReqBody diario generado para semana ${semana}, año ${anio}`);
+
+                guardarUltimaSemana(
+                    parseInt(semana, 10),
+                    parseInt(anio, 10)
+                );
+
+                await loadEstampadoFromApi(
+                    lastSemana,
+                    lastAnio
+                );
+
+                //lastSemana = parseInt(semana, 10);
+                //lastAnio = parseInt(anio, 10);
+
+                //await loadEstampadoFromApi(lastSemana, lastAnio);
+
+                //if (activeView === 'estampado') {
+                    //await loadEstampadoFromApi(semana, anio);
+                //}
+            } catch (error) {
+                console.error(error);
+                alert(error.message || 'Error al generar reqbody');
+            }
+        });
+    }
+
+    if (btnVerSemanaEstampado) {
+        btnVerSemanaEstampado.addEventListener('click', () => {
+            const semanaVal = parseInt(inputSemanaEstampado?.value, 10);
+            const anioVal = parseInt(inputAnioEstampado?.value, 10);
+
+            if (!semanaVal || !anioVal) {
+                alert('Debes capturar semana y año para ver Estampado');
+                return;
+            }
+
+            // Solo CONSULTA: no regenera, solo lee reqbody
+            lastSemana = semanaVal;
+            lastAnio = anioVal;
+            loadEstampadoFromApi(lastSemana, lastAnio);
+        });
+    }
+
+    cargarInputsUltimaSemana();
+
+    const ultimaSemana = recuperarUltimaSemana();
+
+    setActiveView('estampado');
+
+    if (ultimaSemana) {
+        loadEstampadoFromApi(
+            ultimaSemana.semana,
+            ultimaSemana.anio
+        );
+    }
+
+    //setActiveView('estampado');
+
+    // SOLO PARA PROBAR: cargar Estampado directamente con datos reales
+    //loadEstampadoFromApi(1, 2026);
 });
 
+function setActiveView(view) {
+    activeView = view;
+
+    const vistaEstampado = document.getElementById('vistaEstampado');
+    const vistaImportado = document.getElementById('vistaImportado');
+    const btnVistaEstampado = document.getElementById('btnVistaEstampado');
+    const btnVistaImportado = document.getElementById('btnVistaImportado');
+    const searchInput = document.getElementById('searchReqbody');
+
+    if (vistaEstampado) vistaEstampado.classList.toggle('active', view === 'estampado');
+    if (vistaImportado) vistaImportado.classList.toggle('active', view === 'importado');
+
+    if (btnVistaEstampado) btnVistaEstampado.classList.toggle('active', view === 'estampado');
+    if (btnVistaImportado) btnVistaImportado.classList.toggle('active', view === 'importado');
+
+    if (searchInput) {
+        searchInput.placeholder = view === 'estampado'
+            ? 'Buscar PTR, CSPC o línea...'
+            : 'Buscar número de parte...';
+    }
+
+    // Si cambiamos a Estampado y ya hay semana/año generados, recargar esa semana
+    if (view === 'estampado' && lastSemana && lastAnio) {
+        loadEstampadoFromApi(lastSemana, lastAnio);
+    }
+}
+
 function abrirPanel(panel) {
-    // Cerrar otros paneles si hubiera
     document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
     panel.classList.add('open');
 }
 
-// Perfil de usuario en Usuarios
+// Perfil
 function llenarPerfil() {
     let user = null;
+
     try {
         user = JSON.parse(localStorage.getItem('user'));
     } catch (e) {
         user = null;
     }
 
-    document.getElementById('perfilReqBodyNombre').textContent = user?.nombre || 'Usuario';
-    document.getElementById('perfilReqBodyCorreo').textContent = user?.email || 'correo@ejemplo.com';
-    document.getElementById('perfilReqBodyRol').textContent = user?.rol || 'usuario';
-    document.getElementById('perfilReqBodyGmin').textContent = user?.GMIN || 'GMIN';
+    const nombre = document.getElementById('perfilReqBodyNombre');
+    const correo = document.getElementById('perfilReqBodyCorreo');
+    const rol = document.getElementById('perfilReqBodyRol');
+    const gmin = document.getElementById('perfilReqBodyGmin');
+
+    if (nombre) nombre.textContent = user?.nombre || 'Usuario';
+    if (correo) correo.textContent = user?.email || 'correo@ejemplo.com';
+    if (rol) rol.textContent = user?.rol || 'usuario';
+    if (gmin) gmin.textContent = user?.GMIN || 'GMIN';
 }
 
-// Notificaciones en Usuarios (ejemplo estático)
+// Notificaciones
+/*function llenarNotificacionesProgramacion() {
+    const container = document.getElementById(
+        'listaNotificacionesProgramacion'
+    );
+
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="notificacion-item">
+            <div class="notificacion-titulo">
+                Programación cargada
+            </div>
+            <div class="notificacion-fecha">
+                ${new Date().toLocaleString('es-MX')}
+            </div>
+            <div class="notificacion-detalle">
+                Los datos fueron consultados desde el backend.
+            </div>
+        </div>
+    `;
+}*/
 function llenarNotificacionesReqBody() {
     const contenedor = document.getElementById('listaNotificacionesReqBody');
     if (!contenedor) return;
 
     const notificaciones = [
-        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
+        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.' },
         { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
         { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
     ];
@@ -82,36 +390,23 @@ function llenarNotificacionesReqBody() {
         const div = document.createElement('div');
         div.className = 'notificacion-item';
         div.innerHTML = `
-        <div class="notificacion-titulo">${n.titulo}</div>
-        <div class="notificacion-fecha">${n.fecha}</div>
-        <div class="notificacion-detalle">${n.detalle}</div>
+            <div class="notificacion-titulo">${n.titulo}</div>
+            <div class="notificacion-fecha">${n.fecha}</div>
+            <div class="notificacion-detalle">${n.detalle}</div>
         `;
         contenedor.appendChild(div);
     });
 }
 
-// Verificar si el usuario está logueado
-/*
-function checkUserLogin() {
-    const user = localStorage.getItem('registeredUser');
-    if (!user) {
-        window.location.href = 'index.html';
-    }
-}*/
-
-// Sistema de navegación entre secciones
+// Sidebar
 function initializeMenu() {
     const menuItems = document.querySelectorAll('.menu li');
-    
+
     menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Remover clase active de todos
+        item.addEventListener('click', function () {
             menuItems.forEach(li => li.classList.remove('active'));
-            
-            // Agregar clase active al clickeado
             this.classList.add('active');
-            
-            // Obtener la sección a mostrar
+
             const sectionId = this.getAttribute('data-section');
             showSection(sectionId);
         });
@@ -119,340 +414,448 @@ function initializeMenu() {
 }
 
 function showSection(sectionId) {
-    // Ocultar todas las secciones
     const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-    
-    // Mostrar la sección seleccionada
+    sections.forEach(section => section.classList.remove('active'));
+
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
         targetSection.classList.add('active');
     }
 }
 
-// Cargar datos semanales
-function loadWeeklyData() {
-    // Datos de ejemplo para la tabla semanal
+// VISTA ESTAMPADO (dummy)
+/*function loadWeeklyData() {
     weeklyData = [
-        { cspc: 'C4087', linea: 'XL1', dias: [1371, 1403, 1371, 1398, 1, 1371, 1403, 1371, 1403, 1371, 1398, 1], total: 1386 },
-        { cspc: 'C4088', linea: 'XL1', dias: [1371, 1403, 1371, 1398, 1, 1371, 1403, 1371, 1403, 1371, 1398, 1], total: 1386 },
-        { cspc: 'C4106', linea: 'XL2', dias: [1202, 1283, 1256, 1241, 1, 1221, 1233, 1236, 1323, 1221, 1308, 1], total: 1257 },
-        { cspc: 'C4109', linea: 'XL2', dias: [1202, 1283, 1256, 1241, 1, 1221, 1233, 1236, 1323, 1221, 1308, 1], total: 1257 },
-        { cspc: 'C4118', linea: 'XL2', dias: [169, 120, 110, 128, 1, 150, 170, 135, 80, 150, 90, 1], total: 129 },
-        { cspc: 'C4119', linea: 'XL2', dias: [169, 120, 110, 128, 1, 150, 170, 135, 80, 150, 90, 1], total: 129 },
-        { cspc: 'C4144', linea: 'XL1', dias: [752, 917, 814, 775, 1, 770, 767, 691, 688, 770, 814, 1], total: 750 },
-        { cspc: 'C4145', linea: 'XL1', dias: [169, 120, 110, 140, 1, 142, 170, 135, 88, 142, 105, 1], total: 130 },
-        { cspc: 'C4146', linea: 'XL1', dias: [761, 927, 833, 781, 1, 751, 769, 699, 699, 751, 827, 1], total: 749 },
-        { cspc: 'C4148', linea: 'XL1', dias: [450, 375, 412, 469, 1, 751, 467, 533, 636, 457, 484, 1], total: 555 },
-        { cspc: 'C4149', linea: 'XL1', dias: [450, 375, 412, 469, 1, 457, 467, 533, 636, 457, 484, 1], total: 506 },
-        { cspc: 'C4152', linea: 'XL2', dias: [169, 91, 139, 120, 1, 144, 170, 155, 60, 144, 91, 1], total: 127 },
-        { cspc: 'C4155', linea: 'XL2', dias: [401, 744, 730, 601, 1, 651, 725, 751, 697, 651, 747, 1], total: 704 },
-        { cspc: 'C4156', linea: '0', dias: [401, 744, 730, 601, 1, 651, 725, 751, 697, 651, 747, 1], total: 704 },
-        { cspc: 'C4157', linea: 'XL1', dias: [780, 523, 509, 639, 1, 601, 540, 470, 571, 601, 513, 1], total: 549 },
-        { cspc: 'C4158', linea: '0', dias: [780, 523, 509, 639, 1, 601, 540, 470, 571, 601, 513, 1], total: 549 },
-        { cspc: 'C4159', linea: 'XL2', dias: [159, 475, 497, 461, 1, 269, 304, 346, 240, 269, 314, 1], total: 290 },
-        { cspc: 'C4160', linea: 'XL1', dias: [162, 480, 495, 455, 1, 337, 309, 342, 245, 273, 308, 1], total: 302 },
-        { cspc: 'C4162', linea: 'XL1', dias: [869, 610, 559, 698, 1, 635, 575, 500, 611, 635, 566, 1], total: 587 },
-        { cspc: 'C4163', linea: '0', dias: [862, 606, 559, 702, 1, 635, 575, 500, 611, 635, 566, 1], total: 587 }
+        { numero_parte: '85560226', cspc: 'C4087', linea: 'XL1', dias: [1371, 1403, 1371, 1398, 1, 1371, 1403, 1371, 1403, 1371, 1398, 1], total: 1386 },
+        { numero_parte: '84666755', cspc: 'C4088', linea: 'XL1', dias: [1371, 1403, 1371, 1398, 1, 1371, 1403, 1371, 1403, 1371, 1398, 1], total: 1386 },
+        { numero_parte: '84652941', cspc: 'C4106', linea: 'XL2', dias: [1202, 1283, 1256, 1241, 1, 1221, 1233, 1236, 1323, 1221, 1308, 1], total: 1257 },
+        { numero_parte: '84652942', cspc: 'C4109', linea: 'XL2', dias: [1202, 1283, 1256, 1241, 1, 1221, 1233, 1236, 1323, 1221, 1308, 1], total: 1257 },
+        { numero_parte: '84652981', cspc: 'C4118', linea: 'XL2', dias: [169, 120, 110, 128, 1, 150, 170, 135, 80, 150, 90, 1], total: 129 },
+        { numero_parte: '84652982', cspc: 'C4119', linea: 'XL2', dias: [169, 120, 110, 128, 1, 150, 170, 135, 80, 150, 90, 1], total: 129 },
+        { numero_parte: '23381632', cspc: 'C4144', linea: 'XL1', dias: [752, 917, 814, 775, 1, 770, 767, 691, 688, 770, 814, 1], total: 750 },
+        { numero_parte: '23381639', cspc: 'C4145', linea: 'XL1', dias: [169, 120, 110, 140, 1, 142, 170, 135, 88, 142, 105, 1], total: 130 },
+        { numero_parte: '84688122', cspc: 'C4146', linea: 'XL1', dias: [761, 927, 833, 781, 1, 751, 769, 699, 699, 751, 827, 1], total: 749 },
+        { numero_parte: '84688125', cspc: 'C4148', linea: 'XL1', dias: [450, 375, 412, 469, 1, 751, 467, 533, 636, 457, 484, 1], total: 555 },
+        { numero_parte: '23507633', cspc: 'C4149', linea: 'XL1', dias: [450, 375, 412, 469, 1, 457, 467, 533, 636, 457, 484, 1], total: 506 },
+        { numero_parte: '84688126', cspc: 'C4152', linea: 'XL2', dias: [169, 91, 139, 120, 1, 144, 170, 155, 60, 144, 91, 1], total: 127 },
+        { numero_parte: '84496738', cspc: 'C4155', linea: 'XL2', dias: [401, 744, 730, 601, 1, 651, 725, 751, 697, 651, 747, 1], total: 704 },
+        { numero_parte: '84496739', cspc: 'C4156', linea: '0', dias: [401, 744, 730, 601, 1, 651, 725, 751, 697, 651, 747, 1], total: 704 },
+        { numero_parte: '84496740', cspc: 'C4157', linea: 'XL1', dias: [780, 523, 509, 639, 1, 601, 540, 470, 571, 601, 513, 1], total: 549 },
+        { numero_parte: '84496741', cspc: 'C4158', linea: '0', dias: [780, 523, 509, 639, 1, 601, 540, 470, 571, 601, 513, 1], total: 549 },
+        { numero_parte: '23393591', cspc: 'C4159', linea: 'XL2', dias: [159, 475, 497, 461, 1, 269, 304, 346, 240, 269, 314, 1], total: 290 },
+        { numero_parte: '84340140', cspc: 'C4160', linea: 'XL1', dias: [162, 480, 495, 455, 1, 337, 309, 342, 245, 273, 308, 1], total: 302 },
+        { numero_parte: '23393592', cspc: 'C4162', linea: 'XL1', dias: [869, 610, 559, 698, 1, 635, 575, 500, 611, 635, 566, 1], total: 587 },
+        { numero_parte: '84512891', cspc: 'C4163', linea: '0', dias: [862, 606, 559, 702, 1, 635, 575, 500, 611, 635, 566, 1], total: 587 }
     ];
-    
-    renderWeeklyTable();
-}
+}*/
 
-// Renderizar tabla semanal
-function renderWeeklyTable() {
-    const tbody = document.querySelector('#reqbody tbody');
-    
-    if (!tbody || !weeklyData) return;
-    
+function renderEstampadoTable() {
+     console.log('Render Estampado con filas:', weeklyData.length);
+    const tbody = document.getElementById('tbodyEstampado');
+    if (!tbody) return;
+
     tbody.innerHTML = '';
-    
-    weeklyData.forEach((row, index) => {
-        const tr = document.createElement('tr');
-        
-        // Determinar clase de línea
+
+    if (!weeklyData.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="16">No hay datos para mostrar.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    weeklyData.forEach((row) => {
         let lineaClass = 'col-linea-xl2';
         if (row.linea === 'XL1') lineaClass = 'col-linea-xl1';
         if (row.linea === '0') lineaClass = 'col-linea-0';
-        
-        // Construir celdas
+
+        const tr = document.createElement('tr');
+
         let cells = `
+            <td class="col-part">${row.numero_parte || ''}</td>
             <td class="col-cspc">${row.cspc}</td>
             <td class="${lineaClass}">${row.linea}</td>
         `;
-        
-        // Agregar días
+
         row.dias.forEach((value, dayIndex) => {
             const isDomingo = dayIndex === 4 || dayIndex === 11;
             const cellClass = isDomingo ? 'col-sunday' : '';
-            cells += `<td class="${cellClass} editable-cell" data-row="${index}" data-day="${dayIndex}">${value}</td>`;
+            cells += `<td class="${cellClass}">${value}</td>`;
         });
-        
-        // Agregar total
+
         cells += `<td class="col-total">${row.total}</td>`;
-        
+
         tr.innerHTML = cells;
         tbody.appendChild(tr);
     });
-    
-    // Agregar evento de edición
-    setupEditableCells();
 }
 
-function filterWeeklyTable(query) {
-    const rows = document.querySelectorAll('#reqbody tbody tr');
+function renderResumenSemanaTable() {
+    const tbody = document.getElementById('tbodyResumenSemana');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (!resumenSemanaData.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4">No hay datos de resumen para esta semana.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    resumenSemanaData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="col-part">${row.numero_parte || ''}</td>
+            <td class="col-cspc">${row.nombre_cspc || ''}</td>
+            <td>${row.linea || ''}</td>
+            <td>${row.cantidad_semanal ?? 0}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function loadResumenSemanaFromApi(semana, anio) {
+    const tbody = document.getElementById('tbodyResumenSemana');
+    if (!tbody) return;
+
+    const token = localStorage.getItem('token');
+
+    const sem = semana || lastSemana;
+    const year = anio || lastAnio;
+
+    if (!sem || !year) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4">Debes indicar semana y año para ver el resumen.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="4">Cargando resumen semanal...</td>
+        </tr>
+    `;
+
+    try {
+        const res = await fetch(
+            `${BASE_URL}/api/reqbody/resumen?semana=${sem}&anio=${year}`,
+            {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            }
+        );
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Error al cargar el resumen semanal');
+
+        resumenSemanaData = Array.isArray(data) ? data : [];
+        renderResumenSemanaTable();
+    } catch (error) {
+        console.error('Error en loadResumenSemanaFromApi:', error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4">${error.message || 'Error al cargar el resumen semanal'}</td>
+            </tr>
+        `;
+    }
+}
+
+function buildWeeklyDataFromDiario(rows) {
+    console.log('Filas desde /diario:', rows.length, rows);
+    // rows: array de objetos { fecha, cantidad, numero_parte, nombre_cspc, linea, ... }
+
+    if (!Array.isArray(rows) || !rows.length) {
+        weeklyData = [];
+        weeklyDates = [];
+        return;
+    }
+
+    // 1) Obtener todas las fechas únicas y ordenarlas (tomamos las primeras 12)
+    const fechasUnicas = Array.from(
+        new Set(rows.map(r => r.fecha))
+    ).sort(); // orden ascendente por fecha (YYYY-MM-DD)
+
+    const maxCols = 12;
+    const fechasCols = fechasUnicas.slice(0, maxCols);
+
+    // Guardamos fechasCols para el header
+    weeklyDates = fechasCols;
+
+    // 2) Agrupar por parte + CSPC + línea
+    const grupos = new Map();
+
+    rows.forEach(r => {
+        const key = `${r.numero_parte}|${r.nombre_cspc}|${r.linea}`;
+        if (!grupos.has(key)) {
+            grupos.set(key, {
+                numero_parte: r.numero_parte,
+                cspc: r.nombre_cspc,
+                linea: r.linea,
+                // inicializamos array de 12 días en 0
+                dias: Array(maxCols).fill(0)
+            });
+        }
+        const grupo = grupos.get(key);
+        const idx = fechasCols.indexOf(r.fecha);
+        if (idx !== -1) {
+            grupo.dias[idx] += Number(r.cantidad) || 0;
+        }
+    });
+
+    // 3) Convertir a arreglo y calcular total
+    weeklyData = Array.from(grupos.values()).map(g => {
+        const total = g.dias.reduce((acc, n) => acc + n, 0);
+        //const total = g.dias.reduce((acc, n, idx) => {
+            // si quieres excluir domingos (ej. índices 4 y 11), ajusta aquí
+            // if (idx === 4 || idx === 11) return acc;
+            //return acc + n;
+        //}, 0);
+        return {
+            numero_parte: g.numero_parte,
+            cspc: g.cspc,
+            linea: g.linea,
+            dias: g.dias,
+            total
+        };
+    });
+}
+
+function renderEstampadoHeaderDates() {
+    const headerRow = document.querySelector('#vistaEstampado .reqbody-table thead tr.header-dates');
+    if (!headerRow) return;
+
+    const cells = headerRow.querySelectorAll('.header-date');
+    if (!cells.length) return;
+
+    // weeklyDates contiene las fechas 'YYYY-MM-DD' para cada columna
+    cells.forEach((cell, index) => {
+        if (index === cells.length - 1) {
+            // última celda es la de TOTAL, la dejamos vacía
+            cell.textContent = '';
+            return;
+        }
+
+        const fechaStr = weeklyDates[index];
+        if (!fechaStr) {
+            cell.textContent = '';
+            return;
+        }
+
+        // Convertir 'YYYY-MM-DD' a 'dd/MM/yyyy'
+        const d = new Date(fechaStr);
+        if (isNaN(d)) {
+            cell.textContent = fechaStr;
+            return;
+        }
+
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const anio = d.getFullYear();
+
+        cell.textContent = `${dia}/${mes}/${anio}`;
+    });
+}
+
+function filterEstampadoTable(query) {
+    const rows = document.querySelectorAll('#tbodyEstampado tr');
 
     rows.forEach(row => {
-        const cspc = row.children[0].textContent.toLowerCase(); // cspc
-        const linea = row.children[1].textContent.toLowerCase(); //linea
-        //const dias = row.children[2].textContent.toLowerCase(); // dias
-
-        const text = `${cspc} ${linea}`;
+        const numeroParte = row.children[0]?.textContent.toLowerCase() || '';
+        const cspc = row.children[1]?.textContent.toLowerCase() || '';
+        const linea = row.children[2]?.textContent.toLowerCase() || '';
+        const text = `${numeroParte} ${cspc} ${linea}`;
 
         row.style.display = text.includes(query) ? '' : 'none';
     });
 }
 
-// Configurar celdas editables
-function setupEditableCells() {
-    const editableCells = document.querySelectorAll('.editable-cell');
-    
-    editableCells.forEach(cell => {
-        cell.addEventListener('dblclick', function() {
-            const currentValue = this.textContent;
-            const rowIndex = this.getAttribute('data-row');
-            const dayIndex = this.getAttribute('data-day');
-            
-            // Crear input
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.value = currentValue;
-            input.style.width = '100%';
-            
-            // Reemplazar contenido
-            this.textContent = '';
-            this.appendChild(input);
-            input.focus();
-            input.select();
-            
-            // Al perder el foco, guardar
-            input.addEventListener('blur', function() {
-                const newValue = parseInt(this.value) || 0;
-                weeklyData[rowIndex].dias[dayIndex] = newValue;
-                cell.textContent = newValue;
-                
-                // Recalcular total
-                recalculateTotal(rowIndex);
-            });
-            
-            // Enter para guardar
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    this.blur();
-                }
-            });
-        });
-    });
-}
+// =========================
+// VISTA IMPORTADO
+// =========================
+async function loadReqbodyFromApi() {
+    const tbody = document.getElementById('tbodyImportado');
+    const tipo = document.getElementById('tipoReqbody')?.value || 'DREQ';
+    const numeroParte = document.getElementById('filtroNumeroParte')?.value?.trim() || '';
+    const token = localStorage.getItem('token');
 
-// Recalcular total de una fila
-function recalculateTotal(rowIndex) {
-    const row = weeklyData[rowIndex];
-    // Excluir domingos (índices 4 y 11 que tienen valor 1)
-    const total = row.dias.reduce((sum, val, idx) => {
-        if (idx === 4 || idx === 11) return sum;
-        return sum + val;
-    }, 0);
-    
-    row.total = Math.round(total / 10); // Promedio aproximado
-    
-    // Actualizar en la tabla
-    const tbody = document.querySelector('#reqbody tbody');
-    const tr = tbody.children[rowIndex];
-    const totalCell = tr.querySelector('.col-total');
-    totalCell.textContent = row.total;
-}
-
-// Configurar botones de acción
-function setupActionButtons() {
-    const section = document.getElementById('reqbody');
-    
-    if (!section) return;
-    
-    /*
-    // Crear contenedor de botones si no existe
-    if (!section.querySelector('.action-buttons')) {
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = 'action-buttons';
-        buttonsDiv.innerHTML = `
-            <button class="btn btn-primary" onclick="addWeeklyRow()">
-                <i class="bi bi-plus-circle"></i> Agregar Fila
-            </button>
-            <button class="btn btn-danger" onclick="deleteLastWeeklyRow()">
-                <i class="bi bi-trash"></i> Eliminar Última Fila
-            </button>
-            <button class="btn btn-success" onclick="saveWeeklyData()">
-                <i class="bi bi-save"></i> Guardar
-            </button>
-            <button class="btn btn-warning" onclick="exportWeeklyToExcel()">
-                <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
-            </button>
-            <button class="btn btn-info" onclick="printWeeklyTable()">
-                <i class="bi bi-printer"></i> Imprimir
-            </button>
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10">Cargando datos...</td>
+            </tr>
         `;
-        
-        const h1 = section.querySelector('h1');
-        h1.after(buttonsDiv);
-    }*/
-}
+    }
 
-// Funciones de botones
-function addWeeklyRow() {
-    const newRow = {
-        cspc: 'C0000',
-        linea: 'XL1',
-        dias: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        total: 0
-    };
-    
-    weeklyData.push(newRow);
-    renderWeeklyTable();
-}
+    try {
+        const params = new URLSearchParams({
+            tipo,
+            page: currentPage,
+            limit: currentLimit
+        });
 
-function deleteLastWeeklyRow() {
-    if (weeklyData.length > 0) {
-        if (confirm('¿Estás seguro de eliminar la última fila?')) {
-            weeklyData.pop();
-            renderWeeklyTable();
+        if (numeroParte) {
+            params.append('numero_parte', numeroParte);
         }
+
+        const res = await fetch(`${BASE_URL}/api/reqbody?${params.toString()}`, {
+            method: 'GET',
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            throw new Error(result.message || 'Error al cargar reqbody');
+        }
+
+        if (Array.isArray(result)) {
+            reqbodyData = result;
+            totalPages = 1;
+            totalRecords = result.length;
+            currentPage = 1;
+        } else {
+            reqbodyData = result.data || [];
+            totalPages = result.pagination?.totalPages || 1;
+            totalRecords = result.pagination?.total || 0;
+            currentPage = result.pagination?.page || 1;
+        }
+
+        renderImportedTable();
+        updatePaginationInfo();
+    } catch (error) {
+        console.error('Error cargando reqbody:', error);
+
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10">${error.message || 'Error al cargar los datos'}</td>
+                </tr>
+            `;
+        }
+
+        totalPages = 1;
+        totalRecords = 0;
+        updatePaginationInfo();
     }
 }
 
-function saveWeeklyData() {
-    localStorage.setItem('weeklyData', JSON.stringify(weeklyData));
-    alert('Datos guardados correctamente en el navegador');
-}
+function renderImportedTable() {
+    const tbody = document.getElementById('tbodyImportado');
+    if (!tbody) return;
 
-function exportWeeklyToExcel() {
-    const dataStr = 'data:text/csv;charset=utf-8,' + 
-        encodeURIComponent(convertWeeklyToCSV(weeklyData));
-    const downloadLink = document.createElement('a');
-    downloadLink.href = dataStr;
-    downloadLink.download = 'req_body_semanal.csv';
-    downloadLink.click();
-}
+    tbody.innerHTML = '';
 
-function convertWeeklyToCSV(data) {
-    const headers = [
-        'CSPC', 'LINEA', 'Mie 05', 'Jue 06', 'Vie 07', 'Sab 08', 'Dom 09',
-        'Lun 10', 'Mar 11', 'Mie 12', 'Jue 13', 'Vie 14', 'Sab 15', 'Dom 16', 'Total'
-    ];
-    
-    let csv = headers.join(',') + '\n';
-    
-    data.forEach(row => {
-        const values = [row.cspc, row.linea, ...row.dias, row.total];
-        csv += values.join(',') + '\n';
-    });
-    
-    return csv;
-}
+    if (!reqbodyData.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10">No se encontraron registros.</td>
+            </tr>
+        `;
+        return;
+    }
 
-function printWeeklyTable() {
-    window.print();
-}
+    reqbodyData.forEach((row) => {
+        const tr = document.createElement('tr');
 
-// Filtrar por línea
-function filterByLine(line) {
-    const rows = document.querySelectorAll('#reqbody tbody tr');
-    
-    rows.forEach(row => {
-        const lineCell = row.children[1];
-        if (line === 'all' || lineCell.textContent === line) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        tr.innerHTML = `
+            <td class="col-part">${row.numero_parte ?? ''}</td>
+            <td class="col-cspc">${row.descripcion ?? ''}</td>
+            <td>${row.uloc ?? ''}</td>
+            <td>${row.buy_cantidad ?? ''}</td>
+            <td>${row.doh ?? ''}</td>
+            <td>${row.in_transit ?? ''}</td>
+            <td>${row.cbal ?? ''}</td>
+            <td>${row.tipo_req ?? ''}</td>
+            <td>${row.periodo ?? ''}</td>
+            <td>${row.cantidad ?? ''}</td>
+        `;
+
+        tbody.appendChild(tr);
     });
 }
 
-// Función de logout
+function updatePaginationInfo() {
+    const info = document.getElementById('paginationInfo');
+    const btnPrevPage = document.getElementById('btnPrevPage');
+    const btnNextPage = document.getElementById('btnNextPage');
+
+    if (info) {
+        info.textContent = `Página ${currentPage} de ${totalPages} · Total: ${totalRecords}`;
+    }
+
+    if (btnPrevPage) {
+        btnPrevPage.disabled = currentPage <= 1;
+    }
+
+    if (btnNextPage) {
+        btnNextPage.disabled = currentPage >= totalPages;
+    }
+}
+
+// leer Estampado desde /api/reqbody/diario
+async function loadEstampadoFromApi(semana, anio) {
+    console.log('loadEstampadoFromApi llamado con:', semana, anio);
+    const tbody = document.getElementById('tbodyEstampado');
+    if (!tbody) return;
+
+    const token = localStorage.getItem('token');
+
+    const sem = semana || prompt('Semana para Estampado:', '');
+    const year = anio || prompt('Año para Estampado:', '');
+
+    if (!sem || !year) {
+        tbody.innerHTML = '<tr><td colspan="16">Debes indicar semana y año</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="16">Cargando datos de Estampado...</td>
+        </tr>
+    `;
+
+    try {
+        const res = await fetch(
+            `${BASE_URL}/api/reqbody/diario?semana=${sem}&anio=${year}`,
+            {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            }
+        );
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Error al cargar reqbody diario');
+
+        // Transformar data (una fila por fecha) a formato weeklyData (12 días)
+        buildWeeklyDataFromDiario(data);
+
+        // Pintar fechas en el header según weeklyDates
+        renderEstampadoHeaderDates();
+
+        // Pintar tabla
+        renderEstampadoTable();
+
+        // Cargar también el resumen semanal para la misma semana/año
+        loadResumenSemanaFromApi(sem, year);
+
+        //console.log('Datos diarios desde reqbody:', data);
+        // Aquí luego mapearás "data" a tu tabla de 12 días; por ahora solo lo dejamos impreso.
+    } catch (error) {
+        console.error(error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="16">${error.message || 'Error al cargar datos de Estampado'}</td>
+            </tr>
+        `;
+    }
+}
+
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '../index.html';
-}
-
-document.getElementById('btnLogout').addEventListener('click', logout);
-
-/*function logout() {
-    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('token');
-        window.location.href = '../index.html';
-    //}
-}*/
-
-// Cargar datos guardados al inicio
-window.addEventListener('load', function() {
-    const savedData = localStorage.getItem('weeklyData');
-    if (savedData) {
-        const shouldLoad = confirm('Se encontraron datos guardados. ¿Deseas cargarlos?');
-        if (shouldLoad) {
-            weeklyData = JSON.parse(savedData);
-            renderWeeklyTable();
-        }
-    }
-});
-
-// Calcular estadísticas
-function calculateWeeklyStats() {
-    let totalByLine = { XL1: 0, XL2: 0, '0': 0 };
-    let countByLine = { XL1: 0, XL2: 0, '0': 0 };
-    
-    weeklyData.forEach(row => {
-        totalByLine[row.linea] += row.total;
-        countByLine[row.linea]++;
-    });
-    
-    return {
-        XL1: { total: totalByLine.XL1, promedio: (totalByLine.XL1 / countByLine.XL1).toFixed(2) },
-        XL2: { total: totalByLine.XL2, promedio: (totalByLine.XL2 / countByLine.XL2).toFixed(2) },
-        '0': { total: totalByLine['0'], promedio: (totalByLine['0'] / countByLine['0']).toFixed(2) }
-    };
-}
-
-// Resaltar valores críticos
-function highlightCriticalValues() {
-    const cells = document.querySelectorAll('#reqbody tbody td:not(.col-cspc):not([class*="col-linea"]):not(.col-total):not(.col-sunday)');
-    
-    cells.forEach(cell => {
-        const value = parseInt(cell.textContent);
-        if (!isNaN(value)) {
-            if (value < 100) {
-                cell.style.color = '#ff4757';
-                cell.style.fontWeight = 'bold';
-            } else if (value > 1000) {
-   
-                cell.style.color = '#00B050';
-                cell.style.fontWeight = 'bold';
-            }
-        }
-    });
-}
-
-// Buscar en tabla
-function searchTable(query) {
-    const rows = document.querySelectorAll('#reqbody tbody tr');
-    
-    rows.forEach(row => {
-        const cspc = row.children[0].textContent.toLowerCase();
-        if (cspc.includes(query.toLowerCase())) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
 }

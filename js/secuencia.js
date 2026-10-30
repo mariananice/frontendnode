@@ -1,401 +1,1039 @@
-// Variables globales
+'use strict';
+
+const BASE_URL = 'http://localhost:3300';
+const DEFAULT_WEDNESDAY = '2026-01-07';
+
 let secuenciaData = [];
+let semanaFechas = [];
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    initializeMenu();
-    loadSecuenciaData();
-    setupActionButtons();
-    // setupFilters(); // actívalo solo cuando tengas los filtros completos
+document.addEventListener(
+    'DOMContentLoaded',
+    iniciarSecuencia
+);
 
-    const btnPerfil = document.getElementById('btnPerfil');
-    const btnNotificaciones = document.getElementById('btnNotificaciones');
-    const panelPerfil = document.getElementById('panelPerfil');
-    const panelNotificaciones = document.getElementById('panelNotificacionesSecuencia');
+function iniciarSecuencia() {
+    const token = localStorage.getItem('token');
 
-    if (btnPerfil && panelPerfil) {
-        btnPerfil.addEventListener('click', () => {
-            llenarPerfil();
-            abrirPanel(panelPerfil);
-        });
+    if (!token) {
+        window.location.href = '../index.html';
+        return;
     }
 
-    if (btnNotificaciones && panelNotificaciones) {
-        btnNotificaciones.addEventListener('click', () => {
-            llenarNotificacionesSecuencia();
-            abrirPanel(panelNotificaciones);
-        });
-    }
+    inicializarFecha();
+    inicializarMenu();
+    inicializarModales();
+    inicializarBusqueda();
+    inicializarLogout();
 
-    document.querySelectorAll('[data-close-panel]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const panel = btn.closest('.center-modal');
-            if (panel) panel.classList.remove('open');
-        });
-    });
+    document
+        .getElementById('btnConsultarSecuencia')
+        ?.addEventListener(
+            'click',
+            cargarSemana
+        );
 
-    const searchInput = document.getElementById('searchSecuencia');
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            filterSecuenciaTable(query);
-        });
-    }
-});
+    document
+        .getElementById('btnActualizarSecuencia')
+        ?.addEventListener(
+            'click',
+            cargarSemana
+        );
 
-function abrirPanel(panel) {
-    // Cerrar otros paneles si hubiera
-    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
-    panel.classList.add('open');
+    cargarSemana();
 }
 
-// Perfil de usuario en Secuencia
-function llenarPerfil() {
-    let user = null;
+// CARGA DE LA SEMANA
+async function cargarSemana() {
+    const tbody = document.getElementById(
+        'tbodySecuencia'
+    );
+
+    if (!tbody) return;
+
+    const fechaCapturada =
+        document.getElementById(
+            'fechaSecuencia'
+        )?.value || DEFAULT_WEDNESDAY;
+
+    const fechaInicio =
+        normalizarAInicioMiercoles(
+            fechaCapturada
+        );
+
+    const linea =
+        document.getElementById(
+            'lineaSecuencia'
+        )?.value || '';
+
+    const inputFecha =
+        document.getElementById(
+            'fechaSecuencia'
+        );
+
+    if (inputFecha) {
+        inputFecha.value = fechaInicio;
+    }
+
+    localStorage.setItem(
+        'secuencia_fecha',
+        fechaInicio
+    );
+
+    semanaFechas =
+        obtenerFechasSemana(
+            fechaInicio
+        );
+
+    actualizarEncabezados(
+        semanaFechas
+    );
+
+    mostrarMensaje(
+        tbody,
+        'Cargando secuencia semanal...'
+    );
+
     try {
-        user = JSON.parse(localStorage.getItem('user'));
-    } catch (e) {
-        user = null;
+        const respuesta =
+            await consultarSecuenciaSemana(
+                fechaInicio,
+                linea
+            );
+
+        if (
+            Array.isArray(respuesta.fechas) &&
+            respuesta.fechas.length === 7
+        ) {
+            semanaFechas =
+                respuesta.fechas.map(
+                    normalizarFechaClave
+                );
+
+            actualizarEncabezados(
+                semanaFechas
+            );
+        }
+
+        secuenciaData =
+            adaptarDatosSemana(
+                respuesta.data,
+                semanaFechas
+            );
+
+        renderSecuenciaTable();
+
+        const textoSemana =
+            document.getElementById(
+                'semanaTexto'
+            );
+
+        if (
+            textoSemana &&
+            semanaFechas.length === 7
+        ) {
+            textoSemana.textContent =
+                `Semana del ${formatearFecha(
+                    semanaFechas[0]
+                )} al ${formatearFecha(
+                    semanaFechas[6]
+                )}`;
+        }
+    } catch (error) {
+        console.error(
+            'Error cargando secuencia:',
+            error
+        );
+
+        mostrarMensaje(
+            tbody,
+            error.message ||
+                'Error al cargar la secuencia.'
+        );
     }
 
-    document.getElementById('perfilSecuenciaNombre').textContent = user?.nombre || 'Usuario';
-    document.getElementById('perfilSecuenciaCorreo').textContent = user?.email || 'correo@ejemplo.com';
-    document.getElementById('perfilSecuenciaRol').textContent = user?.rol || 'usuario';
-    document.getElementById('perfilSecuenciaGmin').textContent = user?.GMIN || 'GMIN';
-}
+    const respuesta =
+    await consultarSecuenciaSemana(
+        fechaInicio,
+        linea
+    );
 
-// Notificaciones para Secuencia
-function llenarNotificacionesSecuencia() {
-    const contenedor = document.getElementById('listaNotificacionesSecuencia');
-    if (!contenedor) return;
+    console.log(
+        '[Secuencia] Respuesta API:',
+        respuesta
+    );
 
-    const notificaciones = [
-        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
-        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
-        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
-    ];
+    console.log(
+        '[Secuencia] Filas recibidas:',
+        respuesta.data?.length
+    );
 
-    contenedor.innerHTML = '';
+    secuenciaData =
+        adaptarDatosSemana(
+            respuesta.data,
+            semanaFechas
+        );
 
-    notificaciones.forEach(n => {
-        const div = document.createElement('div');
-        div.className = 'notificacion-item';
-        div.innerHTML = `
-        <div class="notificacion-titulo">${n.titulo}</div>
-        <div class="notificacion-fecha">${n.fecha}</div>
-        <div class="notificacion-detalle">${n.detalle}</div>
-        `;
-        contenedor.appendChild(div);
-    });
-}
-
-// Sistema de navegación entre secciones
-function initializeMenu() {
-    const menuItems = document.querySelectorAll('.menu li');
-
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(li => li.classList.remove('active'));
-
-            this.classList.add('active');
-
-            const sectionId = this.getAttribute('data-section');
-            showSection(sectionId);
-        });
-    });
-}
-
-function showSection(sectionId) {
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
-    }
-}
-
-// Cargar datos de secuencia
-function loadSecuenciaData() {
-    secuenciaData = [
-        { numero: '85560226', cspc: 'C4087', linea: 'XL1', sph: 519, cantidad: 1680, duracion: 103.109827, banco: 2.8, secuencia: 6, cambios: 6, secuencia2: '', cambios2: '' },
-        { numero: '84666755', cspc: 'C4088', linea: 'XL1', sph: 555, cantidad: 2000, duracion: 114.108108, banco: 2.6, secuencia: 1, cambios: 1, secuencia2: '', cambios2: '' },
-        { numero: '84652941', cspc: 'C4106', linea: 'XL2', sph: 514, cantidad: 1200, duracion: 146.077821, banco: 1.4, secuencia: '', cambios: '', secuencia2: 2, cambios2: 2 },
-        { numero: '84652942', cspc: 'C4109', linea: 'XL2', sph: 515, cantidad: 1200, duracion: 145.805825, banco: 2.1, secuencia: '', cambios: '', secuencia2: 7, cambios2: 7 },
-        { numero: '84652981', cspc: 'C4118', linea: 'XL2', sph: 430, cantidad: 0, duracion: '', banco: 4.2, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84652982', cspc: 'C4119', linea: 'XL2', sph: 430, cantidad: 0, duracion: '', banco: 5.9, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '23381632', cspc: 'C4144', linea: 'XL1', sph: 554, cantidad: 0, duracion: '', banco: 4.8, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '23381639', cspc: 'C4145', linea: 'XL1', sph: 460, cantidad: 0, duracion: '', banco: 8.1, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84688122', cspc: 'C4146', linea: 'XL1', sph: 555, cantidad: 600, duracion: 70.8648649, banco: 2.7, secuencia: 7, cambios: 7, secuencia2: '', cambios2: '' },
-        { numero: '84688125', cspc: 'C4148', linea: 'XL1', sph: 556, cantidad: 450, duracion: 54.5611511, banco: 2.2, secuencia: 8, cambios: 8, secuencia2: '', cambios2: '' },
-        { numero: '23507633', cspc: 'C4149', linea: 'XL1', sph: 569, cantidad: 0, duracion: '', banco: 3.9, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84688126', cspc: 'C4152', linea: 'XL2', sph: 500, cantidad: 0, duracion: '', banco: 5.4, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84496738', cspc: 'C4155', linea: 'XL2', sph: 484, cantidad: 0, duracion: '', banco: 4.7, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84496739', cspc: 'C4156', linea: '0', sph: 484, cantidad: 0, duracion: '', banco: 5.0, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84496740', cspc: 'C4157', linea: 'XL1', sph: 479, cantidad: 960, duracion: 126.250522, banco: 1.9, secuencia: 9, cambios: 9, secuencia2: '', cambios2: '' },
-        { numero: '84496741', cspc: 'C4158', linea: '0', sph: 479, cantidad: 960, duracion: 0, banco: 1.9, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '23393591', cspc: 'C4159', linea: 'XL2', sph: 536, cantidad: 0, duracion: '', banco: 9.3, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84340140', cspc: 'C4160', linea: 'XL1', sph: 536, cantidad: 0, duracion: '', banco: 15.3, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '23393592', cspc: 'C4162', linea: 'XL1', sph: 460, cantidad: 0, duracion: '', banco: 2.3, secuencia: '', cambios: '', secuencia2: '', cambios2: '' },
-        { numero: '84512891', cspc: 'C4163', linea: '0', sph: 460, cantidad: 0, duracion: '', banco: 2.3, secuencia: '', cambios: '', secuencia2: '', cambios2: '' }
-    ];
+    console.log(
+        '[Secuencia] Filas adaptadas:',
+        secuenciaData
+    );
 
     renderSecuenciaTable();
 }
 
-// Renderizar tabla de secuencia
+async function consultarSecuenciaSemana(
+    fecha,
+    linea
+) {
+    const params = new URLSearchParams({
+        fecha
+    });
+
+    if (linea) {
+        params.set('linea', linea);
+    }
+
+    return await apiFetch(
+        `/api/secuencia/semana?${params.toString()}`
+    );
+}
+
+// ADAPTACIÓN DE RESPUESTA
+function adaptarDatosSemana(
+    filas,
+    fechas
+) {
+    if (!Array.isArray(filas)) {
+        return [];
+    }
+
+    return filas.map(row => {
+        const diasFuente =
+            row.dias || {};
+
+        const dias = {};
+        let banco = '';
+
+        fechas.forEach(fecha => {
+            const dia =
+                buscarDia(
+                    diasFuente,
+                    fecha
+                );
+
+            const planeada =
+                obtenerNumeroNulo(
+                    dia.cantidad_planeada
+                );
+
+            const requerida =
+                obtenerNumero(
+                    dia.cantidad_requerida
+                );
+
+            const cantidad =
+                planeada !== null
+                    ? planeada
+                    : requerida;
+
+            const duracion =
+                dia.duracion_min !== null &&
+                dia.duracion_min !== undefined
+                    ? dia.duracion_min
+                    : planeada !== null
+                        ? calcularDuracion(
+                            planeada,
+                            row.sph
+                        )
+                        : '';
+
+            if (
+                !banco &&
+                dia.banco !== null &&
+                dia.banco !== undefined
+            ) {
+                banco = dia.banco;
+            }
+
+            dias[fecha] = {
+                cantidad,
+                duracion,
+
+                secuencia:
+                    dia.orden_planeado ?? '',
+
+                cambios:
+                    dia.cambios || 'N/D',
+
+                estado:
+                    dia.estado ||
+                    obtenerEstado(
+                        cantidad,
+                        dia.orden_planeado
+                    )
+            };
+        });
+
+        const totalPlaneado =
+            obtenerNumeroNulo(
+                row.total_planeado
+            );
+
+        const totalRequerido =
+            obtenerNumero(
+                row.total_requerido
+            );
+
+        return {
+            numero:
+                String(
+                    row.numero ?? ''
+                ).trim(),
+
+            cspc:
+                String(
+                    row.cspc ?? ''
+                ).trim(),
+
+            linea:
+                String(
+                    row.linea ?? ''
+                ).trim(),
+
+            sph:
+                row.sph ?? '',
+
+            banco,
+
+            dias,
+
+            total:
+                totalPlaneado !== null &&
+                totalPlaneado > 0
+                    ? totalPlaneado
+                    : totalRequerido
+        };
+    });
+}
+
+function buscarDia(
+    dias,
+    fechaBuscada
+) {
+    if (dias[fechaBuscada]) {
+        return dias[fechaBuscada];
+    }
+
+    const encontrado =
+        Object.entries(dias).find(
+            ([clave]) =>
+                normalizarFechaClave(
+                    clave
+                ) === fechaBuscada
+        );
+
+    return encontrado
+        ? encontrado[1]
+        : {};
+}
+
+function normalizarFechaClave(
+    valor
+) {
+    if (!valor) {
+        return '';
+    }
+
+    const texto = String(valor);
+
+    const fechaISO =
+        texto.match(
+            /^(\d{4}-\d{2}-\d{2})/
+        );
+
+    if (fechaISO) {
+        return fechaISO[1];
+    }
+
+    const fecha = new Date(valor);
+
+    if (Number.isNaN(fecha.getTime())) {
+        return '';
+    }
+
+    return fecha
+        .toISOString()
+        .slice(0, 10);
+}
+
+/* =========================
+   RENDERIZADO
+========================= */
+
 function renderSecuenciaTable() {
-    const tbody = document.querySelector('#secuencia tbody');
-    if (!tbody || !secuenciaData) return;
+    const tbody = document.getElementById(
+        'tbodySecuencia'
+    );
+
+    if (!tbody) return;
 
     tbody.innerHTML = '';
 
-    secuenciaData.forEach((row, index) => {
+    if (!secuenciaData.length) {
+        mostrarMensaje(
+            tbody,
+            'No hay datos para la semana seleccionada.'
+        );
+
+        return;
+    }
+
+    secuenciaData.forEach(row => {
         const tr = document.createElement('tr');
 
-        let lineaClass = 'col-linea-xl2';
-        if (row.linea === 'XL1') lineaClass = 'col-linea-xl1';
-        if (row.linea === '0') lineaClass = 'col-linea-0';
+        agregarCelda(
+            tr,
+            row.numero,
+            'col-numero'
+        );
 
-        tr.innerHTML = `
-            <td class="col-numero">${row.numero}</td>
-            <td class="col-cspc">${row.cspc}</td>
-            <td class="${lineaClass}">${row.linea}</td>
-            <td class="col-sph">${row.sph}</td>
-            <td class="col-cantidad editable-cell" data-row="${index}" data-field="cantidad">${row.cantidad}</td>
-            <td class="col-duracion">${row.duracion}</td>
-            <td class="col-banco">${row.banco}</td>
-            <td class="col-secuencia">${row.secuencia}</td>
-            <td class="col-cambios">${row.cambios}</td>
-            <td class="col-secuencia-2">${row.secuencia2}</td>
-            <td class="col-cambios-2">${row.cambios2}</td>
-        `;
+        agregarCelda(
+            tr,
+            row.cspc || 'SIN CSPC',
+            'col-cspc'
+        );
+
+        agregarCelda(
+            tr,
+            row.linea || 'SIN LÍNEA',
+            obtenerClaseLinea(row.linea)
+        );
+
+        agregarCelda(
+            tr,
+            formatearNumero(row.sph),
+            'col-sph'
+        );
+
+        agregarCelda(
+            tr,
+            formatearDecimal(row.banco),
+            'col-banco'
+        );
+
+        semanaFechas.forEach(fecha => {
+            const dia =
+                row.dias[fecha] || {};
+
+            agregarCelda(
+                tr,
+                formatearNumero(
+                    dia.cantidad
+                ),
+                'col-cantidad'
+            );
+
+            agregarCelda(
+                tr,
+                formatearDecimal(
+                    dia.duracion
+                ),
+                'col-duracion'
+            );
+
+            agregarCelda(
+                tr,
+                formatearNumero(
+                    dia.secuencia
+                ),
+                'planned-cell'
+            );
+
+            agregarCelda(
+                tr,
+                dia.cambios || 'N/D',
+                'change-cell'
+            );
+
+            agregarCelda(
+                tr,
+                dia.estado || 'SIN DEMANDA',
+                obtenerClaseEstado(
+                    dia.estado
+                )
+            );
+        });
+
+        agregarCelda(
+            tr,
+            formatearNumero(row.total),
+            'total-cell'
+        );
 
         tbody.appendChild(tr);
     });
-
-    setupEditableCells();
 }
 
-function filterSecuenciaTable(query) {
-    const rows = document.querySelectorAll('#secuencia tbody tr');
+// FECHAS
+function inicializarFecha() {
+    const input = document.getElementById(
+        'fechaSecuencia'
+    );
 
-    rows.forEach(row => {
-        const numero = row.children[0].textContent.toLowerCase(); // numero de parte
-        const cspc = row.children[1].textContent.toLowerCase(); // cspc
-        const linea = row.children[2].textContent.toLowerCase(); // linea
+    if (!input) return;
 
-        const text = `${numero} ${cspc} ${linea}`;
+    const guardada =
+        localStorage.getItem(
+            'secuencia_fecha'
+        );
 
-        row.style.display = text.includes(query) ? '' : 'none';
-    })
+    input.value =
+        guardada || DEFAULT_WEDNESDAY;
 }
 
-// Configurar celdas editables
-function setupEditableCells() {
-    const editableCells = document.querySelectorAll('.editable-cell');
+function normalizarAInicioMiercoles(
+    fechaString
+) {
+    const fecha = new Date(
+        `${fechaString}T00:00:00Z`
+    );
 
-    editableCells.forEach(cell => {
-        cell.addEventListener('dblclick', function() {
-            const currentValue = this.textContent.trim();
-            const rowIndex = this.getAttribute('data-row');
-            const field = this.getAttribute('data-field');
+    if (Number.isNaN(fecha.getTime())) {
+        return DEFAULT_WEDNESDAY;
+    }
 
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.value = currentValue;
-            input.style.width = '100%';
+    const dia = fecha.getUTCDay();
+    const diferencia = (dia + 4) % 7;
 
-            this.textContent = '';
-            this.appendChild(input);
-            input.focus();
-            input.select();
+    fecha.setUTCDate(
+        fecha.getUTCDate() - diferencia
+    );
 
-            function save() {
-                const newValue = parseInt(input.value) || 0;
-                secuenciaData[rowIndex][field] = newValue;
-                cell.textContent = newValue;
+    return fecha
+        .toISOString()
+        .slice(0, 10);
+}
 
-                if (field === 'cantidad') {
-                    recalculateDuracion(rowIndex);
-                }
+function obtenerFechasSemana(
+    fechaInicio
+) {
+    return Array.from(
+        { length: 7 },
+        (_, index) =>
+            sumarDias(
+                fechaInicio,
+                index
+            )
+    );
+}
+
+function sumarDias(
+    fechaString,
+    dias
+) {
+    const fecha = new Date(
+        `${fechaString}T00:00:00Z`
+    );
+
+    fecha.setUTCDate(
+        fecha.getUTCDate() + dias
+    );
+
+    return fecha
+        .toISOString()
+        .slice(0, 10);
+}
+
+function actualizarEncabezados(
+    fechas
+) {
+    document
+        .querySelectorAll(
+            '.day-header'
+        )
+        .forEach((header, index) => {
+            const fecha = fechas[index];
+
+            if (!fecha) return;
+
+            const label =
+                header.querySelector(
+                    '.date-label'
+                );
+
+            if (label) {
+                label.textContent =
+                    formatearFecha(fecha);
             }
-
-            input.addEventListener('blur', save);
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    input.blur();
-                }
-            });
         });
-    });
 }
 
-// Recalcular duración
-function recalculateDuracion(rowIndex) {
-    const row = secuenciaData[rowIndex];
-    if (row.cantidad > 0 && row.sph > 0) {
-        row.duracion = ((row.cantidad / row.sph) * 60).toFixed(6);
-        renderSecuenciaTable();
+function formatearFecha(
+    fechaString
+) {
+    const fecha =
+        normalizarFechaClave(
+            fechaString
+        );
+
+    if (!fecha) {
+        return '';
+    }
+
+    const [anio, mes, dia] =
+        fecha.split('-');
+
+    return `${dia}/${mes}/${anio}`;
+}
+
+// ESTADOS Y CÁLCULOS
+function obtenerEstado(
+    cantidad,
+    secuencia
+) {
+    if (cantidad <= 0) {
+        return 'SIN DEMANDA';
+    }
+
+    if (
+        secuencia !== null &&
+        secuencia !== undefined &&
+        secuencia !== ''
+    ) {
+        return 'PLANEADA';
+    }
+
+    return 'SIN SECUENCIA';
+}
+
+function calcularDuracion(
+    cantidad,
+    sph
+) {
+    const cantidadNumero =
+        obtenerNumero(cantidad);
+
+    const sphNumero =
+        obtenerNumero(sph);
+
+    if (
+        cantidadNumero <= 0 ||
+        sphNumero <= 0
+    ) {
+        return '';
+    }
+
+    return (
+        cantidadNumero /
+        sphNumero *
+        60
+    ).toFixed(2);
+}
+
+// API
+async function apiFetch(url) {
+    const token = localStorage.getItem(
+        'token'
+    );
+
+    const separador = url.includes('?')
+        ? '&'
+        : '?';
+
+    const response = await fetch(
+        `${BASE_URL}${url}${separador}_ts=${Date.now()}`,
+        {
+            cache: 'no-store',
+            headers: token
+                ? {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+                : {}
+        }
+    );
+
+    const texto =
+        await response.text();
+
+    let resultado = {};
+
+    try {
+        resultado = texto
+            ? JSON.parse(texto)
+            : {};
+    } catch {
+        resultado = {
+            message: texto
+        };
+    }
+
+    if (
+        !response.ok ||
+        resultado.ok === false
+    ) {
+        throw new Error(
+            resultado.message ||
+                `Error HTTP ${response.status}`
+        );
+    }
+
+    return resultado;
+}
+
+// BÚSQUEDA
+function inicializarBusqueda() {
+    document
+        .getElementById(
+            'searchSecuencia'
+        )
+        ?.addEventListener(
+            'input',
+            event => {
+                const query =
+                    event.target.value
+                        .trim()
+                        .toLowerCase();
+
+                document
+                    .querySelectorAll(
+                        '#tbodySecuencia tr'
+                    )
+                    .forEach(row => {
+                        row.style.display =
+                            row.textContent
+                                .toLowerCase()
+                                .includes(
+                                    query
+                                )
+                                ? ''
+                                : 'none';
+                    });
+            }
+        );
+}
+
+// MENÚ
+function inicializarMenu() {
+    document
+        .querySelectorAll('.menu li')
+        .forEach(item => {
+            item.addEventListener(
+                'click',
+                () => {
+                    document
+                        .querySelectorAll(
+                            '.menu li'
+                        )
+                        .forEach(li =>
+                            li.classList.remove(
+                                'active'
+                            )
+                        );
+
+                    item.classList.add('active');
+                }
+            );
+        });
+}
+
+// MODALES
+function inicializarModales() {
+    const btnPerfil =
+        document.getElementById(
+            'btnPerfil'
+        );
+
+    const btnNotificaciones =
+        document.getElementById(
+            'btnNotificaciones'
+        );
+
+    const panelPerfil =
+        document.getElementById(
+            'panelPerfil'
+        );
+
+    const panelNotificaciones =
+        document.getElementById(
+            'panelNotificacionesSecuencia'
+        );
+
+    btnPerfil?.addEventListener(
+        'click',
+        () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        }
+    );
+
+    btnNotificaciones?.addEventListener(
+        'click',
+        () => {
+            llenarNotificaciones();
+
+            abrirPanel(
+                panelNotificaciones
+            );
+        }
+    );
+
+    document
+        .querySelectorAll(
+            '[data-close-panel]'
+        )
+        .forEach(button => {
+            button.addEventListener(
+                'click',
+                () => {
+                    button
+                        .closest(
+                            '.center-modal'
+                        )
+                        ?.classList.remove(
+                            'open'
+                        );
+                }
+            );
+        });
+}
+
+function abrirPanel(panel) {
+    if (!panel) return;
+
+    document
+        .querySelectorAll(
+            '.center-modal.open'
+        )
+        .forEach(item =>
+            item.classList.remove(
+                'open'
+            )
+        );
+
+    panel.classList.add('open');
+}
+
+function llenarPerfil() {
+    let user = {};
+
+    try {
+        user = JSON.parse(
+            localStorage.getItem(
+                'user'
+            ) || '{}'
+        );
+    } catch {
+        user = {};
+    }
+
+    establecerTexto(
+        'perfilSecuenciaNombre',
+        user.nombre || 'Usuario'
+    );
+
+    establecerTexto(
+        'perfilSecuenciaCorreo',
+        user.email ||
+            'correo@ejemplo.com'
+    );
+
+    establecerTexto(
+        'perfilSecuenciaRol',
+        user.rol || 'usuario'
+    );
+
+    establecerTexto(
+        'perfilSecuenciaGmin',
+        user.GMIN || 'GMIN'
+    );
+}
+
+function llenarNotificaciones() {
+    const contenedor =
+        document.getElementById(
+            'listaNotificacionesSecuencia'
+        );
+
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `
+        <div class="notificacion-item">
+            <div class="notificacion-titulo">
+                Consulta de secuencia
+            </div>
+
+            <div class="notificacion-fecha">
+                ${new Date().toLocaleString('es-MX')}
+            </div>
+
+            <div class="notificacion-detalle">
+                La secuencia es de referencia y no modifica producción.
+            </div>
+        </div>
+    `;
+}
+
+// LOGOUT Y UTILIDADES
+function inicializarLogout() {
+    document
+        .getElementById('btnLogout')
+        ?.addEventListener(
+            'click',
+            () => {
+                localStorage.removeItem(
+                    'token'
+                );
+
+                localStorage.removeItem(
+                    'user'
+                );
+
+                window.location.href =
+                    '../index.html';
+            }
+        );
+}
+
+function agregarCelda(
+    fila,
+    valor,
+    clase = ''
+) {
+    const td =
+        document.createElement('td');
+
+    td.textContent =
+        valor === null ||
+        valor === undefined
+            ? ''
+            : String(valor);
+
+    if (clase) {
+        td.className = clase;
+    }
+
+    fila.appendChild(td);
+}
+
+function mostrarMensaje(
+    tbody,
+    mensaje
+) {
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="41">
+                ${escapeHtml(mensaje)}
+            </td>
+        </tr>
+    `;
+}
+
+function obtenerNumero(valor) {
+    const numero = Number(valor);
+
+    return Number.isFinite(numero)
+        ? numero
+        : 0;
+}
+
+function obtenerNumeroNulo(valor) {
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ''
+    ) {
+        return null;
+    }
+
+    const numero = Number(valor);
+
+    return Number.isFinite(numero)
+        ? numero
+        : null;
+}
+
+function formatearNumero(valor) {
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ''
+    ) {
+        return '';
+    }
+
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return String(valor);
+    }
+
+    return numero.toLocaleString('es-MX');
+}
+
+function formatearDecimal(valor) {
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ''
+    ) {
+        return '';
+    }
+
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return String(valor);
+    }
+
+    return numero.toFixed(2);
+}
+
+function obtenerClaseLinea(linea) {
+    const valor = String(
+        linea || ''
+    ).toUpperCase();
+
+    if (valor === 'XL1') {
+        return 'linea-xl1';
+    }
+
+    if (valor === 'XL2') {
+        return 'linea-xl2';
+    }
+
+    return 'linea-0';
+}
+
+function obtenerClaseEstado(estado) {
+    if (estado === 'PLANEADA') {
+        return 'status-cell planned-cell';
+    }
+
+    if (estado === 'SIN SECUENCIA') {
+        return 'status-cell warning-cell';
+    }
+
+    return 'status-cell';
+}
+
+function establecerTexto(
+    id,
+    valor
+) {
+    const elemento =
+        document.getElementById(id);
+
+    if (elemento) {
+        elemento.textContent = valor;
     }
 }
 
-// Configurar botones de acción
-function setupActionButtons() {
-    const section = document.getElementById('secuencia');
-    if (!section) return;
-
-    if (!section.querySelector('.action-buttons')) {
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = 'action-buttons';
-        // agrega botones si quieres aquí
-
-        const h1 = section.querySelector('h1');
-        h1.after(buttonsDiv);
-    }
-}
-
-// --- Filtros opcionales: actívalos cuando los uses de verdad ---
-// function setupFilters() { ... }
-
-// Funciones de botones
-function addSecuenciaRow() {
-    const newRow = {
-        numero: '00000000',
-        cspc: 'C00000',
-        linea: 'XL1',
-        sph: 0,
-        cantidad: 0,
-        duracion: '',
-        banco: 0,
-        secuencia: '',
-        cambios: '',
-        secuencia2: '',
-        cambios2: ''
-    };
-
-    secuenciaData.push(newRow);
-    renderSecuenciaTable();
-}
-
-function deleteLastSecuenciaRow() {
-    if (secuenciaData.length > 0) {
-        if (confirm('¿Estás seguro de eliminar la última fila?')) {
-            secuenciaData.pop();
-            renderSecuenciaTable();
-        }
-    }
-}
-
-function saveSecuenciaData() {
-    localStorage.setItem('secuenciaData', JSON.stringify(secuenciaData));
-    alert('Datos guardados correctamente');
-}
-
-function exportSecuenciaToExcel() {
-    const dataStr = 'data:text/csv;charset=utf-8,' +
-        encodeURIComponent(convertSecuenciaToCSV(secuenciaData));
-    const downloadLink = document.createElement('a');
-    downloadLink.href = dataStr;
-    downloadLink.download = 'secuencia.csv';
-    downloadLink.click();
-}
-
-function convertSecuenciaToCSV(data) {
-    const headers = [
-        'NUMERO', 'CSPC', 'LINEA', 'SPH', 'CANTIDAD', 'DURACION',
-        'BANCO', 'SECUENCIA', 'CAMBIOS', 'SECUENCIA2',  'CAMBIOS2'
-    ];
-
-    let csv = headers.join(',') + '\n';
-
-    data.forEach(row => {
-        const values = [
-            row.numero, row.cspc, row.linea, row.sph, row.cantidad,
-            row.duracion, row.banco, row.secuencia, row.cambios,
-            row.secuencia2, row.cambios2
-        ];
-        csv += values.join(',') + '\n';
-    });
-
-    return csv;
-}
-
-function printSecuenciaTable() {
-    window.print();
-}
-
-// Función de logout
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '../index.html';
-}
-
-document.getElementById('btnLogout').addEventListener('click', logout);
-
-/*function logout() {
-    localStorage.removeItem('token');
-    window.location.href = '../index.html';
-} */
-
-// Cargar datos guardados
-window.addEventListener('load', function() {
-    const savedData = localStorage.getItem('secuenciaData');
-    if (savedData) {
-        const shouldLoad = confirm('Se encontraron datos guardados, ¿Deseas cargarlos?');
-        if (shouldLoad) {
-            secuenciaData = JSON.parse(savedData);
-            renderSecuenciaTable();
-        }
-    }
-});
-
-// Calcular estadísticas
-function calculateSecuenciaStats() {
-    let totalCantidad = 0;
-    let totalDuracion = 0;
-    let countWithSeq = 0;
-
-    secuenciaData.forEach(row => {
-        totalCantidad += parseInt(row.cantidad) || 0;
-        if (row.duracion) {
-            totalDuracion += parseFloat(row.duracion);
-        }
-        if (row.secuencia) {
-            countWithSeq++;
-        }
-    });
-
-    return {
-        totalCantidad,
-        totalDuracion: totalDuracion.toFixed(2),
-        countWithSeq,
-        totalRows: secuenciaData.length
-    };
-}
-
-// Ordenar tabla
-function sortTable(columnIndex, ascending = true) {
-    const tbody = document.querySelector('#secuencia tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-
-    rows.sort((a, b) => {
-        const aValue = a.cells[columnIndex].textContent.trim();
-        const bValue = b.cells[columnIndex].textContent.trim();
-
-        const aNum = parseFloat(aValue);
-        const bNum = parseFloat(bValue);
-
-        if (!isNaN(aNum) && !isNaN(bNum)) {
-            return ascending ? aNum - bNum : bNum - aNum;
-        }
-
-        return ascending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-    });
-
-    tbody.innerHTML = '';
-    rows.forEach(row => tbody.appendChild(row));
+function escapeHtml(valor) {
+    return String(valor ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
 }

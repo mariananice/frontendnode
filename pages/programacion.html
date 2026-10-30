@@ -1,209 +1,489 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GM Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <title>GM Dashboard - Programación</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="../css/programacion.css">
 </head>
+
 <body>
     <div class="app">
 
         <aside class="sidebar">
-          <div class="logo-container">
-            <div class="logo">
-                <img src="../images/logo.jpg" alt="Logo GM">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="../images/logo.jpg" alt="Logo GM">
+                </div>
+                <h3 class="app-name">GM Dashboard</h3>
             </div>
-            <h3 class="app-name"></h3>
-          </div>
 
-          <nav class="menu">
-            <ul>
-              <li data-section="dashboard">
-                <a href="dashboard.html">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Dashboard</span>
-                </a>
-              </li>
-              <li data-section="produccion">
-                <a href="programaProduccion.html">
-                  <i class="bi bi-clipboard-data"></i>
-                  <span>Programa de Producción</span>
-                </a>
-              </li>
-              <li class="active" data-section="programacion" >
-                <i class="bi bi-calendar"></i>
-                <span>Programación</span>
-              </li>
-              <li data-section="planeacion">
-                <a href="planeacion.html">
-                    <i class="bi bi-gear"></i>
-                    <span>Planeación</span>
-                </a>
-              </li>
-              <li data-section="reqbody">
-                <a href="reqBody.html">
-                    <i class="bi bi-box"></i>
-                    <span>Req Body</span>
-                </a>
-              </li>
-              <li data-section="secuencia">
-                <a href="secuencia.html">
-                    <i class="bi bi-clock"></i>
-                    <span>Secuencia</span>
-                </a>
-              </li>
-              <li data-section="cumplimiento">
-                <a href="cumplimiento.html">
-                    <i class="bi bi-bar-chart-line"></i>
-                    <span>Cumplimiento</span>
-                </a>
-              </li>
-              <li data-section="datos">
-                <a href="datos.html">
-                    <i class="bi bi-database"></i>
-                    <span>Datos</span>
-                </a>
-              </li>
-              <li data-section="usuarios">
-                <a href="usuarios.html">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Usuarios</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
+            <nav class="menu">
+                <ul>
+                    <li data-section="dashboard">
+                        <a href="dashboard.html">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li data-section="produccion">
+                        <a href="programaProduccion.html">
+                            <i class="bi bi-clipboard-data"></i>
+                            <span>Programa de Producción</span>
+                        </a>
+                    </li>
+
+                    <li class="active" data-section="programacion">
+                        <i class="bi bi-calendar"></i>
+                        <span>Programación</span>
+                    </li>
+
+                    <li data-section="planeacion">
+                        <a href="planeacion.html">
+                            <i class="bi bi-gear"></i>
+                            <span>Planeación</span>
+                        </a>
+                    </li>
+
+                    <li data-section="reqbody">
+                        <a href="reqBody.html">
+                            <i class="bi bi-box"></i>
+                            <span>Req Body</span>
+                        </a>
+                    </li>
+
+                    <li data-section="secuencia">
+                        <a href="secuencia.html">
+                            <i class="bi bi-clock"></i>
+                            <span>Secuencia</span>
+                        </a>
+                    </li>
+
+                    <li data-section="cumplimiento">
+                        <a href="cumplimiento.html">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span>Cumplimiento</span>
+                        </a>
+                    </li>
+
+                    <li data-section="datos">
+                        <a href="datos.html">
+                            <i class="bi bi-database"></i>
+                            <span>Datos</span>
+                        </a>
+                    </li>
+
+                    <li data-section="usuarios">
+                        <a href="usuarios.html">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </aside>
 
         <main class="main">
             <header class="topbar">
                 <div class="programacion-search">
-                  <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Buscar..." id="searchProgramacion">
+                    <i class="bi bi-search"></i>
+
+                    <input
+                        type="search"
+                        id="searchProgramacion"
+                        placeholder="Buscar CSPC, línea o capacidad..."
+                    >
                 </div>
+
                 <div class="icons">
-                  <button class="icon-btn" id="btnNotificaciones">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="notification-badge"></span>
-                  </button>
-                  <button class="icon-btn" id="btnPerfil">
-                    <i class="bi bi-person-circle"></i>
-                  </button>
-                  <button class="icon-btn" id="btnLogout">
-                    <i class="bi bi-box-arrow-right"></i>
-                  </button>
+                    <button
+                        class="icon-btn"
+                        id="btnNotificaciones"
+                        type="button"
+                    >
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+
+                    <button
+                        class="icon-btn"
+                        id="btnPerfil"
+                        type="button"
+                    >
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+
+                    <button
+                        class="icon-btn"
+                        id="btnLogout"
+                        type="button"
+                    >
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
                 </div>
             </header>
 
             <section id="programacion" class="section active">
-              <h1>Programación</h1>
-              <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th colspan="3" class="logo-header">
-                                <div class="logo-text">GM</div>
-                                <div class="doh-text">DOH</div>
-                            </th>
-                            <th colspan="7" class="header-day">MIERCOLES</th>
-                            <th colspan="8" class="header-day">JUEVES</th>
-                        </tr>
-                        <tr>
-                            <th colspan="3"></th>
-                            <th colspan="7" class="header-date">05/11/2025</th>
-                            <th colspan="8" class="header-date">06/11/2025</th>
-                        </tr>
-                        <!--<tr>
-                          <th rowspan="3" class="col-cspc">CSPC</th>
-                          <th rowspan="3" class="col-linea">LINEA</th>
-                          <th rowspan="3" class="col-capacidad">CAPACIDAD<br>TOTAL</th>
-                        </tr>-->
-                        <tr>
-                            <th>CSPC<span class="dropdown-icon"></span></th>
-                            <th>LINEA<span class="dropdown-icon"></span></th>
-                            <th>CAPACIDAD<br>TOTAL<span class="dropdown-icon"></span></th>
-                            <th>STOCK<span class="dropdown-icon"></span></th>
-                            <th>REQ<span class="dropdown-icon"></span></th>
-                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
-                            <th>PARTES<span class="dropdown-icon"></span></th>
-                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
-                            <th>REAL<span class="dropdown-icon"></span></th>
-                            <th>DOH<span class="dropdown-icon"></span></th>
-                            <th>STOCK<span class="dropdown-icon"></span></th>
-                            <th>INVENTA<span class="dropdown-icon"></span></th>
-                            <th>REQ<span class="dropdown-icon"></span></th>
-                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
-                            <th>PARTES<span class="dropdown-icon"></span></th>
-                            <th>CAMBIOS<span class="dropdown-icon"></span></th>
-                            <th>REAL<span class="dropdown-icon"></span></th>
-                            <th>DOH<span class="dropdown-icon"></span></th>
-                        </tr>
-                    </thead>
+                <div class="section-header">
+                    <div>
+                        <h1>Programación</h1>
 
-                    <tbody>
-                        <tr>
-                            <td class="col-cspc">C4087</td>
-                            <td class="col-linea">XL1</td>
-                            <td>4560</td>
-                            <td class="bg-blue-light">3840</td>
-                            <td class="bg-gray">1184</td>
-                            <td class="bg-blue">1184</td>
-                            <td class="bg-blue-light">1680</td>
-                            <td class="bg-blue">1680</td>
-                            <td></td>
-                            <td class="doh-green">2.8</td>
-                            <td class="bg-blue-light">4346</td>
-                            <td class="bg-blue">4340</td>
-                            <td class="bg-gray">1403</td>
-                            <td class="bg-blue-light"></td>
-                            <td class="bg-gray">0</td>
-                            <td class="bg-blue-light">0</td>
-                            <td></td>
-                            <td class="doh-green">3.1</td>
-                        </tr>
-                    </tbody>
-                </table>
-              </div>
+                        <p
+                            id="periodoProgramacion"
+                            class="periodo-programacion"
+                        >
+                            Control de producción semanal
+                        </p>
+                    </div>
+
+                    <button
+                        id="btnActualizarProgramacion"
+                        class="btn btn-primary"
+                        type="button"
+                    >
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Actualizar
+                    </button>
+
+                    <!--<button
+                        id="btnActualizarProgramacion"
+                        class="btn btn-primary"
+                        type="button"
+                        onclick="loadProgramacionBase()"
+                    >
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Actualizar
+                    </button>-->
+                </div>
+
+                <div class="programacion-filtros">
+                    <!--<div class="filter-group">
+                        <label for="filtroCspc">CSPC</label>
+
+                        <input
+                            type="text"
+                            id="filtroCspc"
+                            placeholder="Buscar CSPC"
+                            autocomplete="off"
+                        >
+                    </div>-->
+
+                    <div class="filter-group">
+                        <label for="filtroLinea">Línea</label>
+
+                        <select id="filtroLinea">
+                            <option value="">Todas las líneas</option>
+                            <option value="XL1">XL1</option>
+                            <option value="XL2">XL2</option>
+                            <option value="0">0</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filtroSemana">Semana</label>
+
+                        <select id="filtroSemana">
+                            <!-- Se llenará automáticamente de la semana 2 a la 41 -->
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="filtroAnio">Año</label>
+
+                        <select id="filtroAnio">
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+
+                    <button
+                        id="btnBuscarProgramacion"
+                        class="btn btn-primary"
+                        type="button"
+                    >
+                        <i class="bi bi-search"></i>
+                        Buscar
+                    </button>
+
+                    <button
+                        id="btnLimpiarProgramacion"
+                        class="btn btn-secondary"
+                        type="button"
+                    >
+                        <i class="bi bi-eraser"></i>
+                        Limpiar
+                    </button>
+                </div>
+
+                <div class="table-info">
+                    <span>
+                        Registros:
+                        <strong id="registrosVisiblesProgramacion">0</strong>
+                    </span>
+
+                    <span class="scroll-hint">
+                        Desliza horizontalmente para consultar todos los días.
+                    </span>
+                </div>
+
+                <div class="table-container programacion-table-container">
+                    <table
+                        id="tablaProgramacion"
+                        class="programacion-table"
+                    >
+                        <thead id="theadProgramacion">
+                            <tr class="day-header-row">
+                                <th
+                                    colspan="3"
+                                    class="logo-header"
+                                >
+                                    <div class="logo-text">GM</div>
+                                </th>
+
+                                <th
+                                    colspan="7"
+                                    class="header-day"
+                                >
+                                    MIÉRCOLES
+                                </th>
+
+                                <th
+                                    colspan="8"
+                                    class="header-day"
+                                >
+                                    JUEVES
+                                </th>
+
+                                <th
+                                    colspan="8"
+                                    class="header-day"
+                                >
+                                    VIERNES
+                                </th>
+
+                                <th
+                                    colspan="8"
+                                    class="header-day"
+                                >
+                                    SÁBADO
+                                </th>
+
+                                <th
+                                    colspan="8"
+                                    class="header-day"
+                                >
+                                    DOMINGO
+                                </th>
+
+                                <th
+                                    colspan="8"
+                                    class="header-day"
+                                >
+                                    LUNES
+                                </th>
+
+                                <th
+                                    colspan="8"
+                                    class="header-day"
+                                >
+                                    MARTES
+                                </th>
+                            </tr>
+
+                            <tr class="date-header-row">
+                                <th colspan="3">
+                                    DOH
+                                </th>
+
+                                <th colspan="7" class="header-date">
+                                    05/11/2025
+                                </th>
+
+                                <th colspan="8" class="header-date">
+                                    06/11/2025
+                                </th>
+
+                                <th colspan="8" class="header-date">
+                                    07/11/2025
+                                </th>
+
+                                <th colspan="8" class="header-date">
+                                    08/11/2025
+                                </th>
+
+                                <th colspan="8" class="header-date">
+                                    09/11/2025
+                                </th>
+
+                                <th colspan="8" class="header-date">
+                                    10/11/2025
+                                </th>
+
+                                <th colspan="8" class="header-date">
+                                    11/11/2025
+                                </th>
+                            </tr>
+
+                            <tr class="column-header-row">
+                                <th>
+                                    CSPC
+                                    <span class="dropdown-icon"></span>
+                                </th>
+
+                                <th>
+                                    LÍNEA
+                                    <span class="dropdown-icon"></span>
+                                </th>
+
+                                <th>
+                                    CAPACIDAD<br>TOTAL
+                                    <span class="dropdown-icon"></span>
+                                </th>
+
+                                <!-- MIÉRCOLES -->
+                                <th>STOCK<span class="dropdown-icon"></span></th>
+                                <th>REQ<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>PARTES<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>REAL<span class="dropdown-icon"></span></th>
+                                <th>DOH<span class="dropdown-icon"></span></th>
+
+                                <!-- JUEVES -->
+                                <th>STOCK<span class="dropdown-icon"></span></th>
+                                <th>INVENTA<span class="dropdown-icon"></span></th>
+                                <th>REQ<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>PARTES<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>REAL<span class="dropdown-icon"></span></th>
+                                <th>DOH<span class="dropdown-icon"></span></th>
+
+                                <!-- VIERNES -->
+                                <th>STOCK<span class="dropdown-icon"></span></th>
+                                <th>INVENTA<span class="dropdown-icon"></span></th>
+                                <th>REQ<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>PARTES<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>REAL<span class="dropdown-icon"></span></th>
+                                <th>DOH<span class="dropdown-icon"></span></th>
+
+                                <!-- SÁBADO -->
+                                <th>STOCK<span class="dropdown-icon"></span></th>
+                                <th>INVENTA<span class="dropdown-icon"></span></th>
+                                <th>REQ<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>PARTES<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>REAL<span class="dropdown-icon"></span></th>
+                                <th>DOH<span class="dropdown-icon"></span></th>
+
+                                <!-- DOMINGO -->
+                                <th>STOCK<span class="dropdown-icon"></span></th>
+                                <th>INVENTA<span class="dropdown-icon"></span></th>
+                                <th>REQ<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>PARTES<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>REAL<span class="dropdown-icon"></span></th>
+                                <th>DOH<span class="dropdown-icon"></span></th>
+
+                                <!-- LUNES -->
+                                <th>STOCK<span class="dropdown-icon"></span></th>
+                                <th>INVENTA<span class="dropdown-icon"></span></th>
+                                <th>REQ<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>PARTES<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>REAL<span class="dropdown-icon"></span></th>
+                                <th>DOH<span class="dropdown-icon"></span></th>
+
+                                <!-- MARTES -->
+                                <th>STOCK<span class="dropdown-icon"></span></th>
+                                <th>INVENTA<span class="dropdown-icon"></span></th>
+                                <th>REQ<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>PARTES<span class="dropdown-icon"></span></th>
+                                <th>CAMBIOS<span class="dropdown-icon"></span></th>
+                                <th>REAL<span class="dropdown-icon"></span></th>
+                                <th>DOH<span class="dropdown-icon"></span></th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbodyProgramacion">
+                            <!-- Las filas se llenan desde programacion.js -->
+                        </tbody>
+                    </table>
+                </div>
             </section>
 
-            <!-- Modal centrado Perfil -->
             <div class="center-modal" id="panelPerfil">
-            <div class="center-modal-content">
-                <div class="center-modal-header">
-                <h2>Perfil de usuario</h2>
-                <button class="center-modal-close" data-close-panel>
-                  <i class="bi bi-x-circle-fill"></i>
-                </button>
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Perfil de usuario</h2>
+
+                        <button
+                            class="center-modal-close"
+                            data-close-panel
+                            type="button"
+                        >
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+
+                    <div class="center-modal-body">
+                        <p>
+                            <strong>Nombre:</strong>
+                            <span id="perfilProgramacionNombre"></span>
+                        </p>
+
+                        <p>
+                            <strong>Correo:</strong>
+                            <span id="perfilProgramacionCorreo"></span>
+                        </p>
+
+                        <p>
+                            <strong>Rol:</strong>
+                            <span id="perfilProgramacionRol"></span>
+                        </p>
+
+                        <p>
+                            <strong>GMIN:</strong>
+                            <span id="perfilProgramacionGmin"></span>
+                        </p>
+                    </div>
                 </div>
-                <div class="center-modal-body">
-                <p><strong>Nombre:</strong> <span id="perfilProgramacionNombre"></span></p>
-                <p><strong>Correo:</strong> <span id="perfilProgramacionCorreo"></span></p>
-                <p><strong>Rol:</strong> <span id="perfilProgramacionRol"></span></p>
-                <p><strong>GMIN:</strong> <span id="perfilProgramacionGmin"></span></p>
-                </div>
-            </div>
             </div>
 
-            <!-- Modal centrado Notificaciones -->
             <div class="center-modal" id="panelNotificaciones">
-            <div class="center-modal-content">
-                <div class="center-modal-header">
-                <h2>Notificaciones</h2>
-                <button class="center-modal-close" data-close-panel>
-                  <i class="bi bi-x-circle-fill"></i>
-                </button>
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Notificaciones</h2>
+
+                        <button
+                            class="center-modal-close"
+                            data-close-panel
+                            type="button"
+                        >
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+
+                    <div
+                        class="center-modal-body"
+                        id="listaNotificacionesProgramacion"
+                    ></div>
                 </div>
-                <div class="center-modal-body" id="listaNotificacionesProgramacion">
-                <!-- Se llena por JS -->
-                </div>
-            </div>
             </div>
         </main>
     </div>
 
     <script src="../js/programacion.js"></script>
     <script src="../js/auth.js"></script>
-    
 </body>
 </html>

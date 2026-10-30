@@ -1,527 +1,306 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GM Dashboard</title>
+    <title>GM Dashboard - Req Body</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/reqBody.css">
 </head>
 <body>
     <div class="app">
-
         <aside class="sidebar">
-          <div class="logo-container">
-            <div class="logo">
-                <img src="../images/logo.jpg" alt="Logo GM">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="../images/logo.jpg" alt="Logo GM">
+                </div>
+                <h3 class="app-name"></h3>
             </div>
-            <h3 class="app-name"></h3>
-          </div>
 
-          <nav class="menu">
-            <ul>
-              <li data-section="dashboard">
-                <a href="dashboard.html">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Dashboard</span>
-                </a>
-              </li>
-              <li data-section="produccion">
-                <a href="programaProduccion.html">
-                    <i class="bi bi-clipboard-data"></i>
-                    <span>Programa de Producción</span>
-                </a>
-              </li>
-              <li data-section="programacion">
-                <a href="programacion.html">
-                    <i class="bi bi-calendar"></i>
-                    <span>Programación</span>
-                </a>
-              </li>
-              <li data-section="planeacion">
-                <a href="planeacion.html">
-                    <i class="bi bi-gear"></i>
-                    <span>Planeación</span>
-                </a>
-              </li>
-              <li class="active" data-section="reqbody">
-                <i class="bi bi-box"></i>
-                <span>Req Body</span>
-              </li>
-              <li data-section="secuencia">
-                <a href="secuencia.html">
-                    <i class="bi bi-clock"></i>
-                    <span>Secuencia</span>
-                </a>
-              </li>
-              <li data-section="cumplimiento">
-                <a href="cumplimiento.html">
-                    <i class="bi bi-bar-chart-line"></i>
-                    <span>Cumplimiento</span>
-                </a>
-              </li>
-              <li data-section="datos">
-                <a href="datos.html">
-                    <i class="bi bi-database"></i>
-                    <span>Datos</span>
-                </a>
-              </li>
-              <li data-section="usuarios">
-                <a href="usuarios.html">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Usuarios</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
+            <nav class="menu">
+                <ul>
+                    <li data-section="dashboard">
+                        <a href="dashboard.html">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li data-section="produccion">
+                        <a href="programaProduccion.html">
+                            <i class="bi bi-clipboard-data"></i>
+                            <span>Programa de Producción</span>
+                        </a>
+                    </li>
+                    <li data-section="programacion">
+                        <a href="programacion.html">
+                            <i class="bi bi-calendar"></i>
+                            <span>Programación</span>
+                        </a>
+                    </li>
+                    <li data-section="planeacion">
+                        <a href="planeacion.html">
+                            <i class="bi bi-gear"></i>
+                            <span>Planeación</span>
+                        </a>
+                    </li>
+                    <li class="active" data-section="reqbody">
+                        <a href="reqBody.html">
+                            <i class="bi bi-box"></i>
+                            <span>Req Body</span>
+                        </a>
+                    </li>
+                    <li data-section="secuencia">
+                        <a href="secuencia.html">
+                            <i class="bi bi-clock"></i>
+                            <span>Secuencia</span>
+                        </a>
+                    </li>
+                    <li data-section="cumplimiento">
+                        <a href="cumplimiento.html">
+                            <i class="bi bi-bar-chart-line"></i>
+                            <span>Cumplimiento</span>
+                        </a>
+                    </li>
+                    <li data-section="datos">
+                        <a href="datos.html">
+                            <i class="bi bi-database"></i>
+                            <span>Datos</span>
+                        </a>
+                    </li>
+                    <li data-section="usuarios">
+                        <a href="usuarios.html">
+                            <i class="bi bi-people-fill"></i>
+                            <span>Usuarios</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </aside>
 
         <main class="main">
             <header class="topbar">
                 <div class="reqBody-search">
-                  <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Buscar..." id="searchReqbody">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Buscar..." id="searchReqbody">
                 </div>
+
                 <div class="icons">
-                  <button class="icon-btn" id="btnNotificaciones">
-                    <i class="bi bi-bell-fill"></i>
-                    <span class="notification-badge"></span>
-                  </button>
-                  <button class="icon-btn" id="btnPerfil">
-                    <i class="bi bi-person-circle"></i>
-                  </button>
-                  <button class="icon-btn" id="btnLogout">
-                    <i class="bi bi-box-arrow-right"></i>
-                  </button>
+                    <button class="icon-btn" id="btnNotificaciones" type="button">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="notification-badge"></span>
+                    </button>
+                    <button class="icon-btn" id="btnPerfil" type="button">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+                    <button class="icon-btn" id="btnLogout" type="button">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
                 </div>
             </header>
 
             <section id="reqbody" class="section active">
-              <h1>Req Body</h1>
-              <div class="table-container">
-                <table>
-                    <thead>
-                    <tr>
-                        <th class="header-date">05/11/2025</th>
-                        <th class="header-date">06/11/2025</th>
-                        <th class="header-date">07/11/2025</th>
-                        <th class="header-date">08/11/2025</th>
-                        <th class="header-date">09/11/2025</th>
-                        <th class="header-date">10/11/2025</th>
-                        <th class="header-date">11/11/2025</th>
-                        <th class="header-date">12/11/2025</th>
-                        <th class="header-date">13/11/2025</th>
-                        <th class="header-date">14/11/2025</th>
-                        <th class="header-date">15/11/2025</th>
-                        <th class="header-date">16/11/2025</th>
-                        <th class="header-date col-total"></th>
-                    </tr>
-                    <tr>
-                        <th class="header-day">MIERCOLES</th>
-                        <th class="header-day">JUEVES</th>
-                        <th class="header-day">VIERNES</th>
-                        <th class="header-day">SABADO</th>
-                        <th class="header-day">DOMINGO</th>
-                        <th class="header-day">LUNES</th>
-                        <th class="header-day">MARTES</th>
-                        <th class="header-day">MIERCOLES</th>
-                        <th class="header-day">JUEVES</th>
-                        <th class="header-day">VIERNES</th>
-                        <th class="header-day">SABADO</th>
-                        <th class="header-day">DOMINGO</th>
-                        <th class="header-day col-total"></th>
-                    </tr>
-                    <tr>
-                        <th class="col-cspc">CSPC<span class="dropdown-icon"></span></th>
-                        <th class="col-cspc"><span class="dropdown-icon"></span></th>
-                        <th colspan="11"></th>
-                    </tr>
-                </thead>
+                <div class="sheet-toolbar">
+                    <h1 class="sheet-title">Req Body</h1>
 
-                <tbody>
-                    <!-- C4088 -->
-                    <tr>
-                        <td class="col-cspc">C4087</td>
-                        <td class="col-linea-xl1">XL1</td>
-                        <td>1371</td>
-                        <td>1403</td>
-                        <td>1371</td>
-                        <td>1398</td>
-                        <td class="col-sunday">1</td>
-                        <td>1371</td>
-                        <td>1403</td>
-                        <td>1371</td>
-                        <td>1403</td>
-                        <td>1371</td>
-                        <td>1398</td>
-                        <td class="col-sunday">1</td>
-                        <td class="col-total">1386</td>
-                    </tr>
-                    <!-- C4109 -->
-                <tr>
-                    <td class="col-cspc">C4109</td>
-                    <td class="col-linea-xl2">XL2</td>
-                    <td>1202</td>
-                    <td>1283</td>
-                    <td>1256</td>
-                    <td>1241</td>
-                    <td class="col-sunday">1</td>
-                    <td>1221</td>
-                    <td>1233</td>
-                    <td>1236</td>
-                    <td>1323</td>
-                    <td>1221</td>
-                    <td>1308</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">1257</td>
-                </tr>
+                    <div class="reqbody-switch">
+                        <button id="btnVistaEstampado" class="switch-btn active" type="button">
+                            Vista Estampado
+                        </button>
+                        <button id="btnVistaImportado" class="switch-btn" type="button">
+                            Vista Importado
+                        </button>
+                    </div>
+                </div>
 
-                <!-- C4118 -->
-                <tr>
-                    <td class="col-cspc">C4118</td>
-                    <td class="col-linea-xl2">XL2</td>
-                    <td>169</td>
-                    <td>120</td>
-                    <td>110</td>
-                    <td>128</td>
-                    <td class="col-sunday">1</td>
-                    <td>150</td>
-                    <td>170</td>
-                    <td>135</td>
-                    <td>80</td>
-                    <td>150</td>
-                    <td>90</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">129</td>
-                </tr>
+                <!-- VISTA ESTAMPADO -->
+                <div id="vistaEstampado" class="view-panel active">
+                    <div class="reqbody-sheet">
+                        <div class="table-container">
+                            <table class="reqbody-table">
 
-                <!-- C4119 -->
-                <tr>
-                    <td class="col-cspc">C4119</td>
-                    <td class="col-linea-xl2">XL2</td>
-                    <td>169</td>
-                    <td>120</td>
-                    <td>110</td>
-                    <td>128</td>
-                    <td class="col-sunday">1</td>
-                    <td>150</td>
-                    <td>170</td>
-                    <td>135</td>
-                    <td>80</td>
-                    <td>150</td>
-                    <td>90</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">129</td>
-                </tr>
+                                <div class="reqbody-controls semana-controls">
+                                    <label for="semanaEstampado">Semana:</label>
+                                    <input type="number" id="semanaEstampado" min="1" max="53" style="width: 80px;">
 
-                <!-- C4144 -->
-                <tr>
-                    <td class="col-cspc">C4144</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>752</td>
-                    <td>917</td>
-                    <td>814</td>
-                    <td>775</td>
-                    <td class="col-sunday">1</td>
-                    <td>770</td>
-                    <td>767</td>
-                    <td>691</td>
-                    <td>688</td>
-                    <td>770</td>
-                    <td>814</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">750</td>
-                </tr>
+                                    <label for="anioEstampado">Año:</label>
+                                    <input type="number" id="anioEstampado" min="2020" max="2100" style="width: 100px;">
 
-                <!-- C4145 -->
-                <tr>
-                    <td class="col-cspc">C4145</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>169</td>
-                    <td>120</td>
-                    <td>110</td>
-                    <td>140</td>
-                    <td class="col-sunday">1</td>
-                    <td>142</td>
-                    <td>170</td>
-                    <td>135</td>
-                    <td>88</td>
-                    <td>142</td>
-                    <td>105</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">130</td>
-                </tr>
+                                    <button id="btnVerSemanaEstampado" type="button">
+                                        <i class="bi bi-eye-fill"></i> Ver semana
+                                    </button>
+                                </div>
 
-                <!-- C4146 -->
-                <tr>
-                    <td class="col-cspc">C4146</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>761</td>
-                    <td>927</td>
-                    <td>833</td>
-                    <td>781</td>
-                    <td class="col-sunday">1</td>
-                    <td>751</td>
-                    <td>769</td>
-                    <td>699</td>
-                    <td>699</td>
-                    <td>751</td>
-                    <td>827</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">749</td>
-                </tr>
+                                <thead>
+                                    <tr class="header-dates"><!--SE LLENA CON JS-->
+                                        <th colspan="3" class="header-left-blank"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date"></th>
+                                        <th class="header-date total-header-top"></th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3" class="header-left-blank day-left-blank"></th>
+                                        <th class="header-day">MIERCOLES</th>
+                                        <th class="header-day">JUEVES</th>
+                                        <th class="header-day">VIERNES</th>
+                                        <th class="header-day">SABADO</th>
+                                        <th class="header-day">DOMINGO</th>
+                                        <th class="header-day">LUNES</th>
+                                        <th class="header-day">MARTES</th>
+                                        <th class="header-day">MIERCOLES</th>
+                                        <th class="header-day">JUEVES</th>
+                                        <th class="header-day">VIERNES</th>
+                                        <th class="header-day">SABADO</th>
+                                        <th class="header-day">DOMINGO</th>
+                                        <th class="header-day total-header-top"></th>
+                                    </tr>
+                                    <tr>
+                                        <th class="col-part-head">PTR <span class="dropdown-icon dark"></span></th>
+                                        <th class="col-cspc">CSPC <span class="dropdown-icon"></span></th>
+                                        <th class="col-linea-head">LINEA <span class="dropdown-icon"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="filter-cell"><span class="dropdown-icon dark"></span></th>
+                                        <th class="col-total">TOTAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyEstampado">
+                                    <!-- Se llena desde JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                <!-- C4148 -->
-                <tr>
-                    <td class="col-cspc">C4148</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>450</td>
-                    <td>375</td>
-                    <td>412</td>
-                    <td>469</td>
-                    <td class="col-sunday">1</td>
-                    <td>751</td>
-                    <td>467</td>
-                    <td>533</td>
-                    <td>636</td>
-                    <td>457</td>
-                    <td>484</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">555</td>
-                </tr>
+                    <!-- NUEVO: Tabla de resumen semanal -->
+                    <div class="reqbody-sheet" style="margin-top: 12px;">
+                        <h3 style="margin-bottom: 6px;">Resumen semanal por parte</h3>
+                        <div class="table-container">
+                            <table class="reqbody-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-part-head">NUM PARTE</th>
+                                        <th class="col-cspc">CSPC</th>
+                                        <th>LINEA</th>
+                                        <th>CANTIDAD SEMANAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyResumenSemana">
+                                    <!-- Se llena desde JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-                <!-- C4149 -->
-                <tr>
-                    <td class="col-cspc">C4149</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>450</td>
-                    <td>375</td>
-                    <td>412</td>
-                    <td>469</td>
-                    <td class="col-sunday">1</td>
-                    <td>457</td>
-                    <td>467</td>
-                    <td>533</td>
-                    <td>636</td>
-                    <td>457</td>
-                    <td>484</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">506</td>
-                </tr>
+                <!-- VISTA IMPORTADO -->
+                <div id="vistaImportado" class="view-panel">
+                    <div class="reqbody-controls">
+                        <select id="tipoReqbody">
+                            <option value="DREQ">DREQ</option>
+                            <option value="WREQ">WREQ</option>
+                            <option value="SCHDWK">SCHDWK</option>
+                        </select>
 
-                <!-- C4152 -->
-                <tr>
-                    <td class="col-cspc">C4152</td>
-                    <td class="col-linea-xl2">XL2</td>
-                    <td>169</td>
-                    <td>91</td>
-                    <td>139</td>
-                    <td>120</td>
-                    <td class="col-sunday">1</td>
-                    <td>144</td>
-                    <td>170</td>
-                    <td>155</td>
-                    <td>60</td>
-                    <td>144</td>
-                    <td>91</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">127</td>
-                </tr>
+                        <input type="text" id="filtroNumeroParte" placeholder="Buscar número de parte">
 
-                <!-- C4155 -->
-                <tr>
-                    <td class="col-cspc">C4155</td>
-                    <td class="col-linea-xl2">XL2</td>
-                    <td>401</td>
-                    <td>744</td>
-                    <td>730</td>
-                    <td>601</td>
-                    <td class="col-sunday">1</td>
-                    <td>651</td>
-                    <td>725</td>
-                    <td>751</td>
-                    <td>697</td>
-                    <td>651</td>
-                    <td>747</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">704</td>
-                </tr>
+                        <button id="btnBuscarReqbody" type="button">
+                            <i class="bi bi-search-heart-fill">Buscar</i>
+                        </button>
+                        <button id="btnLimpiarReqbody" type="button">
+                            <i class="bi bi-trash2-fill">Limpiar</i>
+                        </button>
 
-                <!-- C4156 -->
-                <tr>
-                    <td class="col-cspc">C4156</td>
-                    <td class="col-linea-0">0</td>
-                    <td>401</td>
-                    <td>744</td>
-                    <td>730</td>
-                    <td>601</td>
-                    <td class="col-sunday">1</td>
-                    <td>651</td>
-                    <td>725</td>
-                    <td>751</td>
-                    <td>697</td>
-                    <td>651</td>
-                    <td>747</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">704</td>
-                </tr>
+                        <button id="btnGenerarReqbody" type="button">
+                            <i class="bi bi-arrow-clockwise">Generar Reqbody diario</i>
+                        </button>
+                    </div>
 
-                <!-- C4157 -->
-                <tr>
-                    <td class="col-cspc">C4157</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>780</td>
-                    <td>523</td>
-                    <td>509</td>
-                    <td>639</td>
-                    <td class="col-sunday">1</td>
-                    <td>601</td>
-                    <td>540</td>
-                    <td>470</td>
-                    <td>571</td>
-                    <td>601</td>
-                    <td>513</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">549</td>
-                </tr>
+                    <div class="reqbody-sheet">
+                        <div class="table-container imported-table-container">
+                            <table class="reqbody-table imported-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-part-head">NUM PARTE</th>
+                                        <th class="col-cspc">DESCRIPCIÓN</th>
+                                        <th>ULOC</th>
+                                        <th>BUY</th>
+                                        <th>DOH</th>
+                                        <th>IN TRANSIT</th>
+                                        <th>CBAL</th>
+                                        <th>TIPO</th>
+                                        <th>PERIODO</th>
+                                        <th>CANTIDAD</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodyImportado">
+                                    <!-- Se llena desde JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                <!-- C4158 -->
-                <tr>
-                    <td class="col-cspc">C4158</td>
-                    <td class="col-linea-0">0</td>
-                    <td>780</td>
-                    <td>523</td>
-                    <td>509</td>
-                    <td>639</td>
-                    <td class="col-sunday">1</td>
-                    <td>601</td>
-                    <td>540</td>
-                    <td>470</td>
-                    <td>571</td>
-                    <td>601</td>
-                    <td>513</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">549</td>
-                </tr>
-
-                <!-- C4159 -->
-                <tr>
-                    <td class="col-cspc">C4159</td>
-                    <td class="col-linea-xl2">XL2</td>
-                    <td>159</td>
-                    <td>475</td>
-                    <td>497</td>
-                    <td>461</td>
-                    <td class="col-sunday">1</td>
-                    <td>269</td>
-                    <td>304</td>
-                    <td>346</td>
-                    <td>240</td>
-                    <td>269</td>
-                    <td>314</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">290</td>
-                </tr>
-
-                <!-- C4160 -->
-                <tr>
-                    <td class="col-cspc">C4160</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>162</td>
-                    <td>480</td>
-                    <td>495</td>
-                    <td>455</td>
-                    <td class="col-sunday">1</td>
-                    <td>337</td>
-                    <td>309</td>
-                    <td>342</td>
-                    <td>245</td>
-                    <td>273</td>
-                    <td>308</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">302</td>
-                </tr>
-
-                <!-- C4162 -->
-                <tr>
-                    <td class="col-cspc">C4162</td>
-                    <td class="col-linea-xl1">XL1</td>
-                    <td>869</td>
-                    <td>610</td>
-                    <td>559</td>
-                    <td>698</td>
-                    <td class="col-sunday">1</td>
-                    <td>635</td>
-                    <td>575</td>
-                    <td>500</td>
-                    <td>611</td>
-                    <td>635</td>
-                    <td>566</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">587</td>
-                </tr>
-
-                <!-- C4163 -->
-                <tr>
-                    <td class="col-cspc">C4163</td>
-                    <td class="col-linea-0">0</td>
-                    <td>862</td>
-                    <td>606</td>
-                    <td>559</td>
-                    <td>702</td>
-                    <td class="col-sunday">1</td>
-                    <td>635</td>
-                    <td>575</td>
-                    <td>500</td>
-                    <td>611</td>
-                    <td>635</td>
-                    <td>566</td>
-                    <td class="col-sunday">1</td>
-                    <td class="col-total">587</td>
-                </tr>
-                </tbody>
-                </table>
-              </div>
+                    <div class="pagination-bar">
+                        <button id="btnPrevPage" type="button">
+                            <i class="bi bi-arrow-left">Anterior</i>
+                        </button>
+                        <span id="paginationInfo">Página 1 de 1 · Total: 0</span>
+                        <button id="btnNextPage" type="button">
+                            <i class="bi bi-arrow-right">Siguiente</i>
+                        </button>
+                    </div>
+                </div>
             </section>
 
-            <!-- Modal centrado Perfil -->
             <div class="center-modal" id="panelPerfil">
-            <div class="center-modal-content">
-                <div class="center-modal-header">
-                <h2>Perfil de usuario</h2>
-                <button class="center-modal-close" data-close-panel>
-                    <i class="bi bi-x-circle-fill"></i>
-                </button>
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Perfil de usuario</h2>
+                        <button class="center-modal-close" data-close-panel type="button">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+                    <div class="center-modal-body">
+                        <p><strong>Nombre:</strong> <span id="perfilReqBodyNombre"></span></p>
+                        <p><strong>Correo:</strong> <span id="perfilReqBodyCorreo"></span></p>
+                        <p><strong>Rol:</strong> <span id="perfilReqBodyRol"></span></p>
+                        <p><strong>GMIN:</strong> <span id="perfilReqBodyGmin"></span></p>
+                    </div>
                 </div>
-                <div class="center-modal-body">
-                <p><strong>Nombre:</strong> <span id="perfilReqBodyNombre"></span></p>
-                <p><strong>Correo:</strong> <span id="perfilReqBodyCorreo"></span></p>
-                <p><strong>Rol:</strong> <span id="perfilReqBodyRol"></span></p>
-                <p><strong>GMIN:</strong> <span id="perfilReqBodyGmin"></span></p>
-                </div>
-            </div>
             </div>
 
-            <!-- Modal centrado Notificaciones -->
             <div class="center-modal" id="panelNotificaciones">
-            <div class="center-modal-content">
-                <div class="center-modal-header">
-                <h2>Notificaciones</h2>
-                <button class="center-modal-close" data-close-panel>
-                    <i class="bi bi-x-circle-fill"></i>
-                </button>
-                </div>
-                <div class="center-modal-body" id="listaNotificacionesReqBody">
-                <!-- Se llena por JS -->
+                <div class="center-modal-content">
+                    <div class="center-modal-header">
+                        <h2>Notificaciones</h2>
+                        <button class="center-modal-close" data-close-panel type="button">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </button>
+                    </div>
+                    <div class="center-modal-body" id="listaNotificacionesReqBody"></div>
                 </div>
             </div>
-            </div>
-
         </main>
     </div>
 
     <script src="../js/reqBody.js"></script>
     <script src="../js/auth.js"></script>
-    
 </body>
 </html>

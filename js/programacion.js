@@ -1,432 +1,1431 @@
-// Variables globales
-let dohData = [];
+'use strict';
 
-// Inizializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    inializeMenu();
-    loadDOHData();
-    setupActionButtons();
+const BASE_URL = 'http://localhost:3300';
 
-    const btnPerfil = document.getElementById('btnPerfil');
-    const btnNotificaciones = document.getElementById('btnNotificaciones');
-    const panelPerfil = document.getElementById('panelPerfil');
-    const panelNotificaciones = document.getElementById('panelNotificaciones');
+const DEFAULT_WEEK = 1;
+const DEFAULT_YEAR = 2026;
+const PAGE_SIZE = 50;
+const FECHA_BASE_OPERATIVA = '2026-01-05';
 
-    if(btnPerfil && panelPerfil) {
-        btnPerfil.addEventListener('click', () => {
-            llenarPerfil();
-            abrirPanel(panelPerfil);
-        });
+let programacionData = [];
+let resumenData = [];
+
+let programacionPage = 1;
+let resumenPage = 1;
+let programacionTotalPages = 1;
+let resumenTotalPages = 1;
+
+const DAY_LAYOUT = [
+    { key: 'miercoles', columns: 7 },
+    { key: 'jueves', columns: 8 },
+    { key: 'viernes', columns: 8 },
+    { key: 'sabado', columns: 8 },
+    { key: 'domingo', columns: 8 },
+    { key: 'lunes', columns: 8 },
+    { key: 'martes', columns: 8 }
+];
+
+document.addEventListener(
+    'DOMContentLoaded',
+    iniciarProgramacion
+);
+
+function iniciarProgramacion() {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        window.location.href = '../index.html';
+        return;
     }
 
-    if (btnNotificaciones && panelNotificaciones) {
-        btnNotificaciones.addEventListener('click', () => {
-            llenarNotificacionesProgramacion();
-            abrirPanel(panelNotificaciones);
-        });
-    }
+    inicializarBotonActualizar();
+    inicializarControlesSemana();
+    inicializarMenu();
+    inicializarModales();
+    inicializarFiltros();
+    inicializarLogout();
+    asegurarTablaResumen();
 
-    document.querySelectorAll('[data-close-panel]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const panel = btn.closest('.center-modal');  // buscar por clase
-            if (panel) panel.classList.remove('open');
-        });
-    });
-
-    const searchInput = document.getElementById('searchProgramacion');
-    //console.log('searchInput:', searchInput); // para depurar
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            //console.log('Filtrando con:', query);
-            filterProgramacionTable(query);
-        });
-    }
-});
-
-function abrirPanel(panel) {
-    // Cerrar otros paneles si hubiera
-    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
-    panel.classList.add('open');
+    cargarProgramacion();
 }
 
-// Perfil de usuario en Usuarios
-function llenarPerfil() {
-    let user = null;
+// CARGA PRINCIPAL
+async function cargarProgramacion() {
+    await Promise.all([
+        loadProgramacionBase(),
+        loadResumenProgramacion()
+    ]);
+}
+
+async function loadProgramacionBase() {
+    const tbody = document.getElementById(
+        'tbodyProgramacion'
+    );
+
+    if (!tbody) return;
+
+    mostrarMensajeTabla(
+        tbody,
+        'Cargando programación...'
+    );
+
+    const filtros = obtenerFiltros();
+
     try {
-        user = JSON.parse(localStorage.getItem('user'));
-    } catch (e) {
-        user = null;
-    }
-
-    document.getElementById('perfilProgramacionNombre').textContent = user?.nombre || 'Usuario';
-    document.getElementById('perfilProgramacionCorreo').textContent = user?.email || 'correo@ejemplo.com';
-    document.getElementById('perfilProgramacionRol').textContent = user?.rol || 'usuario';
-    document.getElementById('perfilProgramacionGmin').textContent = user?.GMIN || 'GMIN';
-}
-
-// Notificaciones en Usuarios (ejemplo estático)
-function llenarNotificacionesProgramacion() {
-    const contenedor = document.getElementById('listaNotificacionesProgramacion');
-    if (!contenedor) return;
-
-    const notificaciones = [
-        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
-        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
-        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
-    ];
-
-    contenedor.innerHTML = '';
-
-    notificaciones.forEach(n => {
-        const div = document.createElement('div');
-        div.className = 'notificacion-item';
-        div.innerHTML = `
-        <div class="notificacion-titulo">${n.titulo}</div>
-        <div class="notificacion-fecha">${n.fecha}</div>
-        <div class="notificacion-detalle">${n.detalle}</div>
-        `;
-        contenedor.appendChild(div);
-    });
-}
-
-// Sistema de navegación entre secciones
-function inializeMenu() {
-    const menuItems = document.querySelectorAll('.menu li');
-
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(li => li.classList.remove('active')); // Remover clase active de todos
-
-            this.classList.add('active'); // Agregar clase active al clickeado
-
-            // Obtener la sección a mostrar
-            const sectionId = this.getAttribute('data-section');
-            showSection(sectionId);
+        const params = new URLSearchParams({
+            semana: String(filtros.semana),
+            anio: String(filtros.anio),
+            page: String(programacionPage),
+            pageSize: String(PAGE_SIZE)
         });
-    });
-}
 
-function showSection(sectionId) {
-    // Ocultar todas las secciones
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
+        if (filtros.cspc) {
+            params.append('cspc', filtros.cspc);
+        }
 
-    // Mostrar la sección seleccionada
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
+        if (filtros.linea) {
+            params.append('linea', filtros.linea);
+        }
+
+        const result = await apiFetch(
+            `/api/programacion/anual?${params.toString()}`
+        );
+
+        console.log(
+            'Respuesta programación:',
+            result
+        );
+
+        programacionData = Array.isArray(result)
+            ? result
+            : result.data || [];
+
+        programacionTotalPages =
+            result.pagination?.totalPages || 1;
+
+        actualizarPeriodo(
+            filtros.semana,
+            filtros.anio
+        );
+
+        const fechaInicio =
+            result.range?.from ||
+            obtenerInicioSemanaOperativa(
+                FECHA_BASE_OPERATIVA,
+                filtros.semana
+            );
+
+        actualizarFechasTabla(fechaInicio);
+        renderProgramacionTable();
+
+        renderPaginacionPrincipal(
+            result.pagination || {}
+        );
+    } catch (error) {
+        console.error(
+            'Error cargando programación:',
+            error
+        );
+
+        mostrarMensajeTabla(
+            tbody,
+            error.message
+        );
     }
 }
 
+// RESUMEN SEMANAL
+async function loadResumenProgramacion() {
+    const tbody = document.getElementById(
+        'tbodyResumenProgramacion'
+    );
 
-// Cargar datos DOH
-function loadDOHData() {
-    // Datos de ejemplo para la tabla DOH
-    dohData = [
-        { cspc: 'C4087', linea: 'XL1', capTotal: 4560, stockMier: 3840, reqMier: 1184, cambiMier: 1184, reaMier: 1680, cambMier: 1680, dohMier: 2.8, stockJue: 4336, inventaJue: 4340, reqJue: 1403, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.1 },
-        { cspc: 'C4088', linea: 'XL1', capTotal: 5400, stockMier: 3500, reqMier: 1184, cambiMier: 1184, reaMier: 2000, cambMier: 2000, dohMier: 2.6, stockJue: 4316, inventaJue: 4200, reqJue: 1403, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.0 },
-        { cspc: 'C4106', linea: 'XL2', capTotal: 2760, stockMier: 1732, reqMier: 1054, cambiMier: 1054, reaMier: 1200, cambMier: 1200, dohMier: 1.4, stockJue: 1878, inventaJue: 1917, reqJue: 1283, cambJue: '', partiJue: 1200, cambicJue: 1200, reJue: '', dohJue: 1.5 },
-        { cspc: 'C4109', linea: 'XL2', capTotal: 2990, stockMier: 2570, reqMier: 1054, cambiMier: 1054, reaMier: 1200, cambMier: 1200, dohMier: 2.1, stockJue: 2716, inventaJue: 2770, reqJue: 1283, cambJue: '', partiJue: 1200, cambicJue: 1200, reJue: '', dohJue: 2.2 },
-        { cspc: 'C4118', linea: 'XL2', capTotal: 850, stockMier: 710, reqMier: 148, cambiMier: 148, reaMier: 0, cambMier: 0, dohMier: 4.2, stockJue: 562, inventaJue: 541, reqJue: 120, cambJue: '', partiJue: 500, cambicJue: 500, reJue: '', dohJue: 4.5 },
-        { cspc: 'C4119', linea: 'XL2', capTotal: 850, stockMier: 1000, reqMier: 148, cambiMier: 148, reaMier: 0, cambMier: 0, dohMier: 5.9, stockJue: 852, inventaJue: 842, reqJue: 120, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 7.0 },
-        { cspc: 'C4144', linea: 'XL1', capTotal: 2792, stockMier: 3612, reqMier: 666, cambiMier: 666, reaMier: 0, cambMier: 0, dohMier: 4.9, stockJue: 2946, inventaJue: 2894, reqJue: 917, cambJue: '', partiJue: 1100, cambicJue: 1100, reJue: '', dohJue: 3.2 },
-        { cspc: 'C4145', linea: 'XL1', capTotal: 1720, stockMier: 1376, reqMier: 148, cambiMier: 148, reaMier: 0, cambMier: 0, dohMier: 8.1, stockJue: 1228, inventaJue: 1204, reqJue: 120, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 10.0 },
-        { cspc: 'C4146', linea: 'XL1', capTotal: 2380, stockMier: 2057, reqMier: 666, cambiMier: 666, reaMier: 600, cambMier: 600, dohMier: 2.7, stockJue: 1991, inventaJue: 2011, reqJue: 927, cambJue: '', partiJue: 600, cambicJue: 600, reJue: '', dohJue: 2.2 },
-        { cspc: 'C4148', linea: 'XL1', capTotal: 1122, stockMier: 1003, reqMier: 407, cambiMier: 407, reaMier: 450, cambMier: 450, dohMier: 2.2, stockJue: 1046, inventaJue: 1246, reqJue: 375, cambJue: '', partiJue: 450, cambicJue: 450, reJue: '', dohJue: 3.3 },
-        { cspc: 'C4149', linea: 'XL1', capTotal: 2520, stockMier: 1770, reqMier: 407, cambiMier: 407, reaMier: 0, cambMier: 0, dohMier: 3.9, stockJue: 1363, inventaJue: 1345, reqJue: 375, cambJue: '', partiJue: 1308, cambicJue: 1308, reJue: '', dohJue: 3.6 },
-        { cspc: 'C4152', linea: 'XL2', capTotal: 1380, stockMier: 913, reqMier: 148, cambiMier: 148, reaMier: 0, cambMier: 0, dohMier: 5.4, stockJue: 765, inventaJue: 751, reqJue: 91, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 8.3 },
-        { cspc: 'C4155', linea: 'XL2', capTotal: 2352, stockMier: 1904, reqMier: 351, cambiMier: 351, reaMier: 0, cambMier: 0, dohMier: 4.7, stockJue: 1553, inventaJue: 1660, reqJue: 744, cambJue: '', partiJue: 900, cambicJue: 900, reJue: '', dohJue: 2.2 },
-        { cspc: 'C4156', linea: '0', capTotal: 2352, stockMier: 2016, reqMier: 351, cambiMier: 351, reaMier: 0, cambMier: 0, dohMier: 5.0, stockJue: 1665, inventaJue: 1561, reqJue: 744, cambJue: '', partiJue: 900, cambicJue: 900, reJue: '', dohJue: 2.1 },
-        { cspc: 'C4157', linea: 'XL1', capTotal: 1932, stockMier: 1484, reqMier: 684, cambiMier: 684, reaMier: 960, cambMier: 960, dohMier: 1.9, stockJue: 1760, inventaJue: 1695, reqJue: 523, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.2 },
-        { cspc: 'C4158', linea: '0', capTotal: 1932, stockMier: 1484, reqMier: 684, cambiMier: 684, reaMier: 960, cambMier: 960, dohMier: 1.9, stockJue: 1760, inventaJue: 1695, reqJue: 523, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.2 },
-        { cspc: 'C4159', linea: 'XL2', capTotal: 1640, stockMier: 1480, reqMier: 148, cambiMier: 148, reaMier: 0, cambMier: 0, dohMier: 9.3, stockJue: 1332, inventaJue: 1557, reqJue: 475, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 3.3 },
-        { cspc: 'C4160', linea: 'XL1', capTotal: 3000, stockMier: 2485, reqMier: 148, cambiMier: 148, reaMier: 0, cambMier: 0, dohMier: 15.3, stockJue: 2337, inventaJue: 2300, reqJue: 480, cambJue: '', partiJue: 0, cambicJue: 0, reJue: '', dohJue: 4.8 },
-        { cspc: 'C4162', linea: 'XL1', capTotal: 2080, stockMier: 1960, reqMier: 758, cambiMier: 758, reaMier: 0, cambMier: 0, dohMier: 2.3, stockJue: 1202, inventaJue: 1120, reqJue: 610, cambJue: '', partiJue: 900, cambicJue: 900, reJue: '', dohJue: 1.8 },
-        { cspc: 'C4163', linea: '0', capTotal: 2400, stockMier: 1970, reqMier: 758, cambiMier: 758, reaMier: 0, cambMier: 0, dohMier: 2.3, stockJue: 1212, inventaJue: 1400, reqJue: 606, cambJue: '', partiJue: 900, cambicJue: 900, reJue: '', dohJue: 2.3 },
-        { cspc: 'C4207', linea: 'XL2', capTotal: 4480, stockMier: 4115, reqMier: 1184, cambiMier: 1184, reaMier: 1344, cambMier: 1344, dohMier: 3.0, stockJue: 4275, inventaJue: 4320, reqJue: 1403, cambJue: '', partiJue: 1344, cambicJue: 1344, reJue: '', dohJue: 3.1 }
-    ];
+    if (!tbody) return;
 
-    renderDOHTable();
+    mostrarMensajeTabla(
+        tbody,
+        'Cargando resumen semanal...',
+        7
+    );
+
+    const filtros = obtenerFiltros();
+
+    try {
+        const params = new URLSearchParams({
+            semana: String(filtros.semana),
+            anio: String(filtros.anio),
+            page: String(resumenPage),
+            pageSize: String(PAGE_SIZE)
+        });
+
+        if (filtros.cspc) {
+            params.append('cspc', filtros.cspc);
+        }
+
+        if (filtros.linea) {
+            params.append('linea', filtros.linea);
+        }
+
+        const result = await apiFetch(
+            `/api/programacion/resumen-semanal?${params.toString()}`
+        );
+
+        resumenData = Array.isArray(result)
+            ? result
+            : result.data || [];
+
+        resumenTotalPages =
+            result.pagination?.totalPages || 1;
+
+        renderResumenProgramacion();
+
+        renderPaginacionResumen(
+            result.pagination || {}
+        );
+    } catch (error) {
+        console.error(
+            'Error cargando resumen semanal:',
+            error
+        );
+
+        mostrarMensajeTabla(
+            tbody,
+            error.message,
+            7
+        );
+    }
 }
 
-// Renderizar tabla DOH
-function renderDOHTable() {
-    const tbody = document.querySelector('#programacion table tbody');
+function renderResumenProgramacion() {
+    const tbody = document.getElementById(
+        'tbodyResumenProgramacion'
+    );
 
-    if (!tbody || !dohData) return;
+    if (!tbody) return;
 
     tbody.innerHTML = '';
 
-    dohData.forEach((row) => {
+    if (!resumenData.length) {
+        mostrarMensajeTabla(
+            tbody,
+            'No hay datos para esta semana.',
+            7
+        );
+        return;
+    }
+
+    resumenData.forEach(row => {
         const tr = document.createElement('tr');
 
-        const getDOHClass = (value) => {
-            if (value === '' || value === null || value === undefined) return '';
-            const num = parseFloat(value);
-            if (isNaN(num)) return '';
-            if (num >= 2.0 && num <= 10.0) return 'doh-green';
-            if (num > 1.4 && num < 2.0) return 'doh-yellow';
-            if (num > 10.0) return 'doh-orange';
-            if (num > 15.0) return 'doh-red';
-            return '';
-        };
+        agregarCelda(
+            tr,
+            row.cspc || 'SIN CSPC',
+            'resumen-cspc'
+        );
 
-        tr.innerHTML = `
-            <td class="col-cspc">${row.cspc}</td>
-            <td class="col-linea">${row.linea}</td>
-            <td>${row.capTotal}</td>
-            <td class="bg-blue-light">${row.stockMier}</td>
-            <td class="bg-gray">${row.reqMier}</td>
-            <td class="bg-blue">${row.cambiMier}</td>
-            <td class="bg-blue-light">${row.reaMier}</td>
-            <td class="bg-blue">${row.cambMier}</td>
-            <td></td>
-            <td class="${getDOHClass(row.dohMier)}">${row.dohMier}</td>
-            <td class="bg-blue-light">${row.stockJue}</td>
-            <td class="bg-blue">${row.inventaJue}</td>
-            <td class="bg-gray">${row.reqJue}</td>
-            <td class="bg-blue-light">${row.cambJue}</td>
-            <td class="bg-blue-light">${row.partiJue}</td>
-            <td class="bg-gray">${row.cambicJue}</td>
-            <td class="bg-blue-light">${row.reJue}</td>
-            <td class="${getDOHClass(row.dohJue)}">${row.dohJue}</td>
-        `;
+        agregarCelda(
+            tr,
+            row.linea || 'SIN LÍNEA',
+            'resumen-linea'
+        );
+
+        agregarCelda(
+            tr,
+            formatearNumero(row.capacidad_total)
+        );
+
+        agregarCelda(
+            tr,
+            formatearNumero(
+                row.requerimiento_reqbody
+            )
+        );
+
+        agregarCelda(
+            tr,
+            formatearNumero(
+                row.requerimiento_semanal
+            )
+        );
+
+        agregarCelda(
+            tr,
+            formatearNumero(
+                row.cantidad_programada
+            )
+        );
+
+        agregarCelda(
+            tr,
+            formatearNumero(
+                row.diferencia_reqbody
+            ),
+            claseDiferencia(
+                row.diferencia_reqbody
+            )
+        );
 
         tbody.appendChild(tr);
     });
 }
 
-function filterProgramacionTable(query) {
-    const rows = document.querySelectorAll('#programacion tbody tr');
+// TABLA PRINCIPAL
+function renderProgramacionTable() {
+    const tbody = document.getElementById(
+        'tbodyProgramacion'
+    );
 
-    rows.forEach(row => {
-        const cspc   = row.children[0]?.textContent.toLowerCase() || '';
-        const linea  = row.children[1]?.textContent.toLowerCase() || '';
-        const cap    = row.children[2]?.textContent.toLowerCase() || '';
-        const stockM = row.children[3]?.textContent.toLowerCase() || '';
-        const reqM   = row.children[4]?.textContent.toLowerCase() || '';
-        const stockJ = row.children[10]?.textContent.toLowerCase() || '';
-        const reqJ   = row.children[12]?.textContent.toLowerCase() || '';
+    if (!tbody) return;
 
-        const text = `${cspc} ${linea} ${cap} ${stockM} ${reqM} ${stockJ} ${reqJ}`;
+    tbody.innerHTML = '';
 
-        row.style.display = text.includes(query) ? '' : 'none';
+    if (!programacionData.length) {
+        mostrarMensajeTabla(
+            tbody,
+            'No hay registros para esta semana.'
+        );
+        return;
+    }
+
+    programacionData.forEach(row => {
+        const tr = document.createElement('tr');
+
+        agregarCelda(
+            tr,
+            row.cspc || 'SIN CSPC',
+            'col-cspc'
+        );
+
+        agregarCelda(
+            tr,
+            row.linea || 'SIN LÍNEA',
+            obtenerClaseLinea(row.linea)
+        );
+
+        agregarCelda(
+            tr,
+            formatearNumero(
+                row.capacidad_total
+            ),
+            'col-capacidad'
+        );
+
+        const fechaInicial =
+            obtenerFechaInicial(row);
+
+        const programadoPorDia =
+            distribuirCantidadSemanal(
+                row.cantidad_programada,
+                7
+            );
+
+        let stockProyectado = obtenerNumero(
+            row.stock_inicial ??
+            row.cbal ??
+            row.total_disponible ??
+            0
+        );
+
+        DAY_LAYOUT.forEach((dia, diaIndex) => {
+            const fecha = sumarDias(
+                fechaInicial,
+                diaIndex
+            );
+
+            const requerimiento =
+                obtenerNumero(
+                    obtenerCantidadDiaria(
+                        row,
+                        fecha
+                    )
+                );
+
+            const programado =
+                programadoPorDia[diaIndex];
+
+            const cambios =
+                programado - requerimiento;
+
+            stockProyectado += cambios;
+
+            const doh =
+                row.doh_excel ??
+                row.doh ??
+                '';
+
+            if (dia.columns === 7) {
+                /*
+                 * Miércoles:
+                 * STOCK, REQ, CAMBIOS, PARTES,
+                 * CAMBIOS DE PARTES, REAL, DOH
+                 */
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        stockProyectado
+                    ),
+                    'bg-blue-light'
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        requerimiento
+                    ),
+                    'bg-gray'
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        cambios
+                    ),
+                    claseDiferencia(cambios)
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        programado
+                    ),
+                    'bg-blue-light'
+                );
+
+                agregarCelda(
+                    tr,
+                    '',
+                    'bg-blue'
+                );
+
+                agregarCelda(
+                    tr,
+                    '',
+                    ''
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(doh),
+                    obtenerClaseDoh(doh)
+                );
+            } else {
+                /*
+                 * Días restantes:
+                 * STOCK, INVENTA, REQ, CAMBIOS,
+                 * PARTES, CAMBIOS DE PARTES,
+                 * REAL, DOH
+                 */
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        stockProyectado
+                    ),
+                    'bg-blue-light'
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        row.in_transit
+                    ),
+                    'bg-blue'
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        requerimiento
+                    ),
+                    'bg-gray'
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        cambios
+                    ),
+                    claseDiferencia(cambios)
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(
+                        programado
+                    ),
+                    'bg-blue-light'
+                );
+
+                agregarCelda(
+                    tr,
+                    '',
+                    'bg-blue'
+                );
+
+                agregarCelda(
+                    tr,
+                    '',
+                    ''
+                );
+
+                agregarCelda(
+                    tr,
+                    formatearNumero(doh),
+                    obtenerClaseDoh(doh)
+                );
+            }
+        });
+
+        tbody.appendChild(tr);
     });
 }
 
-// Configurar botones de acción
-function setupActionButtons() {
-    const section = document.getElementById('programacion');
+// Divide SCHDWK entre los siete días.
+//
+// Ejemplo:
+// 10 -> 2, 2, 2, 1, 1, 1, 1
+//
+function distribuirCantidadSemanal(
+    cantidad,
+    dias = 7
+) {
+    const total = Math.round(
+        obtenerNumero(cantidad)
+    );
 
-    if (!section) return;
+    const base = Math.floor(
+        total / dias
+    );
 
-    /*
-    // Crear contenedor de botones si no existe
-    if (!section.querySelector('.action-buttons')) {
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = 'action-buttons';
-        buttonsDiv.innerHTML = `
-            <button class="btn btn-primary" onclick="addDOHRow()">
-                <i class="bi bi-plus-circle"></i> Agregar Fila
-            </button>
-            <button class="btn btn-danger" onclick="deleteLastDOHRow()">
-                <i class="bi bi-trash"></i> Eliminar Última Fila
-            </button>
-            <button class="btn btn-success" onclick="saveDOHRow()">
-                <i class="bi bi-save"></i> Guardar
-            </button>
-            <button class="btn btn-warning" onclick="exportDOHToExcel()">
-                <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
-            </button>
-            <button class="btn btn-info" onclick="printDOHTable()">
-                <i class="bi bi-printer"></i> Imprimir
-            </button>
+    const sobrante =
+        total - base * dias;
+
+    return Array.from(
+        { length: dias },
+        (_, index) =>
+            base +
+            (index < sobrante ? 1 : 0)
+    );
+}
+
+// BOTÓN ACTUALIZAR
+function inicializarBotonActualizar() {
+    const boton = document.getElementById(
+        'btnActualizarProgramacion'
+    );
+
+    if (!boton) return;
+
+    boton.addEventListener(
+        'click',
+        async () => {
+            const textoOriginal =
+                boton.innerHTML;
+
+            boton.disabled = true;
+            boton.innerHTML = `
+                <i class="bi bi-arrow-repeat"></i>
+                Actualizando...
             `;
 
-            const h1 = section.querySelector('h1');
-            h1.after(buttonsDiv);
-    }*/
+            programacionPage = 1;
+            resumenPage = 1;
+
+            try {
+                await cargarProgramacion();
+            } catch (error) {
+                console.error(
+                    'Error al actualizar:',
+                    error
+                );
+            } finally {
+                boton.disabled = false;
+                boton.innerHTML =
+                    textoOriginal;
+            }
+        }
+    );
 }
 
-// Funciones de botones
-function addDOHRow() {
-    const newRow = {
-        cspc: 'C0000',
-        linea: 'XL1',
-        capTotal: 0,
-        stock: 0,
-        reqMier: 0,
-        cambiMier: 0,
-        reaMier: 0,
-        cambMier: 0,
-        dohMier: 0,
-        stockJue: 0,
-        inventaJue: 0,
-        reqJue: 0,
-        cambJue: '',
-        partiJue: 0,
-        cambJue: 0,
-        reJue: '',
-        dohJue: 0
+// PAGINACIÓN
+function renderPaginacionPrincipal(
+    pagination = {}
+) {
+    const tbody = document.getElementById(
+        'tbodyProgramacion'
+    );
+
+    const tableContainer =
+        tbody?.closest('.table-container');
+
+    if (!tableContainer) return;
+
+    let container = document.getElementById(
+        'paginacionProgramacion'
+    );
+
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'paginacionProgramacion';
+        container.className =
+            'programacion-paginacion';
+
+        tableContainer.after(container);
+    }
+
+    const page = pagination.page || 1;
+    const totalPages =
+        pagination.totalPages || 1;
+    const total = pagination.total || 0;
+
+    container.innerHTML = `
+        <button
+            type="button"
+            id="btnPaginaAnteriorProgramacion"
+            ${page <= 1 ? 'disabled' : ''}
+        >
+            Anterior
+        </button>
+
+        <span>
+            Página ${page} de ${totalPages}
+            · Total: ${total}
+        </span>
+
+        <button
+            type="button"
+            id="btnPaginaSiguienteProgramacion"
+            ${page >= totalPages ? 'disabled' : ''}
+        >
+            Siguiente
+        </button>
+    `;
+
+    document
+        .getElementById(
+            'btnPaginaAnteriorProgramacion'
+        )
+        ?.addEventListener('click', () => {
+            if (programacionPage > 1) {
+                programacionPage--;
+                loadProgramacionBase();
+            }
+        });
+
+    document
+        .getElementById(
+            'btnPaginaSiguienteProgramacion'
+        )
+        ?.addEventListener('click', () => {
+            if (
+                programacionPage <
+                programacionTotalPages
+            ) {
+                programacionPage++;
+                loadProgramacionBase();
+            }
+        });
+}
+
+function renderPaginacionResumen(
+    pagination = {}
+) {
+    const container = document.getElementById(
+        'paginacionResumenProgramacion'
+    );
+
+    if (!container) return;
+
+    const page = pagination.page || 1;
+    const totalPages =
+        pagination.totalPages || 1;
+    const total = pagination.total || 0;
+
+    container.innerHTML = `
+        <button
+            type="button"
+            id="btnResumenAnterior"
+            ${page <= 1 ? 'disabled' : ''}
+        >
+            Anterior
+        </button>
+
+        <span>
+            Página ${page} de ${totalPages}
+            · Total: ${total}
+        </span>
+
+        <button
+            type="button"
+            id="btnResumenSiguiente"
+            ${page >= totalPages ? 'disabled' : ''}
+        >
+            Siguiente
+        </button>
+    `;
+
+    document
+        .getElementById('btnResumenAnterior')
+        ?.addEventListener('click', () => {
+            if (resumenPage > 1) {
+                resumenPage--;
+                loadResumenProgramacion();
+            }
+        });
+
+    document
+        .getElementById('btnResumenSiguiente')
+        ?.addEventListener('click', () => {
+            if (
+                resumenPage <
+                resumenTotalPages
+            ) {
+                resumenPage++;
+                loadResumenProgramacion();
+            }
+        });
+}
+
+// CONTROLES DE SEMANA
+function inicializarControlesSemana() {
+    const contenedor = document.querySelector(
+        '.programacion-filtros, ' +
+        '.programacion-controls, ' +
+        '.filter-container'
+    );
+
+    if (!contenedor) return;
+
+    let filtroSemana = document.getElementById(
+        'filtroSemana'
+    );
+
+    if (!filtroSemana) {
+        const grupo =
+            document.createElement('div');
+
+        grupo.className = 'filter-group';
+
+        grupo.innerHTML = `
+            <label for="filtroSemana">
+                Semana
+            </label>
+            <select id="filtroSemana"></select>
+        `;
+
+        contenedor.prepend(grupo);
+
+        filtroSemana =
+            document.getElementById(
+                'filtroSemana'
+            );
+    }
+
+    let filtroAnio = document.getElementById(
+        'filtroAnio'
+    );
+
+    if (!filtroAnio) {
+        const grupo =
+            document.createElement('div');
+
+        grupo.className = 'filter-group';
+
+        grupo.innerHTML = `
+            <label for="filtroAnio">
+                Año
+            </label>
+            <input
+                id="filtroAnio"
+                type="number"
+                min="2020"
+                max="2100"
+            >
+        `;
+
+        contenedor.prepend(grupo);
+
+        filtroAnio =
+            document.getElementById(
+                'filtroAnio'
+            );
+    }
+
+    const guardado =
+        obtenerSemanaGuardada();
+
+    filtroSemana.innerHTML = '';
+
+    for (let semana = 1; semana <= 41; semana++) {
+        const option =
+            document.createElement('option');
+
+        option.value = String(semana);
+        option.textContent =
+            `Semana ${semana}`;
+
+        filtroSemana.appendChild(option);
+    }
+
+    filtroSemana.value =
+        String(guardado.semana);
+
+    filtroAnio.value =
+        String(guardado.anio);
+
+    filtroSemana.addEventListener(
+        'change',
+        cargarPorFiltro
+    );
+
+    filtroAnio.addEventListener(
+        'change',
+        cargarPorFiltro
+    );
+}
+
+function cargarPorFiltro() {
+    const filtros = obtenerFiltros();
+
+    guardarSemana(
+        filtros.semana,
+        filtros.anio
+    );
+
+    programacionPage = 1;
+    resumenPage = 1;
+
+    cargarProgramacion();
+}
+
+function obtenerFiltros() {
+    return {
+        semana: Number(
+            document.getElementById(
+                'filtroSemana'
+            )?.value || DEFAULT_WEEK
+        ),
+
+        anio: Number(
+            document.getElementById(
+                'filtroAnio'
+            )?.value || DEFAULT_YEAR
+        ),
+
+        cspc: document.getElementById(
+            'filtroCspc'
+        )?.value.trim() || '',
+
+        linea: document.getElementById(
+            'filtroLinea'
+        )?.value || ''
     };
-
-    dohData.push(newRow);
-    renderDOHTable();
 }
 
-function deleteLastDOHRow() {
-    if (dohData.length > 0) {
-        if (confirm('¿Estás seguro de eliminar la última fila?')) {
-            dohData.pop();
-            renderDOHTable();
+function guardarSemana(semana, anio) {
+    localStorage.setItem(
+        'programacion_ultima_semana',
+        JSON.stringify({
+            semana: Number(semana),
+            anio: Number(anio)
+        })
+    );
+}
+
+function obtenerSemanaGuardada() {
+    try {
+        const guardada = JSON.parse(
+            localStorage.getItem(
+                'programacion_ultima_semana'
+            )
+        );
+
+        if (
+            guardada &&
+            Number.isInteger(
+                Number(guardada.semana)
+            ) &&
+            Number.isInteger(
+                Number(guardada.anio)
+            )
+        ) {
+            return {
+                semana: Number(
+                    guardada.semana
+                ),
+                anio: Number(
+                    guardada.anio
+                )
+            };
         }
+    } catch (error) {
+        console.warn(
+            'No se pudo recuperar la semana guardada.'
+        );
     }
-}
-
-function saveDOHData() {
-    localStorage.setItem('dohData', JSON.stringify(dohData));
-    alert('Datos guardados correctamente en el navegador');
-}
-
-function exportDOHToExcel() {
-    const dataStr = 'data:text/csv;charset=utf-8' +
-        encodeURIComponent(convertDOHToCSV(dohData));
-    const downloadLink = document.createElement('a');
-    downloadLink.href = dataStr;
-    downloadLink.download = 'doh_programacion.csv';
-    downloadLink.click();
-}
-
-function convertDOHToCSV(data) {
-    const headers = [
-        'CSPC', 'LINEA', 'CAP TOTAL', 'STOCK MIER', 'REQ MIER', 'CAMBI MIER',
-        'REA MIER', 'CAMB MIER', 'DOH MIER', 'STOCK JUE', 'INVENTA JUE',
-        'REQ JUE', 'CAMB JUE', 'PARTI JUE', 'CAMBIC JUE', 'RE JUE', 'DOH JUE'
-    ];
-
-    let csv = headers.join(',') + '\n';
-
-    data.forEach(row => {
-        const values = [
-            row.cspc, row.linea, row.capTotal, row.stockMier, row.reqMier,
-            row.cambiMier, row.reaMier, row.cambMier, row.dohMier,
-            row.stockJue, row.inventaJue, row.reqJue, row.cambJue,
-            row.partiJue, row.cambicJue, row.reJue, row.dohJue
-        ];
-        csv += values.join(',') + '\n';
-    });
-
-    return csv;
-}
-
-
-function printDOHTable() {
-    window.print();
-}
-
-// Función de logout
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '../index.html';
-}
-
-document.getElementById('btnLogout').addEventListener('click', logout);
-
-/*function logout() {
-    //if(confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('token');
-        window.location.href = '../index.html';
-    //}
-}*/
-
-// Cargar datos guardados al inicio
-window.addEventListener('load', function() {
-    const savedData = this.localStorage.getItem('dohData');
-    if (savedData) {
-        const shouldLoad = confirm('Se encontraron datos guardados, ¿Deseas cargarlos?');
-        if (shouldLoad) {
-            dohData = JSON.parse(savedData);
-            renderDOHTable();
-        }
-    }
-});
-
-// Filtrar tabla por línea
-function filterByLine(line) {
-    const rows = document.querySelectorAll('#programacion tbody tr');
-
-    rows.forEach(row => {
-        const lineCell = row.querySelector('.col-linea');
-        if (line === 'all' || lineCell.textContent === line) {
-            row.computedStyleMap.display = '';
-        } else {
-            row.computedStyleMap.display = 'none';
-        }
-    });
-}
-
-// Ordenar tabla por columna
-function sortTableByColumn(columnIndex, ascending = true) {
-    const tbody = document.querySelector('#programacion tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-
-    rows.sort((a, b) => {
-        const aValue = a.cells[columnIndex].textContent.trim();
-        const bValue = b.cells[columnIndex].textContent.trim();
-
-        // Intentar convertir a número
-        const aNum = parseFloat(aValue);
-        const bNum = parseFloat(bValue);
-
-        if (!isNaN(aNum) && !isNaN(bNum)) {
-            return ascending ? aNum - bNum : bNum - aNum;
-        }
-
-        // Comparar como texto
-        return ascending ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-    });
-
-    // Limpiar y volver a agregar las filas ordenadas
-    tbody.innerHTML = '';
-    rows.forEach(row => tbody.appendChild(row));
-}
-
-// Resaltar filas con DOH crítico
-function highlightCriticalDOH() {
-    const cells = document.querySelectorAll('#programacion tbody td[class*="doh-"]');
-
-    cells.forEach(cell => {
-        const value = parseFloat(cell.textContent);
-        if (!isNaN(value) && (value < 1.5 || value > 10)) {
-            cell.computedStyleMap.fontWeight = 'bold';
-            cell.computedStyleMap.fontSize = '13px';
-        }
-    });
-}
-
-// Calcular estadísticas DOH
-function calculateDOHStats() {
-    const dohValues = dohData
-      .flatMap(row => [row.dohMier, row.dohJue])
-      .map(val => parseFloat(val))
-      .filter(val => !isNaN(val));
-
-    //if (dohValues.length === 0) return null;
-
-    const sum = dohValues.reduce((a, b) => a + b, 0);
-    const avg = sum / dohValues.length;
-    const min = Math.min(...dohValues);
-    const max = Math.max(...dohValues);
 
     return {
-        promedio: avg.toFixed(2),
-        minimo: min.toFixed(2),
-        maximo: max.toFixed(2),
-        total: dohValues.length
+        semana: DEFAULT_WEEK,
+        anio: DEFAULT_YEAR
     };
+}
+
+// FECHAS
+function obtenerFechaInicial(row) {
+    if (row.fecha_inicio) {
+        return String(row.fecha_inicio)
+            .slice(0, 10);
+    }
+
+    const filtros = obtenerFiltros();
+
+    return obtenerInicioSemanaOperativa(
+        FECHA_BASE_OPERATIVA,
+        filtros.semana
+    );
+}
+
+function obtenerInicioSemanaOperativa(
+    fechaBase,
+    semana
+) {
+    const fecha = new Date(
+        `${String(fechaBase).slice(0, 10)}T00:00:00Z`
+    );
+
+    fecha.setUTCDate(
+        fecha.getUTCDate() +
+        2 +
+        ((semana - 1) * 7)
+    );
+
+    return fecha.toISOString().slice(0, 10);
+}
+
+function sumarDias(fechaString, dias) {
+    const fecha = new Date(
+        `${fechaString}T00:00:00Z`
+    );
+
+    fecha.setUTCDate(
+        fecha.getUTCDate() + dias
+    );
+
+    return fecha.toISOString().slice(0, 10);
+}
+
+function actualizarFechasTabla(fechaInicio) {
+    if (!fechaInicio) return;
+
+    const headers = document.querySelectorAll(
+        '#theadProgramacion .header-date, ' +
+        '.header-date'
+    );
+
+    headers.forEach((header, index) => {
+        const fecha = sumarDias(
+            fechaInicio,
+            index
+        );
+
+        const [anio, mes, dia] =
+            fecha.split('-');
+
+        header.textContent =
+            `${dia}/${mes}/${anio}`;
+    });
+}
+
+// TABLA RESUMEN
+function asegurarTablaResumen() {
+    if (
+        document.getElementById(
+            'tbodyResumenProgramacion'
+        )
+    ) {
+        return;
+    }
+
+    const tbodyPrincipal =
+        document.getElementById(
+            'tbodyProgramacion'
+        );
+
+    const tableContainer =
+        tbodyPrincipal?.closest(
+            '.table-container'
+        );
+
+    if (!tableContainer) return;
+
+    const wrapper =
+        document.createElement('div');
+
+    wrapper.className =
+        'programacion-resumen';
+
+    wrapper.innerHTML = `
+        <h2>Resumen semanal</h2>
+
+        <div class="table-container">
+            <table class="tabla-resumen-programacion">
+                <thead>
+                    <tr>
+                        <th>CSPC</th>
+                        <th>LÍNEA</th>
+                        <th>CAPACIDAD TOTAL</th>
+                        <th>REQ BODY</th>
+                        <th>WREQ</th>
+                        <th>SCHDWK</th>
+                        <th>DIFERENCIA</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tbodyResumenProgramacion"></tbody>
+            </table>
+        </div>
+
+        <div
+            id="paginacionResumenProgramacion"
+            class="programacion-paginacion"
+        ></div>
+    `;
+
+    tableContainer.after(wrapper);
+}
+
+// FILTROS Y BÚSQUEDA
+function inicializarFiltros() {
+    document
+        .getElementById(
+            'btnBuscarProgramacion'
+        )
+        ?.addEventListener('click', () => {
+            programacionPage = 1;
+            resumenPage = 1;
+            cargarProgramacion();
+        });
+
+    document
+        .getElementById(
+            'btnLimpiarProgramacion'
+        )
+        ?.addEventListener('click', () => {
+            const cspc =
+                document.getElementById(
+                    'filtroCspc'
+                );
+
+            const linea =
+                document.getElementById(
+                    'filtroLinea'
+                );
+
+            if (cspc) cspc.value = '';
+            if (linea) linea.value = '';
+
+            programacionPage = 1;
+            resumenPage = 1;
+
+            cargarProgramacion();
+        });
+
+    document
+        .getElementById(
+            'searchProgramacion'
+        )
+        ?.addEventListener('input', event => {
+            filtrarTablasLocales(
+                event.target.value
+                    .trim()
+                    .toLowerCase()
+            );
+        });
+}
+
+function filtrarTablasLocales(query) {
+    document
+        .querySelectorAll(
+            '#tbodyProgramacion tr, ' +
+            '#tbodyResumenProgramacion tr'
+        )
+        .forEach(row => {
+            row.style.display =
+                row.textContent
+                    .toLowerCase()
+                    .includes(query)
+                    ? ''
+                    : 'none';
+        });
+}
+
+// MENÚ
+function inicializarMenu() {
+    document
+        .querySelectorAll('.menu li')
+        .forEach(item => {
+            item.addEventListener('click', () => {
+                document
+                    .querySelectorAll('.menu li')
+                    .forEach(li =>
+                        li.classList.remove(
+                            'active'
+                        )
+                    );
+
+                item.classList.add('active');
+
+                const section =
+                    document.getElementById(
+                        item.dataset.section
+                    );
+
+                if (section) {
+                    document
+                        .querySelectorAll('.section')
+                        .forEach(element =>
+                            element.classList.remove(
+                                'active'
+                            )
+                        );
+
+                    section.classList.add('active');
+                }
+            });
+        });
+}
+
+// MODALES
+function inicializarModales() {
+    const btnPerfil =
+        document.getElementById('btnPerfil');
+
+    const btnNotificaciones =
+        document.getElementById(
+            'btnNotificaciones'
+        );
+
+    const panelPerfil =
+        document.getElementById('panelPerfil');
+
+    const panelNotificaciones =
+        document.getElementById(
+            'panelNotificaciones'
+        );
+
+    btnPerfil?.addEventListener('click', () => {
+        llenarPerfil();
+        abrirPanel(panelPerfil);
+    });
+
+    btnNotificaciones?.addEventListener(
+        'click',
+        () => {
+            llenarNotificaciones();
+            abrirPanel(panelNotificaciones);
+        }
+    );
+
+    document
+        .querySelectorAll('[data-close-panel]')
+        .forEach(button => {
+            button.addEventListener('click', () => {
+                button
+                    .closest('.center-modal')
+                    ?.classList.remove('open');
+            });
+        });
+
+    document
+        .querySelectorAll('.center-modal')
+        .forEach(panel => {
+            panel.addEventListener('click', event => {
+                if (event.target === panel) {
+                    panel.classList.remove(
+                        'open'
+                    );
+                }
+            });
+        });
+}
+
+function abrirPanel(panel) {
+    if (!panel) return;
+
+    document
+        .querySelectorAll('.center-modal.open')
+        .forEach(element =>
+            element.classList.remove('open')
+        );
+
+    panel.classList.add('open');
+}
+
+function llenarPerfil() {
+    let user = {};
+
+    try {
+        user = JSON.parse(
+            localStorage.getItem('user') || '{}'
+        );
+    } catch {
+        user = {};
+    }
+
+    establecerTexto(
+        'perfilProgramacionNombre',
+        user.nombre || 'Usuario'
+    );
+
+    establecerTexto(
+        'perfilProgramacionCorreo',
+        user.email || 'correo@ejemplo.com'
+    );
+
+    establecerTexto(
+        'perfilProgramacionRol',
+        user.rol || 'usuario'
+    );
+
+    establecerTexto(
+        'perfilProgramacionGmin',
+        user.GMIN || 'GMIN'
+    );
+}
+
+function llenarNotificaciones() {
+    const lista = document.getElementById(
+        'listaNotificacionesProgramacion'
+    );
+
+    if (!lista) return;
+
+    lista.innerHTML = `
+        <div class="notificacion-item">
+            <div class="notificacion-titulo">
+                Programación actualizada
+            </div>
+
+            <div class="notificacion-fecha">
+                ${new Date().toLocaleString('es-MX')}
+            </div>
+
+            <div class="notificacion-detalle">
+                Se consultó la información de la semana seleccionada.
+            </div>
+        </div>
+    `;
+}
+
+//API
+async function apiFetch(url, options = {}) {
+    const token = localStorage.getItem('token');
+
+    const separator = url.includes('?')
+        ? '&'
+        : '?';
+
+    const urlSinCache =
+        `${url}${separator}_ts=${Date.now()}`;
+
+    const response = await fetch(
+        `${BASE_URL}${urlSinCache}`,
+        {
+            ...options,
+            method: options.method || 'GET',
+            cache: 'no-store',
+            headers: {
+                ...(options.headers || {}),
+                ...(token
+                    ? {
+                        Authorization:
+                            `Bearer ${token}`
+                    }
+                    : {})
+            }
+        }
+    );
+
+    const text = await response.text();
+
+    let result = {};
+
+    try {
+        result = text
+            ? JSON.parse(text)
+            : {};
+    } catch {
+        result = {
+            message: text
+        };
+    }
+
+    if (
+        !response.ok ||
+        result.ok === false
+    ) {
+        throw new Error(
+            result.message ||
+            `Error HTTP ${response.status}`
+        );
+    }
+
+    return result;
+}
+
+// UTILIDADES
+function obtenerCantidadDiaria(row, fecha) {
+    const valor = row.daily?.[fecha];
+
+    if (
+        valor &&
+        typeof valor === 'object'
+    ) {
+        return valor.cantidad ?? 0;
+    }
+
+    return valor ?? 0;
+}
+
+function obtenerNumero(valor) {
+    const numero = Number(valor);
+
+    return Number.isFinite(numero)
+        ? numero
+        : 0;
+}
+
+function agregarCelda(
+    fila,
+    valor,
+    clase = ''
+) {
+    const td = document.createElement('td');
+
+    td.textContent =
+        valor === null ||
+        valor === undefined
+            ? ''
+            : String(valor);
+
+    if (clase) {
+        td.className = clase;
+    }
+
+    fila.appendChild(td);
+}
+
+function mostrarMensajeTabla(
+    tbody,
+    mensaje,
+    columnas = 58
+) {
+    tbody.innerHTML = '';
+
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+
+    td.colSpan = columnas;
+    td.textContent = mensaje;
+
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+}
+
+function formatearNumero(valor) {
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ''
+    ) {
+        return '';
+    }
+
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return String(valor);
+    }
+
+    return numero.toLocaleString('es-MX');
+}
+
+function obtenerClaseLinea(linea) {
+    const valor = String(
+        linea || ''
+    ).toUpperCase();
+
+    if (valor === 'XL1') {
+        return 'col-linea-xl1';
+    }
+
+    if (valor === 'XL2') {
+        return 'col-linea-xl2';
+    }
+
+    if (valor === '0') {
+        return 'col-linea-0';
+    }
+
+    return 'col-linea';
+}
+
+function obtenerClaseDoh(valor) {
+    const doh = Number(valor);
+
+    if (!Number.isFinite(doh)) {
+        return '';
+    }
+
+    if (doh >= 2) return 'doh-green';
+    if (doh >= 1.5) return 'doh-yellow';
+    if (doh >= 1) return 'doh-orange';
+
+    return 'doh-red';
+}
+
+function claseDiferencia(valor) {
+    const numero = Number(valor || 0);
+
+    if (numero < 0) {
+        return 'diferencia-negativa';
+    }
+
+    if (numero > 0) {
+        return 'diferencia-positiva';
+    }
+
+    return '';
+}
+
+function establecerTexto(id, valor) {
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.textContent = valor;
+    }
+}
+
+function actualizarPeriodo(semana, anio) {
+    const elemento = document.getElementById(
+        'periodoProgramacion'
+    );
+
+    if (!elemento) return;
+
+    elemento.textContent =
+        `Semana ${semana} · Año ${anio}`;
+}
+
+function inicializarLogout() {
+    document
+        .getElementById('btnLogout')
+        ?.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+
+            window.location.href =
+                '../index.html';
+        });
 }

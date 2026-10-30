@@ -1,447 +1,470 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GM Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <title>GM Dashboard - Secuencia</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+    >
+
     <link rel="stylesheet" href="../css/secuencia.css">
 </head>
-<body>
-    <div class="app">
 
-        <aside class="sidebar">
-          <div class="logo-container">
+<body>
+<div class="app">
+
+    <aside class="sidebar">
+        <div class="logo-container">
             <div class="logo">
                 <img src="../images/logo.jpg" alt="Logo GM">
             </div>
-            <h3 class="app-name"></h3>
-          </div>
+            <h3 class="app-name">GM Dashboard</h3>
+        </div>
 
-          <nav class="menu">
+        <nav class="menu">
             <ul>
-              <li data-section="dashboard">
-                <a href="dashboard.html">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Dashboard</span>
-                </a>
-              </li>
-              <li data-section="produccion">
-                <a href="programaProduccion.html">
-                    <i class="bi bi-clipboard-data"></i>
-                    <span>Programa de Producción</span>
-                </a>
-              </li>
-              <li data-section="programacion">
-                <a href="programacion.html">
-                    <i class="bi bi-calendar"></i>
-                    <span>Programación</span>
-                </a>
-              </li>
-              <li data-section="planeacion">
-                <a href="planeacion.html">
-                    <i class="bi bi-gear"></i>
-                    <span>Planeación</span>
-                </a>
-              </li>
-              <li data-section="reqbody">
-                <a href="reqBody.html">
-                    <i class="bi bi-box"></i>
-                    <span>Req Body</span>
-                </a>
-              </li>
-              <li class="active" data-section="secuencia">
-                <i class="bi bi-clock"></i>
-                <span>Secuencia</span>
-              </li>
-              <li data-section="cumplimiento">
-                <a href="cumplimiento.html">
-                    <i class="bi bi-bar-chart-line"></i>
-                    <span>Cumplimiento</span>
-                </a>
-              </li>
-              <li data-section="datos">
-                <a href="datos.html">
-                    <i class="bi bi-database"></i>
-                    <span>Datos</span>
-                </a>
-              </li>
-              <li data-section="usuarios">
-                <a href="usuarios.html">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Usuarios</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </aside>
+                <li>
+                    <a href="dashboard.html">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
 
-        <main class="main">
-            <header class="topbar">
-                <div class="secuencia-search">
-                  <i class="bi bi-search"></i>
-                  <input type="text" placeholder="Buscar..." id="searchSecuencia">
-                </div>
-                <div class="icons">
-                  <button class="icon-btn" id="btnNotificaciones">
+                <li>
+                    <a href="programaProduccion.html">
+                        <i class="bi bi-clipboard-data"></i>
+                        <span>Programa de Producción</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="programacion.html">
+                        <i class="bi bi-calendar"></i>
+                        <span>Programación</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="planeacion.html">
+                        <i class="bi bi-gear"></i>
+                        <span>Planeación</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="reqBody.html">
+                        <i class="bi bi-box"></i>
+                        <span>Req Body</span>
+                    </a>
+                </li>
+
+                <li class="active">
+                    <i class="bi bi-clock"></i>
+                    <span>Secuencia</span>
+                </li>
+
+                <li>
+                    <a href="cumplimiento.html">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <span>Cumplimiento</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="datos.html">
+                        <i class="bi bi-database"></i>
+                        <span>Datos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="usuarios.html">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Usuarios</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div class="secuencia-search">
+                <i class="bi bi-search"></i>
+                <input
+                    type="search"
+                    id="searchSecuencia"
+                    placeholder="Buscar parte, CSPC o línea..."
+                >
+            </div>
+
+            <div class="icons">
+                <button
+                    class="icon-btn"
+                    id="btnNotificaciones"
+                    type="button"
+                >
                     <i class="bi bi-bell-fill"></i>
                     <span class="notification-badge"></span>
-                  </button>
-                  <button class="icon-btn" id="btnPerfil">
-                    <i class="bi bi-person-circle"></i>
-                  </button>
-                  <button class="icon-btn" id="btnLogout">
-                    <i class="bi bi-box-arrow-right"></i>
-                  </button>
-                </div>
-            </header>
+                </button>
 
-            <section id="secuencia" class="section active">
-              <h1>Secuencia</h1>
-              <div class="table-container">
-                <table>
+                <button
+                    class="icon-btn"
+                    id="btnPerfil"
+                    type="button"
+                >
+                    <i class="bi bi-person-circle"></i>
+                </button>
+
+                <button
+                    class="icon-btn"
+                    id="btnLogout"
+                    type="button"
+                >
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </div>
+        </header>
+
+        <section id="secuencia" class="section active">
+
+            <div class="page-header">
+                <div>
+                    <h1>Secuencia</h1>
+                    <p>
+                        Consulta del orden previsto de producción.
+                    </p>
+                </div>
+
+                <div class="readonly-badge">
+                    <i class="bi bi-eye"></i>
+                    Solo consulta
+                </div>
+            </div>
+
+            <div class="filter-container">
+
+                <div class="filter-group">
+                    <label for="fechaSecuencia">
+                        Miércoles inicial
+                    </label>
+
+                    <input
+                        type="date"
+                        id="fechaSecuencia"
+                        value="2026-01-07"
+                    >
+                </div>
+
+                <div class="filter-group">
+                    <label for="lineaSecuencia">
+                        Línea
+                    </label>
+
+                    <select id="lineaSecuencia">
+                        <option value="">
+                            Todas
+                        </option>
+                        <option value="XL1">
+                            XL1
+                        </option>
+                        <option value="XL2">
+                            XL2
+                        </option>
+                        <option value="0">
+                            0
+                        </option>
+                    </select>
+                </div>
+
+                <button
+                    id="btnConsultarSecuencia"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    <i class="bi bi-search"></i>
+                    Consultar semana
+                </button>
+
+                <button
+                    id="btnActualizarSecuencia"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Actualizar
+                </button>
+            </div>
+
+            <div class="week-caption">
+                <span id="semanaTexto">
+                    Semana operativa
+                </span>
+            </div>
+
+            <div class="table-container">
+
+                <table class="sequence-table">
+
                     <thead>
-                        <tr>
-                            <th colspan="8" class="header-main">MIERCOLES<br>05/11/2025</th>
-                            <th colspan="4"></th>
+                        <tr class="week-header">
+                            <th
+                                rowspan="2"
+                                class="fixed-header col-numero"
+                            >
+                                NÚMERO<br>DE PARTE
+                            </th>
+
+                            <th
+                                rowspan="2"
+                                class="fixed-header col-cspc"
+                            >
+                                CSPC
+                            </th>
+
+                            <th
+                                rowspan="2"
+                                class="fixed-header col-linea"
+                            >
+                                LÍNEA
+                            </th>
+
+                            <th
+                                rowspan="2"
+                                class="fixed-header col-sph"
+                            >
+                                SPH
+                            </th>
+
+                            <th
+                                rowspan="2"
+                                class="fixed-header col-banco"
+                            >
+                                BANCO
+                            </th>
+
+                            <th
+                                colspan="5"
+                                class="day-header"
+                                data-day="0"
+                            >
+                                MIÉRCOLES
+                                <br>
+                                <span class="date-label">
+                                    07/01/2026
+                                </span>
+                            </th>
+
+                            <th
+                                colspan="5"
+                                class="day-header"
+                                data-day="1"
+                            >
+                                JUEVES
+                                <br>
+                                <span class="date-label">
+                                    08/01/2026
+                                </span>
+                            </th>
+
+                            <th
+                                colspan="5"
+                                class="day-header"
+                                data-day="2"
+                            >
+                                VIERNES
+                                <br>
+                                <span class="date-label">
+                                    09/01/2026
+                                </span>
+                            </th>
+
+                            <th
+                                colspan="5"
+                                class="day-header"
+                                data-day="3"
+                            >
+                                SÁBADO
+                                <br>
+                                <span class="date-label">
+                                    10/01/2026
+                                </span>
+                            </th>
+
+                            <th
+                                colspan="5"
+                                class="day-header"
+                                data-day="4"
+                            >
+                                DOMINGO
+                                <br>
+                                <span class="date-label">
+                                    11/01/2026
+                                </span>
+                            </th>
+
+                            <th
+                                colspan="5"
+                                class="day-header"
+                                data-day="5"
+                            >
+                                LUNES
+                                <br>
+                                <span class="date-label">
+                                    12/01/2026
+                                </span>
+                            </th>
+
+                            <th
+                                colspan="5"
+                                class="day-header"
+                                data-day="6"
+                            >
+                                MARTES
+                                <br>
+                                <span class="date-label">
+                                    13/01/2026
+                                </span>
+                            </th>
+
+                            <th
+                                rowspan="2"
+                                class="total-header"
+                            >
+                                TOTAL
+                            </th>
                         </tr>
-                        <tr>
-                            <th class="col-numero">NUMERO DE PARTE<span class="dropdown-icon"></span></th>
-                            <th class="col-cspc">CSPC<span class="dropdown-icon"></span></th>
-                            <th class="col-linea-xl1">LINEA<span class="dropdown-icon"></span></th>
-                            <th class="col-sph">SPH<span class="dropdown-icon"></span></th>
-                            <th class="col-cantidad">CANTIDAD<span class="dropdown-icon"></span></th>
-                            <th class="col-duracion">DURACION<span class="dropdown-icon"></span></th>
-                            <th class="col-banco">BANCO<span class="dropdown-icon"></span></th>
-                            <th class="col-secuencia">SECUENCIA<span class="dropdown-icon"></span></th>
-                            <th class="col-cambios">CAMBIOS<span class="dropdown-icon"></span></th>
-                            <th class="col-secuencia-2">SECUENCIA<span class="dropdown-icon"></span></th>
-                            <th class="col-cambios-2">CAMBIOS<span class="dropdown-icon"></span></th>
+
+                        <tr class="sub-header">
+                            <th>CANT.</th>
+                            <th>DURACIÓN</th>
+                            <th>SECUENCIA</th>
+                            <th>CAMBIOS</th>
+                            <th>ESTADO</th>
+
+                            <th>CANT.</th>
+                            <th>DURACIÓN</th>
+                            <th>SECUENCIA</th>
+                            <th>CAMBIOS</th>
+                            <th>ESTADO</th>
+
+                            <th>CANT.</th>
+                            <th>DURACIÓN</th>
+                            <th>SECUENCIA</th>
+                            <th>CAMBIOS</th>
+                            <th>ESTADO</th>
+
+                            <th>CANT.</th>
+                            <th>DURACIÓN</th>
+                            <th>SECUENCIA</th>
+                            <th>CAMBIOS</th>
+                            <th>ESTADO</th>
+
+                            <th>CANT.</th>
+                            <th>DURACIÓN</th>
+                            <th>SECUENCIA</th>
+                            <th>CAMBIOS</th>
+                            <th>ESTADO</th>
+
+                            <th>CANT.</th>
+                            <th>DURACIÓN</th>
+                            <th>SECUENCIA</th>
+                            <th>CAMBIOS</th>
+                            <th>ESTADO</th>
+
+                            <th>CANT.</th>
+                            <th>DURACIÓN</th>
+                            <th>SECUENCIA</th>
+                            <th>CAMBIOS</th>
+                            <th>ESTADO</th>
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id="tbodySecuencia">
                         <tr>
-                            <td class="col-numero">85560226</td>
-                            <td class="col-cspc">C4087</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">519</td>
-                            <td class="col-cantidad">1680</td>
-                            <td class="col-duracion">103.109827</td>
-                            <td class="col-banco">2.8</td>
-                            <td class="col-secuencia">6</td>
-                            <td class="col-cambios">6</td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84666755</td>
-                            <td class="col-cspc">C4088</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">555</td>
-                            <td class="col-cantidad">2000</td>
-                            <td class="col-duracion">114.108108</td>
-                            <td class="col-banco">2.6</td>
-                            <td class="col-secuencia">1</td>
-                            <td class="col-cambios">1</td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84652941</td>
-                            <td class="col-cspc">C4106</td>
-                            <td class="col-linea-xl2">XL2</td>
-                            <td class="col-sph">514</td>
-                            <td class="col-cantidad">1200</td>
-                            <td class="col-duracion">146.077821</td>
-                            <td class="col-banco">1.4</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2">2</td>
-                            <td class="col-cambios-2">2</td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84652942</td>
-                            <td class="col-cspc">C4109</td>
-                            <td class="col-linea-xl2">XL2</td>
-                            <td class="col-sph">515</td>
-                            <td class="col-cantidad">1200</td>
-                            <td class="col-duracion">145.805825</td>
-                            <td class="col-banco">2.1</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2">7</td>
-                            <td class="col-cambios-2">7</td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84652981</td>
-                            <td class="col-cspc">C4118</td>
-                            <td class="col-linea-xl2">XL2</td>
-                            <td class="col-sph">430</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">4.2</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84652982</td>
-                            <td class="col-cspc">C4119</td>
-                            <td class="col-linea-xl2">XL2</td>
-                            <td class="col-sph">430</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">5.9</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">23381632</td>
-                            <td class="col-cspc">C4144</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">554</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">4.8</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">23381639</td>
-                            <td class="col-cspc">C4145</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">460</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">8.1</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84688122</td>
-                            <td class="col-cspc">C4146</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">555</td>
-                            <td class="col-cantidad">600</td>
-                            <td class="col-duracion">70.8648649</td>
-                            <td class="col-banco">2.7</td>
-                            <td class="col-secuencia">7</td>
-                            <td class="col-cambios">7</td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84688125</td>
-                            <td class="col-cspc">C4148</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">556</td>
-                            <td class="col-cantidad">450</td>
-                            <td class="col-duracion">54.5611511</td>
-                            <td class="col-banco">2.2</td>
-                            <td class="col-secuencia">8</td>
-                            <td class="col-cambios">8</td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">23507633</td>
-                            <td class="col-cspc">C4149</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">569</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">3.9</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84688126</td>
-                            <td class="col-cspc">C4152</td>
-                            <td class="col-linea-xl2">XL2</td>
-                            <td class="col-sph">500</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">5.4</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84496738</td>
-                            <td class="col-cspc">C4155</td>
-                            <td class="col-linea-xl2">XL2</td>
-                            <td class="col-sph">484</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">4.7</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84496739</td>
-                            <td class="col-cspc">C4156</td>
-                            <td class="col-linea-xl1">0</td>
-                            <td class="col-sph">484</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">5.0</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84496740</td>
-                            <td class="col-csp">C4157</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">479</td>
-                            <td class="col-cantidad">960</td>
-                            <td class="col-duracion">126.250522</td>
-                            <td class="col-banco">1.9</td>
-                            <td class="col-secuencia">9</td>
-                            <td class="col-cambios">9</td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84496741</td>
-                            <td class="col-cspc">C4158</td>
-                            <td class="col-linea-xl2">0</td>
-                            <td class="col-sph">479</td>
-                            <td class="col-cantidad">960</td>
-                            <td class="col-duracion">0</td>
-                            <td class="col-banco">1.9</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">23393591</td>
-                            <td class="col-cspc">C4159</td>
-                            <td class="col-linea-xl2">XL2</td>
-                            <td class="col-sph">536</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">9.3</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84340140</td>
-                            <td class="col-cspc">C4160</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">536</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">15.3</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">23393592</td>
-                            <td class="col-cspc">C4162</td>
-                            <td class="col-linea-xl1">XL1</td>
-                            <td class="col-sph">460</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">2.3</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
-                        </tr>
-
-                        <tr>
-                            <td class="col-numero">84512891</td>
-                            <td class="col-cspc">C4163</td>
-                            <td class="col-linea-xl1">0</td>
-                            <td class="col-sph">460</td>
-                            <td class="col-cantidad">0</td>
-                            <td class="col-duracion"></td>
-                            <td class="col-banco">2.3</td>
-                            <td class="col-secuencia"></td>
-                            <td class="col-cambios"></td>
-                            <td class="col-secuencia-2"></td>
-                            <td class="col-cambios-2"></td>
+                            <td colspan="41">
+                                Selecciona una fecha para consultar.
+                            </td>
                         </tr>
                     </tbody>
+
                 </table>
-              </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Modal centrado Perfil -->
-            <div class="center-modal" id="panelPerfil">
+        <div class="center-modal" id="panelPerfil">
             <div class="center-modal-content">
+
                 <div class="center-modal-header">
-                <h2>Perfil de usuario</h2>
-                <button class="center-modal-close" data-close-panel>
-                    <i class="bi bi-x-circle-fill"></i>
-                </button>
+                    <h2>Perfil de usuario</h2>
+
+                    <button
+                        class="center-modal-close"
+                        data-close-panel
+                        type="button"
+                    >
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
                 </div>
+
                 <div class="center-modal-body">
-                <p><strong>Nombre:</strong> <span id="perfilSecuenciaNombre"></span></p>
-                <p><strong>Correo:</strong> <span id="perfilSecuenciaCorreo"></span></p>
-                <p><strong>Rol:</strong> <span id="perfilSecuenciaRol"></span></p>
-                <p><strong>GMIN:</strong> <span id="perfilSecuenciaGmin"></span></p>
+                    <p>
+                        <strong>Nombre:</strong>
+                        <span id="perfilSecuenciaNombre"></span>
+                    </p>
+
+                    <p>
+                        <strong>Correo:</strong>
+                        <span id="perfilSecuenciaCorreo"></span>
+                    </p>
+
+                    <p>
+                        <strong>Rol:</strong>
+                        <span id="perfilSecuenciaRol"></span>
+                    </p>
+
+                    <p>
+                        <strong>GMIN:</strong>
+                        <span id="perfilSecuenciaGmin"></span>
+                    </p>
                 </div>
             </div>
-            </div>
+        </div>
 
-            <!-- Modal centrado Notificaciones -->
-            <div class="center-modal" id="panelNotificacionesSecuencia">
+        <div
+            class="center-modal"
+            id="panelNotificacionesSecuencia"
+        >
             <div class="center-modal-content">
-                <div class="center-modal-header">
-                <h2>Notificaciones</h2>
-                <button class="center-modal-close" data-close-panel>
-                    <i class="bi bi-x-circle-fill"></i>
-                </button>
-                </div>
-                <div class="center-modal-body" id="listaNotificacionesSecuencia">
-                <!-- Se llena por JS -->
-                </div>
-            </div>
-            </div>
-        </main>
-    </div>
 
-    <script src="../js/secuencia.js"></script>
-    <script src="../js/auth.js"></script>
-    
+                <div class="center-modal-header">
+                    <h2>Notificaciones</h2>
+
+                    <button
+                        class="center-modal-close"
+                        data-close-panel
+                        type="button"
+                    >
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+
+                <div
+                    class="center-modal-body"
+                    id="listaNotificacionesSecuencia"
+                ></div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="../js/secuencia.js"></script>
+<script src="../js/auth.js"></script>
+
 </body>
 </html>

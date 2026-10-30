@@ -1,357 +1,1038 @@
-// Variables globales
+'use strict';
+
+const BASE_URL = 'http://localhost:3300';
+
 let datosData = [];
+let datosSummary = null;
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener(
+    'DOMContentLoaded',
+    iniciarDatos
+);
+
+function iniciarDatos() {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        window.location.href = '../index.html';
+        return;
+    }
+
     initializeMenu();
+    inicializarModales();
+    inicializarBusqueda();
+    inicializarLogout();
+    inicializarImportadorDatos();
+    inicializarEdicionDatos();
+    inicializarCheckDatos();
+
     loadDatosData();
-    setupActionButtons();
 
-    const btnPerfil = document.getElementById('btnPerfil');
-    const btnNotificaciones = document.getElementById('btnNotificaciones');
-    const panelPerfil = document.getElementById('panelPerfil');
-    const panelNotificaciones = document.getElementById('panelNotificaciones');
+    document
+        .getElementById('btnCheckDatos')
+        ?.addEventListener(
+            'click',
+            loadDatosData
+        );
 
-    if(btnPerfil && panelPerfil) {
-        btnPerfil.addEventListener('click', () => {
-            llenarPerfil();
-            abrirPanel(panelPerfil);
-        });
-    }
-
-    if (btnNotificaciones && panelNotificaciones) {
-        btnNotificaciones.addEventListener('click', () => {
-            llenarNotificacionesDatos();
-            abrirPanel(panelNotificaciones);
-        });
-    }
-
-    document.querySelectorAll('[data-close-panel]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const panel = btn.closest('.center-modal');
-            if (panel) panel.classList.remove('open');
-        });
-    });
-
-    const searchInput = document.getElementById('searchDatos');
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.trim().toLowerCase();
-            filterDatosTable(query);
-        })
-    }
-});
-
-function abrirPanel(panel) {
-    // Cerrar otros paneles si hubiera
-    document.querySelectorAll('.center-modal.open').forEach(p => p.classList.remove('open'));
-    panel.classList.add('open');
+    loadDatosData();
 }
 
-// Perfil de usuario en Usuarios
-function llenarPerfil() {
-    let user = null;
+async function loadDatosData() {
+    const tbody = document.getElementById(
+        'tbodyDatos'
+    );
+
+    if (!tbody) return;
+
+    mostrarMensaje(
+        tbody,
+        'Cargando datos...'
+    );
+
     try {
-        user = JSON.parse(localStorage.getItem('user'));
-    } catch (e) {
-        user = null;
-    }
+        const result = await apiFetch(
+            '/api/datos?limit=500'
+        );
 
-    document.getElementById('perfilDatosNombre').textContent = user?.nombre || 'Usuario';
-    document.getElementById('perfilDatosCorreo').textContent = user?.email || 'correo@ejemplo.com';
-    document.getElementById('perfilDatosRol').textContent = user?.rol || 'usuario';
-    document.getElementById('perfilDatosGmin').textContent = user?.GMIN || 'GMIN';
-}
+        datosData = result.data || [];
+        datosSummary = result.summary || null;
 
-// Notificaciones en Usuarios (ejemplo estático)
-function llenarNotificacionesDatos() {
-    const contenedor = document.getElementById('listaNotificacionesDatos');
-    if (!contenedor) return;
+        renderResumen();
+        renderDatosTable();
+    } catch (error) {
+        console.error(
+            'Error cargando datos:',
+            error
+        );
 
-    const notificaciones = [
-        { titulo: 'Usuario actualizado', fecha: '2026-04-03 09:15', detalle: 'Se actualizó el perfil de C4087.'},
-        { titulo: 'Nuevo usuario pendiente', fecha: '2026-04-03 10:30', detalle: 'Hay un usuario nuevo pendiente de revisión.' },
-        { titulo: 'Contraseña restablecida', fecha: '2026-04-03 11:05', detalle: 'Se restableció la contraseña de un usuario.' }
-    ];
-
-    contenedor.innerHTML = '';
-
-    notificaciones.forEach(n => {
-        const div = document.createElement('div');
-        div.className = 'notificacion-item';
-        div.innerHTML = `
-        <div class="notificacion-titulo">${n.titulo}</div>
-        <div class="notificacion-fecha">${n.fecha}</div>
-        <div class="notificacion-detalle">${n.detalle}</div>
-        `;
-        contenedor.appendChild(div);
-    });
-}
-
-// Sistema de navegación entre secciones
-function initializeMenu() {
-    const menuItems = document.querySelectorAll('.menu li');
-
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(li => li.classList.remove('active')); //Remover clase active de todos
-
-            this.classList.add('active'); // Agregar clase active al clickeado
-
-            // Obtener la sección a mostrar
-            const sectionId = this.getAttribute('data-section');
-            showSection(sectionId);
-        });
-    });
-}
-
-function showSection(sectionId) {
-    // Ocultar todas las secciones
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(section => {
-        section.classList.remove('active');
-    });
-
-    // Mostrar la sección seleccionada
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
+        mostrarMensaje(
+            tbody,
+            error.message
+        );
     }
 }
 
-// Cargar datos
-function loadDatosData() {
-    datosData = [
-        { part: 'PNL-DASH STL 1UB', numero: '85560226', cspc: 'C4087', modelo: 'IT1', rack: 'MAC32145', linea: 'XL1', golpe: 2, sphAnt: 519, sphObj: 555, stdPallet: 560, stdRack: 40, racksPrograma: 114, loopRacks: 114, capTotal: 4560, danados: 0, invDiario: '', cap: 4560, req: 1440, mezcla: '100%', desocup: 64 },
-        { part: 'PNL-DASH EXT LWR STL 1UB', numero: '84666755', cspc: 'C4088', modelo: 'IT1', rack: 'MAC32142', linea: 'XL1', golpe: 2, sphAnt: 555, sphObj: 555, stdPallet: 500, stdRack: 100, racksPrograma: 54, loopRacks: 54, capTotal: 5400, danados: 0, invDiario: '', cap: 5400, req: 1440, mezcla: '100%', desocup: 64 },
-        { part: 'PNL-BDY SI OTR L STL 1UB', numero: '84652941', cspc: 'C4106', modelo: 'CREW', rack: 'MAC29931', linea: 'XL2', golpe: 1, sphAnt: 514, sphObj: 514, stdPallet: 400, stdRack: 10, racksPrograma: 276, loopRacks: 276, capTotal: 2760, danados: 0, invDiario: '', cap: 2760, req: 1319, mezcla: '92%', desocup: 59 },
-        { part: 'PNL-BDY SI OTR R STL 1UB', numero: '84652942', cspc: 'C4109', modelo: 'CREW', rack: 'MAC29933', linea: 'XL2', golpe: 1, sphAnt: 515, sphObj: 515, stdPallet: 400, stdRack: 10, racksPrograma: 299, loopRacks: 299, capTotal: 2990, danados: 0, invDiario: '', cap: 2990, req: 1319, mezcla: '92%', desocup: 59 },
-        { part: 'PNL-BDY SI OTR L STL 1UB', numero: '84652981', cspc: 'C4118', modelo: 'OREG', rack: 'MAC29934', linea: 'XL2', golpe: 1, sphAnt: 430, sphObj: 430, stdPallet: 500, stdRack: 10, racksPrograma: 85, loopRacks: 85, capTotal: 850, danados: 0, invDiario: '', cap: 850, req: 116, mezcla: '8%', desocup: 6 },
-        { part: 'PNL-BDY SI OTR R STL 1UB', numero: '84652982', cspc: 'C4119', modelo: 'OREG', rack: 'MAC29936', linea: 'XL2', golpe: 1, sphAnt: 430, sphObj: 430, stdPallet: 500, stdRack: 10, racksPrograma: 85, loopRacks: 85, capTotal: 850, danados: 0, invDiario: '', cap: 850, req: 116, mezcla: '8%', desocup: 6 },
-        { part: 'PNL-BDY OTR RR STL 2ST', numero: '23381632', cspc: 'C4144', modelo: 'CC', rack: 'MAC29428', linea: 'XL1', golpe: 2, sphAnt: 554, sphObj: 554, stdPallet: 600, stdRack: 172, racksPrograma: 16, loopRacks: 16, capTotal: 2752, danados: 0, invDiario: '', cap: 2752, req: 855, mezcla: '59%', desocup: 38 },
-        { part: 'PNL-BDY OTR RR STL 2ST', numero: '23381639', cspc: 'C4145', modelo: 'MREG', rack: 'MAC30741', linea: 'XL1', golpe: 2, sphAnt: 460, sphObj: 460, stdPallet: 600, stdRack: 172, racksPrograma: 10, loopRacks: 10, capTotal: 1720, danados: 0, invDiario: '', cap: 1720, req: 116, mezcla: '8%', desocup: 6 },
-        { part: 'PNL-ROCF OTR STL 2ST', numero: '84688122', cspc: 'C4146', modelo: 'CC', rack: 'MAC28905', linea: 'XL1', golpe: 1, sphAnt: 555, sphObj: 555, stdPallet: 350, stdRack: 17, racksPrograma: 140, loopRacks: 140, capTotal: 2380, danados: 0, invDiario: '', cap: 2380, req: 875, mezcla: '61%', desocup: 39 },
-        { part: 'PNL-SUNROOF OTR STL 2ST', numero: '84688125', cspc: 'C4148', modelo: 'CF5', rack: 'MAC32248', linea: 'XL1', golpe: 1, sphAnt: 556, sphObj: 556, stdPallet: 350, stdRack: 17, racksPrograma: 66, loopRacks: 66, capTotal: 1122, danados: 0, invDiario: '', cap: 1122, req: 433, mezcla: '30%', desocup: 20 },
-        { part: 'RNF-SUNROOF OPG INR STL 2ST', numero: '23507633', cspc: 'C4149', modelo: 'CF5', rack: 'MAC28908', linea: 'XL1', golpe: 1, sphAnt: 569, sphObj: 569, stdPallet: 654, stdRack: 140, racksPrograma: 18, loopRacks: 24, capTotal: 2520, danados: 6, invDiario: 6, cap: 2520, req: 433, mezcla: '30%', desocup: 20 },
-        { part: 'PNL-ROOF OTR STL 2ST', numero: '84688126', cspc: 'C4152', modelo: 'MREG', rack: 'MAC28907', linea: 'XL2', golpe: 2, sphAnt: 430, sphObj: 500, stdPallet: 600, stdRack: 20, racksPrograma: 69, loopRacks: 69, capTotal: 1380, danados: 0, invDiario: '', cap: 1380, req: 146, mezcla: '10%', desocup: 7 },
-        { part: 'PNL-FDR OTR L STL 1UB', numero: '84496738', cspc: 'C4155', modelo: 'CHV', rack: 'MAC30067', linea: 'XL2', golpe: 1, sphAnt: 484, sphObj: 484, stdPallet: 500, stdRack: 28, racksPrograma: 84, loopRacks: 84, capTotal: 2352, danados: 0, invDiario: '', cap: 2352, req: 767, mezcla: '53%', desocup: 35 }
-    ];
+function renderResumen() {
+    const summary = datosSummary || {};
 
-    renderDatosTable();
+    establecerTexto(
+        'valorLtExterno',
+        summary.ltExterno
+    );
+
+    establecerTexto(
+        'valorSphObjetivo',
+        summary.sphObjetivo
+    );
+
+    establecerTexto(
+        'valorJph',
+        summary.jph
+    );
+
+    establecerTexto(
+        'valorHorasDisponibles',
+        summary.hrsDisponibles
+    );
+
+    establecerTexto(
+        'valorJpd',
+        summary.jpd
+    );
+
+    establecerTexto(
+        'valorFechaMiercoles',
+        formatearFecha(
+            summary.fechaMiercoles
+        )
+    );
 }
 
-// Renderizar tabla
-function renderDatosTable() {
-    const tbody = document.querySelector('#datos tbody');
+/*function renderDatosTable() {
+    const tbody = document.getElementById(
+        'tbodyDatos'
+    );
 
-    if (!tbody || !datosData) return;
+    if (!tbody) return;
 
     tbody.innerHTML = '';
 
-    datosData.forEach((row, index) => {
+    if (!datosData.length) {
+        mostrarMensaje(
+            tbody,
+            'No hay datos disponibles.'
+        );
+        return;
+    }
+
+    datosData.forEach(row => {
         const tr = document.createElement('tr');
 
-        const lineaClass = row.linea === 'XL1' ? 'col-linea-xl1' : 'col-linea-xl2';
+        agregarCelda(tr, row.part);
+        agregarCelda(
+            tr,
+            row.numero,
+            'col-numero'
+        );
+        agregarCelda(tr, row.cspc);
+        agregarCelda(
+            tr,
+            row.modelo,
+            'col-modelo'
+        );
+        agregarCelda(
+            tr,
+            row.rack,
+            'col-rack'
+        );
+        agregarCelda(
+            tr,
+            row.linea,
+            obtenerClaseLinea(row.linea)
+        );
+        agregarCelda(
+            tr,
+            row.golpe,
+            'col-golpe'
+        );
+        agregarCelda(
+            tr,
+            row.sphAnt,
+            'col-sph'
+        );
+        agregarCelda(
+            tr,
+            row.sphObj,
+            'col-sph'
+        );
+        agregarCelda(
+            tr,
+            row.stdPallet,
+            'col-std-pallet'
+        );
+        agregarCelda(
+            tr,
+            row.stdRack,
+            'col-std-rack'
+        );
+        agregarCelda(
+            tr,
+            row.racksPrograma,
+            'col-programa'
+        );
+        agregarCelda(
+            tr,
+            row.loopRacks,
+            'col-loop'
+        );
+        agregarCelda(
+            tr,
+            row.capTotal,
+            'col-capacidad'
+        );
+        agregarCelda(
+            tr,
+            row.danados,
+            'col-danados'
+        );
+        agregarCelda(
+            tr,
+            row.invDiario,
+            'col-inv-diario'
+        );
+        agregarCelda(
+            tr,
+            row.cap,
+            'col-cap'
+        );
+        agregarCelda(
+            tr,
+            row.req,
+            'col-req'
+        );
+        agregarCelda(
+            tr,
+            formatearMezcla(row.mezcla),
+            'col-mezcla'
+        );
+        agregarCelda(
+            tr,
+            row.desocup,
+            'col-desocupabilidad'
+        );
 
-        tr.innerHTML = `
-            <td>${row.part}</td>
-            <td class="col-numero">${row.numero}</td>
-            <td>${row.cspc}</td>
-            <td class="col-modelo">${row.modelo}</td>
-            <td class="col-rack">${row.rack}</td>
-            <td class="${lineaClass}">${row.linea}</td>
-            <td class="col-golpe">${row.golpe}</td>
-            <td class="col-sph">${row.sphAnt}</td>
-            <td class="col-sph">${row.sphObj}</td>
-            <td class="col-std-pallet">${row.stdPallet}</td>
-            <td class="col-std-rack">${row.stdRack}</td>
-            <td class="col-programa">${row.racksPrograma}</td>
-            <td class="col-loop">${row.loopRacks}</td>
-            <td class="col-capacidad">${row.capTotal}</td>
-            <td class="col-danados">${row.danados}</td>
-            <td class="col-inv-diario">${row.invDiario}</td>
-            <td class="col-cap">${row.cap}</td>
-            <td class="col-req">${row.req}</td>
-            <td class="col-mezcla">${row.mezcla}</td>
-            <td class="col-desocupabilidad">${row.desocup}</td>
-        `;
+        tbody.appendChild(tr);
+    });
+}*/
+
+function renderDatosTable() {
+    const tbody = document.getElementById('tbodyDatos');
+
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (!datosData.length) {
+        mostrarMensaje(tbody, 'No hay datos disponibles.');
+        return;
+    }
+
+    datosData.forEach(row => {
+        const tr = document.createElement('tr');
+
+        tr.dataset.idDatos = row.id_datos;
+
+        agregarCeldaDato(tr, row.part);
+        agregarCeldaDato(tr, row.numero, 'col-numero');
+        agregarCeldaDato(tr, row.cspc);
+        agregarCeldaDato(
+            tr,
+            row.modelo,
+            'col-modelo',
+            'modelo'
+        );
+        agregarCeldaDato(
+            tr,
+            row.rack,
+            'col-rack',
+            'rack_mac'
+        );
+        agregarCeldaDato(
+            tr,
+            row.linea,
+            obtenerClaseLinea(row.linea)
+        );
+        agregarCeldaDato(
+            tr,
+            row.golpe,
+            'col-golpe',
+            'lh_rh_golpe'
+        );
+        agregarCeldaDato(
+            tr,
+            row.sphAnt,
+            'col-sph',
+            'sph_mes_anterior'
+        );
+        agregarCeldaDato(
+            tr,
+            row.sphObj,
+            'col-sph',
+            'sph_obj'
+        );
+        agregarCeldaDato(
+            tr,
+            row.stdPallet,
+            'col-std-pallet',
+            'std_pallet'
+        );
+        agregarCeldaDato(
+            tr,
+            row.stdRack,
+            'col-std-rack',
+            'std_rack'
+        );
+        agregarCeldaDato(
+            tr,
+            row.racksPrograma,
+            'col-programa',
+            'racks_prog'
+        );
+        agregarCeldaDato(
+            tr,
+            row.loopRacks,
+            'col-loop',
+            'loop_racks'
+        );
+        agregarCeldaDato(
+            tr,
+            row.capTotal,
+            'col-capacidad'
+        );
+        agregarCeldaDato(
+            tr,
+            row.danados,
+            'col-danados',
+            'racks_danados'
+        );
+        agregarCeldaDato(
+            tr,
+            row.invDiario,
+            'col-inv-diario',
+            'racks_inv_danados_diario'
+        );
+        agregarCeldaDato(
+            tr,
+            row.cap,
+            'col-cap'
+        );
+        agregarCeldaDato(
+            tr,
+            row.req,
+            'col-req'
+        );
+        agregarCeldaDato(
+            tr,
+            formatearMezcla(row.mezcla),
+            'col-mezcla'
+        );
+        agregarCeldaDato(
+            tr,
+            row.desocup,
+            'col-desocupabilidad'
+        );
 
         tbody.appendChild(tr);
     });
 }
 
-function filterDatosTable(query) {
-    const rows = document.querySelectorAll('#datos table tbody tr');
+function inicializarBusqueda() {
+    document
+        .getElementById('searchDatos')
+        ?.addEventListener(
+            'input',
+            event => {
+                const query = event.target.value
+                    .trim()
+                    .toLowerCase();
 
-    rows.forEach(row => {
-        const part = row.children[0]?.textContent.toLowerCase() || '';
-        const numero = row.children[1]?.textContent.toLowerCase() || '';
-        const cspc = row.children[2]?.textContent.toLowerCase() || '';
-        const modelo = row.children[3]?.textContent.toLowerCase() || '';
-        const rack = row.children[4]?.textContent.toLowerCase() || '';
-        const linea = row.children[5]?.textContent.toLowerCase() || '';
-        const stdPallet = row.children[9]?.textContent.toLowerCase() || '';
-        const capTotal = row.children[13]?.textContent.toLowerCase() || '';
-        const danados = row.children[14]?.textContent.toLowerCase() || '';
+                document
+                    .querySelectorAll(
+                        '#tbodyDatos tr'
+                    )
+                    .forEach(row => {
+                        row.style.display =
+                            row.textContent
+                                .toLowerCase()
+                                .includes(query)
+                                ? ''
+                                : 'none';
+                    });
+            }
+        );
+}
 
-        const text = `${part} ${numero} ${cspc} ${modelo} ${rack} ${linea} ${stdPallet} ${capTotal} ${danados}`;
+function inicializarModales() {
+    const btnPerfil =
+        document.getElementById('btnPerfil');
 
-        row.style.display = text.includes(query) ? '' : 'none';
+    const btnNotificaciones =
+        document.getElementById(
+            'btnNotificaciones'
+        );
+
+    const panelPerfil =
+        document.getElementById(
+            'panelPerfil'
+        );
+
+    const panelNotificaciones =
+        document.getElementById(
+            'panelNotificaciones'
+        );
+
+    btnPerfil?.addEventListener(
+        'click',
+        () => {
+            llenarPerfil();
+            abrirPanel(panelPerfil);
+        }
+    );
+
+    btnNotificaciones?.addEventListener(
+        'click',
+        () => {
+            llenarNotificaciones();
+            abrirPanel(
+                panelNotificaciones
+            );
+        }
+    );
+
+    document
+        .querySelectorAll(
+            '[data-close-panel]'
+        )
+        .forEach(button => {
+            button.addEventListener(
+                'click',
+                () => {
+                    button
+                        .closest(
+                            '.center-modal'
+                        )
+                        ?.classList.remove(
+                            'open'
+                        );
+                }
+            );
+        });
+}
+
+function initializeMenu() {
+    document
+        .querySelectorAll('.menu li')
+        .forEach(item => {
+            item.addEventListener(
+                'click',
+                () => {
+                    document
+                        .querySelectorAll(
+                            '.menu li'
+                        )
+                        .forEach(li =>
+                            li.classList.remove(
+                                'active'
+                            )
+                        );
+
+                    item.classList.add('active');
+                }
+            );
+        });
+}
+
+function abrirPanel(panel) {
+    if (!panel) return;
+
+    document
+        .querySelectorAll(
+            '.center-modal.open'
+        )
+        .forEach(item =>
+            item.classList.remove('open')
+        );
+
+    panel.classList.add('open');
+}
+
+function llenarPerfil() {
+    let user = {};
+
+    try {
+        user = JSON.parse(
+            localStorage.getItem(
+                'user'
+            ) || '{}'
+        );
+    } catch {
+        user = {};
+    }
+
+    establecerTexto(
+        'perfilDatosNombre',
+        user.nombre || 'Usuario'
+    );
+
+    establecerTexto(
+        'perfilDatosCorreo',
+        user.email ||
+            'correo@ejemplo.com'
+    );
+
+    establecerTexto(
+        'perfilDatosRol',
+        user.rol || 'usuario'
+    );
+
+    establecerTexto(
+        'perfilDatosGmin',
+        user.GMIN || 'GMIN'
+    );
+}
+
+function llenarNotificaciones() {
+    const contenedor =
+        document.getElementById(
+            'listaNotificacionesDatos'
+        );
+
+    if (!contenedor) return;
+
+    contenedor.innerHTML = `
+        <div class="notificacion-item">
+            <div class="notificacion-titulo">
+                Datos actualizados
+            </div>
+            <div class="notificacion-fecha">
+                ${new Date().toLocaleString('es-MX')}
+            </div>
+            <div class="notificacion-detalle">
+                La información se consulta desde la base de datos.
+            </div>
+        </div>
+    `;
+}
+
+function inicializarLogout() {
+    document
+        .getElementById('btnLogout')
+        ?.addEventListener(
+            'click',
+            () => {
+                localStorage.removeItem(
+                    'token'
+                );
+
+                localStorage.removeItem(
+                    'user'
+                );
+
+                window.location.href =
+                    '../index.html';
+            }
+        );
+}
+
+async function apiFetch(url) {
+    const token = localStorage.getItem(
+        'token'
+    );
+
+    const separador = url.includes('?')
+        ? '&'
+        : '?';
+
+    const response = await fetch(
+        `${BASE_URL}${url}${separador}_ts=${Date.now()}`,
+        {
+            cache: 'no-store',
+            headers: token
+                ? {
+                    Authorization:
+                        `Bearer ${token}`
+                }
+                : {}
+        }
+    );
+
+    const text = await response.text();
+
+    let result = {};
+
+    try {
+        result = text
+            ? JSON.parse(text)
+            : {};
+    } catch {
+        result = {
+            message: text
+        };
+    }
+
+    if (
+        !response.ok ||
+        result.ok === false
+    ) {
+        throw new Error(
+            result.message ||
+                `Error HTTP ${response.status}`
+        );
+    }
+
+    return result;
+}
+
+function agregarCelda(
+    fila,
+    valor,
+    clase = ''
+) {
+    const td = document.createElement('td');
+
+    td.textContent =
+        valor === null ||
+        valor === undefined
+            ? ''
+            : String(valor);
+
+    if (clase) {
+        td.className = clase;
+    }
+
+    fila.appendChild(td);
+}
+
+function mostrarMensaje(
+    tbody,
+    mensaje
+) {
+    tbody.innerHTML = '';
+
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+
+    td.colSpan = 20;
+    td.textContent = mensaje;
+
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+}
+
+function obtenerClaseLinea(linea) {
+    const valor = String(
+        linea || ''
+    ).toUpperCase();
+
+    if (valor === 'XL1') {
+        return 'col-linea-xl1';
+    }
+
+    if (valor === 'XL2') {
+        return 'col-linea-xl2';
+    }
+
+    return 'col-linea-0';
+}
+
+function formatearMezcla(valor) {
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ''
+    ) {
+        return '';
+    }
+
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return String(valor);
+    }
+
+    const porcentaje =
+        numero <= 1
+            ? numero * 100
+            : numero;
+
+    return `${porcentaje.toFixed(0)}%`;
+}
+
+function formatearFecha(valor) {
+    if (!valor) return '—';
+
+    const fecha = String(valor).slice(0, 10);
+
+    const partes = fecha.split('-');
+
+    if (partes.length !== 3) {
+        return fecha;
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function establecerTexto(id, valor) {
+    const elemento =
+        document.getElementById(id);
+
+    if (elemento) {
+        elemento.textContent =
+            valor === null ||
+            valor === undefined ||
+            valor === ''
+                ? '—'
+                : valor;
+    }
+}
+
+function inicializarImportadorDatos() {
+    const input = document.getElementById(
+        'archivoDatos'
+    );
+
+    const boton = document.getElementById(
+        'btnImportarDatos'
+    );
+
+    const estado = document.getElementById(
+        'estadoImportacionDatos'
+    );
+
+    if (!input || !boton) return;
+
+    boton.addEventListener(
+        'click',
+        async () => {
+            const archivo = input.files[0];
+
+            if (!archivo) {
+                alert(
+                    'Selecciona tablaDatos.xlsx.'
+                );
+                return;
+            }
+
+            const formData = new FormData();
+
+            formData.append(
+                'archivo',
+                archivo
+            );
+
+            const token = localStorage.getItem(
+                'token'
+            );
+
+            boton.disabled = true;
+
+            if (estado) {
+                estado.textContent =
+                    'Importando...';
+            }
+
+            try {
+                const response = await fetch(
+                    `${BASE_URL}/api/datos/importar`,
+                    {
+                        method: 'POST',
+                        body: formData,
+                        cache: 'no-store',
+                        headers: token
+                            ? {
+                                Authorization:
+                                    `Bearer ${token}`
+                            }
+                            : {}
+                    }
+                );
+
+                const result =
+                    await response.json();
+
+                if (
+                    !response.ok ||
+                    result.ok === false
+                ) {
+                    throw new Error(
+                        result.message ||
+                        'No se pudo importar el archivo.'
+                    );
+                }
+
+                if (estado) {
+                    estado.textContent =
+                        `Actualizados: ${result.datos_actualizados || 0} | ` +
+                        `Nuevos: ${result.datos_insertados || 0} | ` +
+                        `Objetivos actualizados: ${
+                            result.objetivos_actualizados || 0
+                        } | ` +
+                        `Objetivos nuevos: ${
+                            result.objetivos_insertados || 0
+                        }`;                        
+                }
+
+                await loadDatosData();
+            } catch (error) {
+                console.error(
+                    'Error importando datos:',
+                    error
+                );
+
+                if (estado) {
+                    estado.textContent =
+                        error.message;
+                }
+            } finally {
+                boton.disabled = false;
+            }
+        }
+    );
+}
+
+const CAMPOS_NUMERICOS_DATOS = new Set([
+    'sph_mes_anterior',
+    'sph_obj',
+    'std_pallet',
+    'std_rack',
+    'racks_prog',
+    'loop_racks',
+    'racks_danados',
+    'racks_inv_danados_diario'
+]);
+
+function agregarCeldaDato(fila, valor, clase = '', campo = null) {
+    const td = document.createElement('td');
+
+    td.textContent = valor ?? '';
+
+    if (clase) td.className = clase;
+
+    if (campo) {
+        td.dataset.field = campo;
+        td.classList.add('editable-cell');
+        td.title = 'Doble clic para editar';
+    }
+
+    fila.appendChild(td);
+}
+
+function inicializarEdicionDatos() {
+    const tbody = document.getElementById('tbodyDatos');
+
+    if (!tbody) return;
+
+    tbody.addEventListener('dblclick', event => {
+        const celda = event.target.closest('.editable-cell');
+
+        if (celda) {
+            editarCeldaDatos(celda);
+        }
     });
 }
 
-// Configurar botones de acción
-function setupActionButtons() {
-    const section = document.getElementById('datos');
+function editarCeldaDatos(celda) {
+    if (celda.querySelector('input, select')) return;
 
-    if (!section) return;
+    const fila = celda.closest('tr');
+    const idDatos = fila?.dataset.idDatos;
+    const campo = celda.dataset.field;
+    const valorOriginal = celda.textContent.trim();
 
-    /*
-    if (!section.querySelector('.action-buttons')) {
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = 'action-buttons';
-        buttonsDiv.innerHTML = `
-            <button class="btn btn-primary" onclick="addDatosRow()">
-                <i class="bi bi-plus-circle"></i> Agregar Fila
-            </button>
-            <button class="btn btn-danger" onclick="deleteLastDatosRow()">
-                <i class="bi bi-trash"></i> Eliminar Última Fila
-            </button>
-            <button class="btn btn-success" onclick="saveDatosData()">
-                <i class="bi bi-save"></i> Guardar
-            </button>
-            <button class="btn btn-warning" onclick="exportDatosToExcel()">
-                <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
-            </button>
-            <button class="btn btn-info" onclick="printDatosTable()">
-                <i class="bi bi-printer"></i> Imprimir
-            </button>
+    if (!idDatos || !campo) return;
+
+    const editor = document.createElement(
+        campo === 'lh_rh_golpe' || campo === 'parte_golpe'
+            ? 'select'
+            : 'input'
+    );
+
+    if (editor.tagName === 'SELECT') {
+        editor.innerHTML = `
+            <option value="">Vacío</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
         `;
+        editor.value = valorOriginal;
+    } else {
+        editor.type = CAMPOS_NUMERICOS_DATOS.has(campo)
+            ? 'number'
+            : 'text';
 
-        const h1 = section.querySelector('h1');
-        h1.after(buttonsDiv);
-    }*/
-}
+        editor.value = valorOriginal;
+        editor.step = '1';
+    }
 
-// Funciones de botones
-function addDatosRow() {
-    const newRow = {
-        part: 'NUEVO PARTE',
-        numero: '00000000',
-        cspc: 'C0000',
-        modelo: 'NEW',
-        rack: 'MAC00000',
-        linea: 'XL1',
-        golpe: 0,
-        sphAnt: 0,
-        phbObj: 0,
-        stdPallet: 0,
-        stdRack: 0,
-        racksPrograma: 0,
-        loopRacks: 0,
-        capTotal: 0,
-        danados: 0,
-        invDiario: '',
-        cap: 0,
-        req: 0,
-        mezcla: '0%',
-        desocup: 0
+    editor.className = 'editor-dato-cell';
+
+    celda.textContent = '';
+    celda.appendChild(editor);
+    editor.focus();
+
+    const guardar = async () => {
+        let valor = editor.value.trim();
+
+        if (valor === '') {
+            valor = null;
+        } else if (CAMPOS_NUMERICOS_DATOS.has(campo)) {
+            valor = Number(valor);
+        }
+
+        try {
+            await actualizarDatoDesdeFrontend(
+                idDatos,
+                campo,
+                valor
+            );
+
+            await loadDatosData();
+        } catch (error) {
+            celda.textContent = valorOriginal;
+            alert(error.message);
+        }
     };
 
-    datosData.push(newRow);
-    renderDatosTable();
+    editor.addEventListener('blur', guardar);
+
+    editor.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            editor.blur();
+        }
+
+        if (event.key === 'Escape') {
+            celda.textContent = valorOriginal;
+        }
+    });
 }
 
-function deleteLastDatosRow() {
-    if (datosData.length > 0) {
-        if (confirm('¿Estás seguro de eliminar la última fila?')) {
-            datosData.pop();
-            renderDatosTable();
+async function actualizarDatoDesdeFrontend(
+    idDatos,
+    campo,
+    valor
+) {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(
+        `${BASE_URL}/api/datos/${idDatos}`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token
+                    ? {
+                        Authorization: `Bearer ${token}`
+                    }
+                    : {})
+            },
+            body: JSON.stringify({
+                [campo]: valor
+            })
         }
+    );
+
+    const resultado = await response.json();
+
+    if (!response.ok || resultado.ok === false) {
+        throw new Error(
+            resultado.message ||
+            'No se pudo guardar el dato.'
+        );
+    }
+
+    return resultado;
+}
+
+function inicializarCheckDatos() {
+    [
+        'btnCheckDatos',
+        'btnCheckDatosSuperior'
+    ].forEach(id => {
+        document
+            .getElementById(id)
+            ?.addEventListener(
+                'click',
+                ejecutarCheckDatos
+            );
+    });
+}
+
+async function ejecutarCheckDatos() {
+    const contenedor = document.getElementById(
+        'resultadoCheckDatos'
+    );
+
+    if (!contenedor) return;
+
+    contenedor.className =
+        'check-result check-loading';
+
+    contenedor.textContent =
+        'Validando datos...';
+
+    try {
+        const resultado = await apiFetch(
+            '/api/datos/check'
+        );
+
+        renderResultadoCheck(resultado);
+    } catch (error) {
+        contenedor.className =
+            'check-result check-error';
+
+        contenedor.textContent =
+            error.message;
     }
 }
 
-function saveDatosData() {
-    localStorage.setItem('datosData', JSON.stringify(datosData));
-    alert('Datos guardados correctamente');
-}
+function renderResultadoCheck(resultado) {
+    const contenedor = document.getElementById(
+        'resultadoCheckDatos'
+    );
 
-function exportDatosToExcel() {
-    const dataStr = 'data:text/csv;charset=utf-8' +
-        encodeURIComponent(convertDatosToCSV(datosData));
-    const downloadLink = document.createElement('a');
-    downloadLink.href = dataStr;
-    downloadLink.download = 'datos_produccion.csv';
-    downloadLink.click();
-}
+    if (!contenedor) return;
 
-function convertDatosToCSV(data) {
-    const headers = [
-        'PART', 'NUMERO', 'CSPC', 'MODELO', 'RACK', 'LINEA', 'GOLPE',
-        'SPH ANT', 'SPH OBJ', 'STD PALLET', 'STD RACK', 'RACKS PROGRAMA',
-        'LOOP RACKS', 'CAP TOTAL', 'DAÑADOS', 'INV DIARIO', 'CAP', 'REQ', 'MEZCLA', 'DESOCUP'
-    ];
+    const resumen = resultado.resumen || {};
+    const problemas = resultado.problemas || [];
 
-    let csv = headers.join(',') + '\n';
+    contenedor.className =
+        resultado.estado === 'OK'
+            ? 'check-result check-ok'
+            : 'check-result check-warning';
 
-    data.forEach(row => {
-        const values = [
-            row.part, row.numero, row.cspc, row.modelo, row.rack, row.linea,
-            row.golpe, row.sphAnt, row.sphObj, row.stdPallet, row.stdRack,
-            row.racksPrograma, row.loopRacks, row.capTotal, row.danados,
-            row.invDiario, row.cap, row.req, row.mezcla, row.desocup
-        ];
-        csv += values.join(',') + '\n';
-    });
+    const lista = problemas.length
+        ? problemas
+            .map(problema => `<li>${problema}</li>`)
+            .join('')
+        : '<li>No se encontraron problemas.</li>';
 
-    return csv;
-}
+    contenedor.innerHTML = `
+        <strong>
+            Resultado: ${resultado.estado}
+        </strong>
 
-function printDatosTable() {
-    window.print();
-}
+        <div class="check-summary">
+            Datos: ${resumen.totalDatos || 0}
+            · Partes sin datos:
+            ${resumen.partesSinDatos || 0}
+            · Sin CSPC:
+            ${resumen.registrosSinCspc || 0}
+            · Duplicados:
+            ${resumen.duplicados || 0}
+            · Incompletos:
+            ${resumen.camposIncompletos || 0}
+        </div>
 
-// Función de logout
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '../index.html';
-}
-
-document.getElementById('btnLogout').addEventListener('click', logout);
-
-/*function logout() {
-    //if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        localStorage.removeItem('token');
-        window.location.href = '../index.html';
-    //}
-}*/
-
-// Cargar datos guardados
-window.addEventListener('load', function() {
-    const savedData = this.localStorage.getItem('datosData');
-    if (savedData) {
-        const shouldLoad = confirm('Se ecnontraron datos guardados, ¿Deseas cargarlos?');
-        if (shouldLoad) {
-            datosData = JSON.parse(savedData);
-            renderDatosTable();
-        }
-    }
-});
-
-// Calcular totales
-function calculateTotals() {
-    let totalCapacidad = 0;
-    let totalReq = 0;
-
-    datosData.forEach(row => {
-        totalCapacidad += row.capTotal;
-        totalReq += row.req;
-    });
-
-    return {
-        totalCapacidad,
-        totalReq,
-        mezclaPromedio: ((totalReq / totalCapacidad) * 100).toFixed(0) + '%'
-    };
+        <ul>${lista}</ul>
+    `;
 }
